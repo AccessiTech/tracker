@@ -6,6 +6,7 @@ export {
   // Actions
   addLog,
   removeLog,
+  updateLog,
 } from './reducer';
 
 export {
