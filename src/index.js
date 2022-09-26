@@ -4,7 +4,8 @@ import store from './store/store';
 import { Provider } from 'react-redux';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 
-import { App } from './App';
+import { App } from './containers/App';
+import { New } from './containers/New';
 import reportWebVitals from './reportWebVitals';
 
 import './index.scss';
@@ -14,8 +15,9 @@ root.render(
   <Provider store={store}>
     <HashRouter>
       <Routes>
-        <Route path='/' element={<App />}>
-        </Route>
+        <Route path='*' element={<h1>404</h1>} />
+        <Route path='/' element={<App />} />
+        <Route path='/new' element={<New />} />
       </Routes>
     </HashRouter>
   </Provider>
