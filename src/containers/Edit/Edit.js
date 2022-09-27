@@ -31,6 +31,12 @@ function Edit() {
   const { id } = useParams();
   const log = useGetLog(id);
 
+  if (!log || id !== log.id || !log.fields) {
+    return navigate("/");
+  }
+
+  const fields = Object.values(log.fields);
+
   return (
     <Container>
       <Row>
