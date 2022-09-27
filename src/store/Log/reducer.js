@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-export const logSliceName = "log";
+export const logSliceName = "logs";
 
 // Define the initial state using that type
 export const initialState = {};

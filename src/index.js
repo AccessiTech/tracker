@@ -6,6 +6,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 
 import { App } from './containers/App';
 import { New } from './containers/New';
+import { Edit } from './containers/Edit';
 import reportWebVitals from './reportWebVitals';
 
 import './index.scss';
@@ -18,6 +19,7 @@ root.render(
         <Route path='*' element={<h1>404</h1>} />
         <Route path='/' element={<App />} />
         <Route path='/new' element={<New />} />
+        <Route path='/edit/:id' element={<Edit />} />
       </Routes>
     </HashRouter>
   </Provider>
