@@ -26,10 +26,6 @@ export const onDeleteLog = (e, log) => {
 
 export const onAddField = (e, log) => {
   e.preventDefault();
-  const formData = new FormData(e.target.form);
-  const name = formData.get("name");
-  const type = formData.get("type");
-  console.log(name, type);
   const field = {
     id: uuidv4(),
     name: e.target.form[0].value,
