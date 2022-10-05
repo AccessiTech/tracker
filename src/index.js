@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import store from './store/store';
+import { store, persistor } from './store/store';
 import { Provider } from 'react-redux';
 import { HashRouter, Routes, Route } from 'react-router-dom';
+import { PersistGate } from "reduxjs-toolkit-persist/integration/react";
 
 import { App } from './containers/App';
 import { New } from './containers/New';
@@ -14,6 +15,7 @@ import './index.scss';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
     <HashRouter>
       <Routes>
         <Route path='*' element={<h1>404</h1>} />
@@ -22,6 +24,7 @@ root.render(
         <Route path='/edit/:id' element={<Edit />} />
       </Routes>
     </HashRouter>
+    </PersistGate>
   </Provider>
 );
 
