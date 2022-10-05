@@ -123,9 +123,10 @@ function Edit() {
                     <option>Text</option>
                     <option>Tag</option>
                     <option>Number</option>
-                    <option>Date</option>
-                    <option>Time</option>
+                    <option>Range</option>
                     <option>Boolean</option>
+                    <option>Select One</option>
+                    <option>Select Many</option>
                   </Form.Control>
                   <Form.Text className="text-muted">
                     This is the type of the field.
