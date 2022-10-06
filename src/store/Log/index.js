@@ -7,6 +7,12 @@ export {
   addLog,
   removeLog,
   updateLog,
+  addLogEntry,
+  removeLogEntry,
+  updateLogEntry,
+  addLogField,
+  removeLogField,
+  updateLogField,
 } from './reducer';
 
 export {
