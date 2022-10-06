@@ -67,7 +67,6 @@ export const logSlice = createSlice({
     [UPDATE_LOG_FIELD_ACTION]: (state, action) => {
       const { logId, fieldId, field } = action.payload;
       state[logId].fields[fieldId] = {
-        ...state[logId].fields[fieldId],
         ...field,
         updatedAt: new Date().toISOString(),
       };
