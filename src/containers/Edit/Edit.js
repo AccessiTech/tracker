@@ -14,12 +14,10 @@ import {
   removeLogField,
   updateLogField,
   initialTextFieldState,
-  initialNumberFieldState,
-  initialTagsFieldState,
-  initialBooleanFieldState,
-  initialSelectFieldState,
   initialFieldStates,
+  getNewFieldState,
 } from "../../store/Log";
+import { isTextValid } from "./helpers";
 import "./Edit.scss";
 
 export const onUpdateLog = (e, log) => {
@@ -82,29 +80,6 @@ export const onDeleteField = (e, log, fieldId) => {
   store.dispatch(removeLogField({ logId: log.id, fieldId }));
 };
 
-export const getNewFieldState = (type) => {
-  let newFieldState = {};
-  switch (type) {
-    case "number":
-      newFieldState = { ...initialNumberFieldState };
-      break;
-    case "tags":
-      newFieldState = { ...initialTagsFieldState };
-      break;
-    case "boolean":
-      newFieldState = { ...initialBooleanFieldState };
-      break;
-    case "select":
-      newFieldState = { ...initialSelectFieldState };
-      break;
-    case "text":
-    default:
-      newFieldState = { ...initialTextFieldState };
-      break;
-  }
-  return newFieldState;
-};
-
 function Edit() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -120,7 +95,6 @@ function Edit() {
   const [newFieldState, setNewFieldState] = React.useState({
     ...initialTextFieldState,
   });
-  // const [validated, setValidated] = React.useState(false);
 
   const resetFieldState = () => {
     setNewFieldType("text");
@@ -130,7 +104,6 @@ function Edit() {
   const resetModal = () => {
     setShowModal(false);
     setModalMode("add");
-    // setValidated(false);
     resetFieldState();
   };
 
@@ -146,11 +119,23 @@ function Edit() {
               <Form.Group>
                 <Form.Label>Log Name</Form.Label>
                 <InputGroup>
-                  <Form.Control type="text" defaultValue={log.name} />
+                  <Form.Control
+                    type="text"
+                    defaultValue={log.name}
+                    onChange={isTextValid}
+                    required
+                  />
                   <Button
                     variant="primary"
                     type="submit"
-                    onClick={(e) => onUpdateLog(e, log)}
+                    onClick={(e) => {
+                      if (e.target.form.checkValidity() === false) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      onUpdateLog(e, log);
+                    }}
                   >
                     Save
                   </Button>
@@ -258,13 +243,7 @@ function Edit() {
                     placeholder="Enter field name"
                     defaultValue={newFieldState.name}
                     required
-                    onChange={(e) => {
-                      if (!e.target.value || !e.target.value.length) {
-                        e.target.classList.add("is-invalid");
-                      } else if (e.target.classList.contains("is-invalid")) {
-                        e.target.classList.remove("is-invalid");
-                      }
-                    }}
+                    onChange={isTextValid}
                   />
                   <Form.Text className="text-muted">
                     This is the name of the field.
@@ -327,7 +306,7 @@ function Edit() {
                 >
                   <Button
                     variant="secondary"
-                    type="submit"
+                    type="reset"
                     style={{ width: "50%" }}
                     onClick={(e) => {
                       e.preventDefault();
@@ -362,14 +341,6 @@ function Edit() {
             </Form.Group>
           </Form>
         </Modal.Body>
-        {/* <Modal.Footer>
-          <Button variant="secondary" onClick={() => {}}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={() => {}}>
-            Save Changes
-          </Button>
-        </Modal.Footer> */}
       </Modal>
     </>
   );
