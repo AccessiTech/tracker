@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Form, Button, InputGroup, Modal } from "react-bootstrap";
+import { Form, Button, InputGroup, Modal, Dropdown } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -174,29 +174,38 @@ function Edit() {
                 </thead>
                 <tbody>
                   {fields.map((field) => (
-                    <tr key={field.id}>
+                    <tr key={field.id} style={{ verticalAlign: "middle" }}>
                       <td>{field.name}</td>
                       <td>{field.type}</td>
                       <td>
-                        <Button
-                          variant="secondary"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setShowModal(true);
-                            setModalMode("edit");
-                            setNewFieldType(field.type);
-                            setNewFieldState({ ...field });
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        &nbsp;
-                        <Button
-                          variant="danger"
-                          onClick={(e) => onDeleteField(e, log, field.id)}
-                        >
-                          Delete
-                        </Button>
+                        <Dropdown>
+                          <Dropdown.Toggle
+                            variant="secondary"
+                            id="dropdown-basic"
+                            size="sm"
+                          >
+                            Actions
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu>
+                            <Dropdown.Item
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setShowModal(true);
+                                setModalMode("edit");
+                                setNewFieldType(field.type);
+                                setNewFieldState({ ...field });
+                              }}
+                            >
+                              Edit
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              className="text-danger"
+                              onClick={(e) => onDeleteField(e, log, field.id)}
+                            >
+                              Delete
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown>
                       </td>
                     </tr>
                   ))}
@@ -210,6 +219,7 @@ function Edit() {
               onClick={() => setShowModal(true)}
               data-toggle="modal"
               data-target="#addFieldModal"
+              style={{ marginBottom: "1rem" }}
             >
               Add a new field...
             </Button>
@@ -312,6 +322,7 @@ function Edit() {
                   style={{
                     display: "flex",
                     gap: "1.5rem",
+                    marginTop: "1rem",
                   }}
                 >
                   <Button
