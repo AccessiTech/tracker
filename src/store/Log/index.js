@@ -43,4 +43,5 @@ export {
 
   // Field States by Type
   initialFieldStates,
-} from './initialStates';
+  getNewFieldState,
+} from "./initialStates";

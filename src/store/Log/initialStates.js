@@ -242,3 +242,39 @@ export const initialFieldStates = {
   date: initialDateFieldState,
   time: initialTimeFieldState,
 };
+
+/**
+ * Get the initial state for a log field based on type
+ * @param {string} type - The type of the log field
+ * @returns {TextLogField|NumberLogField|RangeLogField|TagsLogField|BooleanLogField|SelectLogField|DateLogField|TimeLogField} The initial state for the log field
+ * @example var newTextFieldState = getInitialFieldState("text")
+ * @example var newNumberFieldState = getInitialFieldState("number")
+ */
+export const getNewFieldState = (type) => {
+  let newFieldState = {};
+  switch (type) {
+    case "number":
+      newFieldState = { ...initialNumberFieldState };
+      break;
+    case "tags":
+      newFieldState = { ...initialTagsFieldState };
+      break;
+    case "boolean":
+      newFieldState = { ...initialBooleanFieldState };
+      break;
+    case "select":
+      newFieldState = { ...initialSelectFieldState };
+      break;
+    case "date":
+      newFieldState = { ...initialDateFieldState };
+      break;
+    case "time":
+      newFieldState = { ...initialTimeFieldState };
+      break;
+    case "text":
+    default:
+      newFieldState = { ...initialTextFieldState };
+      break;
+  }
+  return newFieldState;
+};
