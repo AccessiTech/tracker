@@ -6,7 +6,16 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import store from "../../store/store";
-import { useGetLog, updateLog, removeLog } from "../../store/Log";
+import {
+  useGetLog,
+  updateLog,
+  removeLog,
+  initialTextFieldState,
+  initialNumberFieldState,
+  initialTagsFieldState,
+  initialBooleanFieldState,
+  initialSelectFieldState,
+} from "../../store/Log";
 import "./Edit.scss";
 import { addLogField, removeLogField } from "../../store/Log/reducer";
 
@@ -40,6 +49,29 @@ export const onDeleteField = (e, log, fieldId) => {
   store.dispatch(removeLogField({ logId: log.id, fieldId }));
 };
 
+export const getNewFieldState = (type) => {
+  let newFieldState = {};
+  switch (type) {
+    case "number":
+      newFieldState = { ...initialNumberFieldState };
+      break;
+    case "tags":
+      newFieldState = { ...initialTagsFieldState };
+      break;
+    case "boolean":
+      newFieldState = { ...initialBooleanFieldState };
+      break;
+    case "select":
+      newFieldState = { ...initialSelectFieldState };
+      break;
+    case "text":
+    default:
+      newFieldState = { ...initialTextFieldState };
+      break;
+  }
+  return newFieldState;
+};
+
 function Edit() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -48,6 +80,11 @@ function Edit() {
   if (!log || id !== log.id || !log.fields) {
     return navigate("/");
   }
+
+  const [newFieldType, setNewFieldType] = React.useState("text");
+  const [newFieldState, setNewFieldState] = React.useState({
+    ...initialTextFieldState,
+  });
 
   const fields = Object.values(log.fields);
 
@@ -112,26 +149,53 @@ function Edit() {
               <Row>
                 <Col>
                   <Form.Label>Field Name</Form.Label>
-                  <Form.Control type="text" placeholder="Enter field name" />
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter field name"
+                    required
+                  />
                   <Form.Text className="text-muted">
                     This is the name of the field.
                   </Form.Text>
                 </Col>
                 <Col>
                   <Form.Label>Add Field Type</Form.Label>
-                  <Form.Control as="select">
-                    <option>Text</option>
-                    <option>Tag</option>
-                    <option>Number</option>
-                    <option>Range</option>
-                    <option>Boolean</option>
-                    <option>Select One</option>
-                    <option>Select Many</option>
+                  <Form.Control
+                    as="select"
+                    onChange={(e) => {
+                      const newFieldState = getNewFieldState(e.target.value);
+                      setNewFieldType(e.target.value);
+                      setNewFieldState(newFieldState);
+                    }}
+                  >
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="select">Selection</option>
+                    <option value="tags">Tags</option>
+                    <option value="boolean">Boolean</option>
                   </Form.Control>
                   <Form.Text className="text-muted">
                     This is the type of the field.
                   </Form.Text>
                 </Col>
+                {newFieldState.typeOptions && (
+                  <Col>
+                    <Form.Label>Field Options</Form.Label>
+                    <Form.Control as="select">
+                      {newFieldState.typeOptions &&
+                        newFieldState.typeOptions.map((option, i) => {
+                          const key = `${newFieldType}-${i}`;
+                          const displayValue =
+                            newFieldState.typeOptionStrings[i];
+                          return (
+                            <option key={key} value={option}>
+                              {displayValue}
+                            </option>
+                          );
+                        })}
+                    </Form.Control>
+                  </Col>
+                )}
                 <Col md={2}>
                   <Button
                     variant="primary"
@@ -159,7 +223,7 @@ function Edit() {
             type="submit"
             onClick={(e) => (e.preventDefault(), navigate("/"))}
           >
-            Cancel
+            Back
           </Button>
         </Col>
       </Row>
