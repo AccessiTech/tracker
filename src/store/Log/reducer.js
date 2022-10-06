@@ -24,6 +24,7 @@ export const logSlice = createSlice({
     [ADD_LOG_ACTION]: (state, action) => {
       const { log } = action.payload;
       state[log.id] = log;
+      state[log.id].createdAt = new Date().toISOString();
     },
     [REMOVE_LOG_ACTION]: (state, action) => {
       const { logId } = action.payload;
@@ -31,11 +32,16 @@ export const logSlice = createSlice({
     },
     [UPDATE_LOG_ACTION]: (state, action) => {
       const { logId, log } = action.payload;
-      state[logId] = { ...state[logId], ...log };
+      state[logId] = { 
+        ...state[logId],
+        ...log,
+        updatedAt: new Date().toISOString(),
+      };
     },
     [ADD_LOG_ENTRY_ACTION]: (state, action) => {
       const { logId, entry } = action.payload;
       state[logId].entries[entry.id] = entry;
+      state[logId].entries[entry.id].createdAt = new Date().toISOString();
     },
     [REMOVE_LOG_ENTRY_ACTION]: (state, action) => {
       const { logId, entryId } = action.payload;
@@ -43,11 +49,16 @@ export const logSlice = createSlice({
     },
     [UPDATE_LOG_ENTRY_ACTION]: (state, action) => {
       const { logId, entryId, entry } = action.payload;
-      state[logId].entries[entryId] = { ...state[logId].entries[entryId], ...entry };
+      state[logId].entries[entryId] = {
+        ...state[logId].entries[entryId],
+        ...entry,
+        updatedAt: new Date().toISOString(),
+      };
     },
     [ADD_LOG_FIELD_ACTION]: (state, action) => {
       const { logId, field } = action.payload;
       state[logId].fields[field.id] = field;
+      state[logId].fields[field.id].createdAt = new Date().toISOString();
     },
     [REMOVE_LOG_FIELD_ACTION]: (state, action) => {
       const { logId, fieldId } = action.payload;
@@ -55,7 +66,11 @@ export const logSlice = createSlice({
     },
     [UPDATE_LOG_FIELD_ACTION]: (state, action) => {
       const { logId, fieldId, field } = action.payload;
-      state[logId].fields[fieldId] = { ...state[logId].fields[fieldId], ...field };
+      state[logId].fields[fieldId] = {
+        ...state[logId].fields[fieldId],
+        ...field,
+        updatedAt: new Date().toISOString(),
+      };
     },
   },
 });
