@@ -42,7 +42,7 @@ export const onAddField = (e, log) => {
   const type = e.target.form[1].value;
   const option = e.target.form[2].value;
   const field = {
-    ...(initialFieldStates[type]),
+    ...initialFieldStates[type],
     id: uuidv4(),
     name,
     type,
@@ -207,7 +207,7 @@ function Edit() {
             )}
             <Button
               variant="primary"
-              onClick={() => (setShowModal(true))}
+              onClick={() => setShowModal(true)}
               data-toggle="modal"
               data-target="#addFieldModal"
             >
