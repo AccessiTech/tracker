@@ -62,6 +62,7 @@ export const initialFieldState = {
  * @property {string} value - The value of the log field
  * @property {"text"|"textarea"} option - The selected option of the log field
  * @property {["text"|"textarea"]} typeOptions - The options of the log field
+ * @property {[string,string]} typeOptionStrings - The human readable options of the log field
  * @property {string} default - The default value of the log field
  */
 export const initialTextFieldState = {
@@ -70,6 +71,7 @@ export const initialTextFieldState = {
   type: "text",
   option: "text",
   typeOptions: ["text", "textarea"],
+  typeOptionStrings: ["Single Line", "Multi Line"],
   value: "",
   default: "",
 };
@@ -86,6 +88,7 @@ export const initialTextFieldState = {
  * @property {number} default - The default value of the log field
  * @property {number} step - The step value of the log field
  * @property {["number", "range"]} typeOptions - The option of the log field
+ * @property {[string,string]} typeOptionStrings - The human readable options of the log field
  * @property {"number"|"range"} option - The selected option of the log field
  * @property {string} unit - The unit of the log field
  */
@@ -95,6 +98,7 @@ export const initialNumberFieldState = {
   type: "number",
   option: "number",
   typeOptions: ["number", "range"],
+  typeOptionStrings: ["Number Input", "Range Slider"],
   value: 0,
   default: 0,
   min: 0,
@@ -108,7 +112,6 @@ export const initialNumberFieldState = {
  * @typedef {Object} RangeLogField
  * @property {string} id - The id of the log field
  * @property {string} name - The name of the log field
- * @property {"range"} type - The type of the log field
  * @property {[number, number]} value - The value of the log field
  * @property {number} min - The minimum value of the log field
  * @property {number} max - The maximum value of the log field
@@ -118,7 +121,6 @@ export const initialNumberFieldState = {
 export const initialRangeFieldState = {
   ...initialNumberFieldState,
   name: "New Range Field",
-  type: "range",
   option: "range",
   value: [0, 100],
   default: [0, 100],
@@ -169,6 +171,7 @@ export const initialBooleanFieldState = {
  * @property {string[]} options - The options of the select log field
  * @property {"one"|"many"} option - The selected option of the log field
  * @property {["one"|"many"]} typeOptions - The options of the log field
+ * @property {[string,string]} typeOptionStrings - The human readable options of the log field
  */
 
 export const initialSelectFieldState = {
@@ -177,6 +180,7 @@ export const initialSelectFieldState = {
   type: "select",
   option: "one",
   typeOptions: ["one", "many"],
+  typeOptionStrings: ["Select One", "Select Many"],
   value: [],
   default: [],
   options: [],

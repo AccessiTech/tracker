@@ -29,7 +29,6 @@ export {
   initialFieldState,
   initialTextFieldState,
   initialNumberFieldState,
-  initialRadioFieldState,
   initialBooleanFieldState,
   initialTagsFieldState,
   initialSelectFieldState,
