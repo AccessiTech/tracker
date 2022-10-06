@@ -231,3 +231,14 @@ export const initialLogEntryState = {
   values: {},
   ...initialCRUDState,
 };
+
+export const initialFieldStates = {
+  text: initialTextFieldState,
+  number: initialNumberFieldState,
+  range: initialRangeFieldState,
+  tags: initialTagsFieldState,
+  boolean: initialBooleanFieldState,
+  select: initialSelectFieldState,
+  date: initialDateFieldState,
+  time: initialTimeFieldState,
+};
