@@ -308,10 +308,27 @@ function Edit() {
                 )}
               </Row>
               <Row>
-                <Col>
+                <Col
+                  style={{
+                    display: "flex",
+                    gap: "1.5rem",
+                  }}
+                >
+                  <Button
+                    variant="secondary"
+                    type="submit"
+                    style={{ width: "50%" }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      resetModal();
+                    }}
+                  >
+                    Cancel
+                  </Button>
                   <Button
                     variant="primary"
                     type="submit"
+                    style={{ width: "50%" }}
                     onClick={(e) => {
                       if (e.target.form.checkValidity() === false) {
                         e.preventDefault();
@@ -326,7 +343,6 @@ function Edit() {
                       }
                       resetModal();
                     }}
-                    style={{ marginTop: "2rem", width: "100%" }}
                   >
                     {`${modalMode === "add" ? "Create" : "Update"} Field`}
                   </Button>
