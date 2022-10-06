@@ -35,13 +35,43 @@ export const onDeleteLog = (e, log) => {
 
 export const onAddField = (e, log) => {
   e.preventDefault();
+  const name = e.target.form[0].value;
+  const type = e.target.form[1].value;
+  const option = e.target.form[2].value;
   const field = {
+    ...(initialFieldStates[type]),
     id: uuidv4(),
-    name: e.target.form[0].value,
-    type: e.target.form[1].value,
+    name,
+    type,
   };
 
+  if (field.option && option) {
+    field.option = option;
+  }
+
   store.dispatch(addLogField({ logId: log.id, field }));
+};
+
+export const onUpdateField = (e, log, field) => {
+  e.preventDefault();
+  const name = e.target.form[0].value;
+  const type = e.target.form[1].value;
+  const option = e.target.form[2].value;
+
+  const updatedField = {
+    ...(field.type === type ? field : initialFieldStates[type]),
+    id: field.id,
+    name,
+    type,
+  };
+
+  if (field.option) {
+    updatedField.option = option;
+  }
+
+  store.dispatch(
+    updateLogField({ logId: log.id, fieldId: field.id, field: updatedField })
+  );
 };
 
 export const onDeleteField = (e, log, fieldId) => {
