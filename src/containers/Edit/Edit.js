@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Form, Button, InputGroup, Modal, Dropdown } from "react-bootstrap";
+import { Form, Button, Modal, Dropdown } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -19,12 +19,12 @@ import {
 } from "../../store/Log";
 import { isTextValid } from "./helpers";
 import "./Edit.scss";
+import { LogNameForm } from "../../components/LogNameForm";
 
 export const onUpdateLog = (e, log) => {
-  e.preventDefault();
   const updatedLog = {
     ...log,
-    name: e.target.form[0].value,
+    ...e,
   };
   store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
 };
@@ -115,36 +115,10 @@ function Edit() {
         <Row>
           <Col>
             <h1>Edit Log</h1>
-            <Form>
-              <Form.Group>
-                <Form.Label>Log Name</Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type="text"
-                    defaultValue={log.name}
-                    onChange={isTextValid}
-                    required
-                  />
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    onClick={(e) => {
-                      if (e.target.form.checkValidity() === false) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                      }
-                      onUpdateLog(e, log);
-                    }}
-                  >
-                    Save
-                  </Button>
-                </InputGroup>
-                <Form.Text className="text-muted">
-                  This is the name of the log.
-                </Form.Text>
-              </Form.Group>
-            </Form>
+            <LogNameForm
+              onSubmit={(e) => onUpdateLog(e, log)}
+              logName={log.name}
+            />
             <h2>Fields</h2>
             {fields && fields.length ? (
               <table className="table table-striped">
