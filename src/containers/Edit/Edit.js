@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Form, Button, Modal } from "react-bootstrap";
-import { v4 as uuidv4 } from "uuid";
+import { Button, Modal } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -10,17 +9,12 @@ import {
   useGetLog,
   updateLog,
   removeLog,
-  addLogField,
   removeLogField,
-  updateLogField,
-  initialTextFieldState,
-  initialFieldStates,
-  getNewFieldState,
 } from "../../store/Log";
-import { isTextValid } from "./helpers";
 import "./Edit.scss";
 import { LogNameForm } from "../../components/LogNameForm";
 import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTable";
+import { EditFieldForm } from "../../components/EditFieldForm";
 
 export const onUpdateLog = (e, log) => {
   const updatedLog = {
@@ -33,47 +27,6 @@ export const onUpdateLog = (e, log) => {
 export const onDeleteLog = (e, log) => {
   e.preventDefault();
   store.dispatch(removeLog({ logId: log.id }));
-};
-
-export const onAddField = (e, log) => {
-  e.preventDefault();
-  const name = e.target.form[0].value;
-  const type = e.target.form[1].value;
-  const option = e.target.form[2].value;
-  const field = {
-    ...initialFieldStates[type],
-    id: uuidv4(),
-    name,
-    type,
-  };
-
-  if (field.option && option) {
-    field.option = option;
-  }
-
-  store.dispatch(addLogField({ logId: log.id, field }));
-};
-
-export const onUpdateField = (e, log, field) => {
-  e.preventDefault();
-  const name = e.target.form[0].value;
-  const type = e.target.form[1].value;
-  const option = e.target.form[2].value;
-
-  const updatedField = {
-    ...(field.type === type ? field : initialFieldStates[type]),
-    id: field.id,
-    name,
-    type,
-  };
-
-  if (field.option) {
-    updatedField.option = option;
-  }
-
-  store.dispatch(
-    updateLogField({ logId: log.id, fieldId: field.id, field: updatedField })
-  );
 };
 
 export const onDeleteField = (e, log, fieldId) => {
@@ -92,20 +45,12 @@ function Edit() {
 
   const [showModal, setShowModal] = React.useState(false);
   const [modalMode, setModalMode] = React.useState("add"); // "add" or "edit"
-  const [newFieldType, setNewFieldType] = React.useState("text");
-  const [newFieldState, setNewFieldState] = React.useState({
-    ...initialTextFieldState,
-  });
-
-  const resetFieldState = () => {
-    setNewFieldType("text");
-    setNewFieldState({ ...initialTextFieldState });
-  };
+  const [fieldId, setFieldId] = React.useState("");
 
   const resetModal = () => {
     setShowModal(false);
     setModalMode("add");
-    resetFieldState();
+    setFieldId("");
   };
 
   const fields = Object.values(log.fields);
@@ -128,8 +73,7 @@ function Edit() {
                 onEditClick={(e, field) => {
                   setShowModal(true);
                   setModalMode("edit");
-                  setNewFieldType(field.type);
-                  setNewFieldState({ ...field });
+                  setFieldId(field.id);
                 }}
               />
             ) : (
@@ -169,113 +113,12 @@ function Edit() {
           <Modal.Title>Field Settings</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
-            <Form.Group>
-              <Row>
-                <Col>
-                  <Form.Label>Field Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter field name"
-                    defaultValue={newFieldState.name}
-                    required
-                    onChange={isTextValid}
-                  />
-                  <Form.Text className="text-muted">
-                    This is the name of the field.
-                  </Form.Text>
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <Form.Label>Field Type</Form.Label>
-                  <Form.Control
-                    as="select"
-                    onChange={(e) => {
-                      const fieldState = {
-                        ...getNewFieldState(e.target.value),
-                        id: newFieldState.id,
-                        name: newFieldState.name,
-                        createdAt: newFieldState.createdAt,
-                      };
-                      setNewFieldType(e.target.value);
-                      setNewFieldState(fieldState);
-                    }}
-                    defaultValue={newFieldType}
-                  >
-                    <option value="text">Text</option>
-                    <option value="number">Number</option>
-                    <option value="select">Selection</option>
-                    <option value="tags">Tags</option>
-                    <option value="boolean">Boolean</option>
-                  </Form.Control>
-                  <Form.Text className="text-muted">
-                    This is the type of the field.
-                  </Form.Text>
-                </Col>
-                {newFieldState.typeOptions && (
-                  <Col>
-                    <Form.Label>Field Options</Form.Label>
-                    <Form.Control as="select">
-                      {newFieldState.typeOptions &&
-                        newFieldState.typeOptions.map((option, i) => {
-                          const key = `${newFieldType}-${i}`;
-                          const displayValue =
-                            newFieldState.typeOptionStrings[i];
-                          return (
-                            <option key={key} value={option}>
-                              {displayValue}
-                            </option>
-                          );
-                        })}
-                    </Form.Control>
-                  </Col>
-                )}
-              </Row>
-              <Row>
-                <Col
-                  style={{
-                    display: "flex",
-                    gap: "1.5rem",
-                    marginTop: "1rem",
-                  }}
-                >
-                  <Button
-                    variant="secondary"
-                    type="reset"
-                    style={{ width: "50%" }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      resetModal();
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    style={{ width: "50%" }}
-                    onClick={(e) => {
-                      if (e.target.form.checkValidity() === false) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                      }
-
-                      if (modalMode === "add") {
-                        onAddField(e, log);
-                      } else {
-                        onUpdateField(e, log, newFieldState);
-                      }
-                      resetModal();
-                    }}
-                  >
-                    {`${modalMode === "add" ? "Create" : "Update"} Field`}
-                  </Button>
-                </Col>
-              </Row>
-            </Form.Group>
-          </Form>
+          <EditFieldForm
+            fieldId={fieldId}
+            log={log}
+            modalMode={modalMode}
+            resetModal={resetModal}
+          />
         </Modal.Body>
       </Modal>
     </>
