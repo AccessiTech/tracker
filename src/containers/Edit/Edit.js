@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Form, Button, Modal, Dropdown } from "react-bootstrap";
+import { Form, Button, Modal } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -20,6 +20,7 @@ import {
 import { isTextValid } from "./helpers";
 import "./Edit.scss";
 import { LogNameForm } from "../../components/LogNameForm";
+import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTable";
 
 export const onUpdateLog = (e, log) => {
   const updatedLog = {
@@ -121,55 +122,16 @@ function Edit() {
             />
             <h2>Fields</h2>
             {fields && fields.length ? (
-              <table className="table table-striped">
-                <thead>
-                  <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Type</th>
-                    <th scope="col" style={{ width: "20%" }}>
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {fields.map((field) => (
-                    <tr key={field.id} style={{ verticalAlign: "middle" }}>
-                      <td>{field.name}</td>
-                      <td>{field.type}</td>
-                      <td>
-                        <Dropdown>
-                          <Dropdown.Toggle
-                            variant="secondary"
-                            id="dropdown-basic"
-                            size="sm"
-                          >
-                            Actions
-                          </Dropdown.Toggle>
-                          <Dropdown.Menu>
-                            <Dropdown.Item
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setShowModal(true);
-                                setModalMode("edit");
-                                setNewFieldType(field.type);
-                                setNewFieldState({ ...field });
-                              }}
-                            >
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              className="text-danger"
-                              onClick={(e) => onDeleteField(e, log, field.id)}
-                            >
-                              Delete
-                            </Dropdown.Item>
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <EditFieldsTable
+                fields={fields}
+                onDeleteClick={(e, fieldId) => onDeleteField(e, log, fieldId)}
+                onEditClick={(e, field) => {
+                  setShowModal(true);
+                  setModalMode("edit");
+                  setNewFieldType(field.type);
+                  setNewFieldState({ ...field });
+                }}
+              />
             ) : (
               <p>No fields yet.</p>
             )}
