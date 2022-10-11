@@ -11,6 +11,7 @@ import {
   initialTextFieldState,
 } from "../../store/Log";
 import { Form, Button, Row, Col } from "react-bootstrap";
+import './editFieldForm.scss';
 
 export const onHandleField = (values, log, field) => {
   const { id, name, type, required, option } = values;
@@ -69,7 +70,7 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
         handleBlur,
         handleSubmit,
       }) => (
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} className="form__field_edit">
           {/* Name, Type, and Option inputs */}
           <Form.Group>
             <Row>
@@ -143,8 +144,9 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
               <Col>
                 <Form.Label>Required</Form.Label>
                 <Form.Check
-                  type="checkbox"
+                  type="switch"
                   name="required"
+                  className="form__field_edit__required"
                   onChange={handleChange}
                   onBlur={handleBlur}
                   defaultChecked={values.required}
@@ -163,21 +165,14 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
           </Form.Group>
 
           {/* todo - include type-specific form inputs */}
-
+          <hr />
           {/* Cancel and Submit Buttons */}
           <Form.Group>
-            <Row>
-              <Col
-                style={{
-                  display: "flex",
-                  gap: "1.5rem",
-                  marginTop: "1rem",
-                }}
-              >
+            <Row className="form__field_edit__submit_row">
+              <Col>
                 <Button
                   variant="secondary"
                   type="reset"
-                  style={{ width: "50%" }}
                   onClick={(e) => {
                     e.preventDefault();
                     resetModal();
@@ -185,10 +180,11 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
                 >
                   Cancel
                 </Button>
+              </Col>
+              <Col>
                 <Button
                   variant="primary"
                   type="submit"
-                  style={{ width: "50%" }}
                 >
                   {`${modalMode === "add" ? "Create" : "Update"} Field`}
                 </Button>
