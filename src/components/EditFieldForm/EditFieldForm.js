@@ -8,44 +8,33 @@ import {
   addLogField,
   updateLogField,
   initialFieldStates,
-  // getNewFieldState,
   initialTextFieldState,
 } from "../../store/Log";
 import { Form, Button, Row, Col } from "react-bootstrap";
 
-export const onAddField = (values, log) => {
-  const { name, type, option } = values;
-  const field = {
-    ...initialFieldStates[type],
-    id: uuidv4(),
-    name,
-    type,
-  };
-
-  if (field.option && option) {
-    field.option = option;
-  }
-
-  store.dispatch(addLogField({ logId: log.id, field }));
-};
-
-export const onUpdateField = (values, log, field) => {
-  const { name, type, option } = values;
-
-  const updatedField = {
-    ...(field.type === type ? field : initialFieldStates[type]),
-    id: field.id,
+export const onHandleField = (values, log, field) => {
+  const { id, name, type, required, option } = values;
+  console.log("onHandleField: ", required);
+  const newField = {
+    ...(field.type === type
+      ? field
+      : {...field, ...initialFieldStates[type] }),
+    id: id || uuidv4(),
     name,
     type,
   };
 
   if (field.option) {
-    updatedField.option = option;
+    newField.option = option;
   }
 
-  store.dispatch(
-    updateLogField({ logId: log.id, fieldId: field.id, field: updatedField })
-  );
+  if (id) {
+    store.dispatch(
+      updateLogField({ logId: log.id, fieldId: id, field: newField })
+    );
+  } else {
+    store.dispatch(addLogField({ logId: log.id, field: newField }));
+  }
 };
 
 export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
@@ -67,11 +56,7 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
         }),
       })}
       onSubmit={(values) => {
-        if (modalMode === "add") {
-          onAddField(values, log);
-        } else {
-          onUpdateField(values, log, fieldState);
-        }
+        onHandleField(values, log, fieldState);
         resetModal();
       }}
     >
