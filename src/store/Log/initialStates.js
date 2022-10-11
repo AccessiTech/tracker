@@ -44,12 +44,14 @@ export const initialLogState = {
  * @property {string} id - The id of the log field
  * @property {string} name - The name of the log field
  * @property {string} type - The type of the log field
+ * @property {boolean} required - Whether the log field is required
  */
 export const initialFieldState = {
   id: "",
   name: "",
   type: "",
   user: "",
+  required: false,
   ...initialCRUDState,
 };
 
