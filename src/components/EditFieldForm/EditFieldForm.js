@@ -18,10 +18,11 @@ export const onHandleField = (values, log, field) => {
   const newField = {
     ...(field.type === type
       ? field
-      : {...field, ...initialFieldStates[type] }),
+      : { ...field, ...initialFieldStates[type] }),
     id: id || uuidv4(),
     name,
     type,
+    required,
   };
 
   if (field.option) {
@@ -139,11 +140,29 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
                     </Form.Control>
                   </Col>
                 )}
+              <Col>
+                <Form.Label>Required</Form.Label>
+                <Form.Check
+                  type="checkbox"
+                  name="required"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  defaultChecked={values.required}
+                />
+                {(touched.required && errors.required && (
+                  <Form.Text className="text-danger">
+                    {errors.required}
+                  </Form.Text>
+                )) || (
+                  <Form.Text className="text-muted">
+                    Is this field required?
+                  </Form.Text>
+                )}
+              </Col>
             </Row>
           </Form.Group>
 
           {/* todo - include type-specific form inputs */}
-
 
           {/* Cancel and Submit Buttons */}
           <Form.Group>
