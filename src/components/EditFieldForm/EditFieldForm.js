@@ -11,19 +11,25 @@ import {
   initialTextFieldState,
 } from "../../store/Log";
 import { Form, Button, Row, Col } from "react-bootstrap";
-import './editFieldForm.scss';
+import { EditFieldText } from "./EditFieldText";
+import "./editFieldForm.scss";
 
 export const onHandleField = (values, log, field) => {
-  const { id, name, type, required, option } = values;
-  console.log("onHandleField: ", required);
-  const newField = {
+  const { id, name, type, required, option, defaultValue } = values;
+
+  const prevField = {
     ...(field.type === type
       ? field
       : { ...field, ...initialFieldStates[type] }),
+  };
+
+  const newField = {
+    ...prevField,
     id: id || uuidv4(),
     name,
     type,
     required,
+    defaultValue,
   };
 
   if (field.option) {
@@ -69,6 +75,7 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
         handleChange,
         handleBlur,
         handleSubmit,
+        setFieldValue,
       }) => (
         <Form onSubmit={handleSubmit} className="form__field_edit">
           {/* Name, Type, and Option inputs */}
@@ -164,7 +171,17 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
             </Row>
           </Form.Group>
 
-          {/* todo - include type-specific form inputs */}
+          {values.type === "text" && (
+            <EditFieldText
+              values={values}
+              errors={errors}
+              touched={touched}
+              handleChange={handleChange}
+              handleBlur={handleBlur}
+              setFieldValue={setFieldValue}
+            />
+          )}
+
           <hr />
           {/* Cancel and Submit Buttons */}
           <Form.Group>
@@ -182,10 +199,7 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
                 </Button>
               </Col>
               <Col>
-                <Button
-                  variant="primary"
-                  type="submit"
-                >
+                <Button variant="primary" type="submit">
                   {`${modalMode === "add" ? "Create" : "Update"} Field`}
                 </Button>
               </Col>
