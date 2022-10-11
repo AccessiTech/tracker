@@ -78,28 +78,27 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
         setFieldValue,
       }) => (
         <Form onSubmit={handleSubmit} className="form__field_edit">
-          {/* Name, Type, and Option inputs */}
+          
+          {/* Name, Type, and Required inputs */}
           <Form.Group>
-            <Row>
-              <Col>
-                <Form.Label>Field Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="name"
-                  placeholder="Enter field name"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.name}
-                />
-                {(touched.name && errors.name && (
-                  <Form.Text className="text-danger">{errors.name}</Form.Text>
-                )) || (
-                  <Form.Text className="text-muted">
-                    This is the name of the field
-                  </Form.Text>
-                )}
-              </Col>
-            </Row>
+            <Form.Label>Field Name</Form.Label>
+            <Form.Control
+              type="text"
+              name="name"
+              placeholder="Enter field name"
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.name}
+            />
+            {(touched.name && errors.name && (
+              <Form.Text className="text-danger">{errors.name}</Form.Text>
+            )) || (
+              <Form.Text className="text-muted">
+                This is the name of the field
+              </Form.Text>
+            )}
+          </Form.Group>
+          <Form.Group>
             <Row>
               <Col>
                 <Form.Label>Field Type</Form.Label>
@@ -124,30 +123,6 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
                   </Form.Text>
                 )}
               </Col>
-              {initialFieldStates[values.type].typeOptions &&
-                values.typeOptions && (
-                  <Col>
-                    <Form.Label>Field Options</Form.Label>
-                    <Form.Control
-                      as="select"
-                      name="option"
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      value={values.option}
-                    >
-                      {values.typeOptions.map((option, i) => {
-                        const key = `${values.type}-${i}`;
-                        const displayValue =
-                          initialFieldStates[values.type].typeOptionStrings[i];
-                        return (
-                          <option key={key} value={option}>
-                            {displayValue}
-                          </option>
-                        );
-                      })}
-                    </Form.Control>
-                  </Col>
-                )}
               <Col>
                 <Form.Label>Required</Form.Label>
                 <Form.Check
