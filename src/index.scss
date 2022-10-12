@@ -1,1 +1,9 @@
 @import "~bootstrap/scss/bootstrap.scss";
+
+a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
