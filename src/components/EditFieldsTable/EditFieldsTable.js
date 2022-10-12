@@ -1,15 +1,17 @@
 import React from "react";
 import { PropTypes } from "prop-types";
 import { Dropdown } from "react-bootstrap";
+import { initialFieldStates } from "../../store/Log";
 
 export const EditFieldsTable = ({ fields, onEditClick, onDeleteClick }) => {
-
   return (
     <table className="table table-striped">
       <thead>
         <tr>
           <th scope="col">Name</th>
           <th scope="col">Type</th>
+          <th scope="col">Type Option</th>
+          <th scope="col">Required</th>
           <th scope="col" style={{ width: "20%" }}>
             Actions
           </th>
@@ -20,6 +22,10 @@ export const EditFieldsTable = ({ fields, onEditClick, onDeleteClick }) => {
           <tr key={field.id} style={{ verticalAlign: "middle" }}>
             <td>{field.name}</td>
             <td>{field.type}</td>
+            <td>
+              {initialFieldStates[field.type].typeOptions ? field.option : ""}
+            </td>
+            <td>{field.required ? "Yes" : "No"}</td>
             <td>
               <Dropdown>
                 <Dropdown.Toggle
