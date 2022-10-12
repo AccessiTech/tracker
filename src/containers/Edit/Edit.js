@@ -36,19 +36,38 @@ export const onDeleteField = (e, log, fieldId) => {
 
 function Edit() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id, field: fid } = useParams();
   const log = useGetLog(id);
 
   if (!log || id !== log.id || !log.fields) {
     return navigate("/");
   }
 
-  const [showModal, setShowModal] = React.useState(false);
-  const [modalMode, setModalMode] = React.useState("add"); // "add" or "edit"
-  const [fieldId, setFieldId] = React.useState("");
+  const [showModal, setShowModal] = React.useState(fid ? true : false);
+  const [modalMode, setModalMode] = React.useState(
+    fid && fid !== "new" ? "edit" : "add"
+  ); // "add" or "edit"
+  const [fieldId, setFieldId] = React.useState(fid && fid !== "new" ? fid : "");
 
   const resetModal = () => {
     setShowModal(false);
+    navigate(`/edit/${id}`);
+    setModalMode("add");
+    setFieldId("");
+  };
+
+  const onEditField = (e, field) => {
+    e.preventDefault();
+    navigate(`/edit/${log.id}/field/${field.id}`);
+    setShowModal(true);
+    setModalMode("edit");
+    setFieldId(field.id);
+  };
+
+  const onAddField = (e) => {
+    e.preventDefault();
+    navigate(`/edit/${log.id}/field/new`);
+    setShowModal(true);
     setModalMode("add");
     setFieldId("");
   };
@@ -76,18 +95,14 @@ function Edit() {
               <EditFieldsTable
                 fields={fields}
                 onDeleteClick={(e, fieldId) => onDeleteField(e, log, fieldId)}
-                onEditClick={(e, field) => {
-                  setShowModal(true);
-                  setModalMode("edit");
-                  setFieldId(field.id);
-                }}
+                onEditClick={onEditField}
               />
             ) : (
               <p>No fields yet.</p>
             )}
             <Button
               variant="primary"
-              onClick={() => setShowModal(true)}
+              onClick={onAddField}
               data-toggle="modal"
               data-target="#addFieldModal"
               style={{ marginBottom: "1rem" }}

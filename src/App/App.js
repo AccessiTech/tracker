@@ -12,7 +12,10 @@ function App() {
         <Route path="*" element={<h1>404</h1>} />
         <Route path="/" element={<Home />} />
         <Route path="/new" element={<New />} />
-        <Route path="/edit/:id" element={<Edit />} />
+        <Route path="/edit/:id" element={<Edit />}>
+          <Route path="field/:field" element={<Edit />} />
+        </Route>
+        <Route path="/log/:id/entry" element={<h1>Log Entry</h1>} />
       </Routes>
     </HashRouter>
   );
