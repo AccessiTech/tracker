@@ -1,0 +1,30 @@
+.form__field_edit {
+  .form-label {
+    margin-top: 0.5rem;
+  }
+
+  & > div:first-child .form-label {
+    margin-top: 0;
+  }
+
+  .form__field_edit__required .form-check-input {
+    width: 4rem;
+    height: 2.25rem;
+    margin-top: 0;
+  }
+
+  hr {
+    border-bottom: var(--bs-modal-header-border-width) solid
+      var(--bs-modal-header-border-color);
+    color: transparent;
+    opacity: 1;
+    width: calc(100% + 2rem);
+    margin-left: -1rem;
+  }
+
+  .form__field_edit__submit_row {
+    .btn {
+      width: 100%;
+    }
+  }
+}

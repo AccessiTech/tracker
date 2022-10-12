@@ -44,12 +44,16 @@ export const initialLogState = {
  * @property {string} id - The id of the log field
  * @property {string} name - The name of the log field
  * @property {string} type - The type of the log field
+ * @property {boolean} required - Whether the log field is required
+ * @property {undefined|string|number|boolean|[number,number]|string[]} defaultValue - The default value of the log field
  */
 export const initialFieldState = {
   id: "",
   name: "",
   type: "",
   user: "",
+  required: false,
+  defaultValue: undefined,
   ...initialCRUDState,
 };
 
@@ -59,11 +63,11 @@ export const initialFieldState = {
  * @property {string} id - The id of the log field
  * @property {string} name - The name of the log field
  * @property {"text"} type - The type of the log field
- * @property {string} value - The value of the log field
  * @property {"text"|"textarea"} option - The selected option of the log field
  * @property {["text"|"textarea"]} typeOptions - The options of the log field
  * @property {[string,string]} typeOptionStrings - The human readable options of the log field
- * @property {string} default - The default value of the log field
+ * @property {number} min - The minimum character length of the text field
+ * @property {number} max - The maximum character length of the text field
  */
 export const initialTextFieldState = {
   ...initialFieldState,
@@ -72,8 +76,8 @@ export const initialTextFieldState = {
   option: "text",
   typeOptions: ["text", "textarea"],
   typeOptionStrings: ["Single Line", "Multi Line"],
-  value: "",
-  default: "",
+  min: 0,
+  max: 0,
 };
 
 /**
@@ -82,10 +86,8 @@ export const initialTextFieldState = {
  * @property {string} id - The id of the log field
  * @property {string} name - The name of the log field
  * @property {"number"} type - The type of the log field
- * @property {number} value - The value of the log field
  * @property {number} min - The minimum value of the log field
  * @property {number} max - The maximum value of the log field
- * @property {number} default - The default value of the log field
  * @property {number} step - The step value of the log field
  * @property {["number", "range"]} typeOptions - The option of the log field
  * @property {[string,string]} typeOptionStrings - The human readable options of the log field
@@ -99,8 +101,7 @@ export const initialNumberFieldState = {
   option: "number",
   typeOptions: ["number", "range"],
   typeOptionStrings: ["Number Input", "Range Slider"],
-  value: 0,
-  default: 0,
+  defaultValue: 0,
   min: 0,
   step: 1,
   max: 100,
@@ -112,18 +113,15 @@ export const initialNumberFieldState = {
  * @typedef {Object} RangeLogField
  * @property {string} id - The id of the log field
  * @property {string} name - The name of the log field
- * @property {[number, number]} value - The value of the log field
  * @property {number} min - The minimum value of the log field
  * @property {number} max - The maximum value of the log field
- * @property {[number, number]} default - The default value of the log field
  * @property {number} step - The step value of the log field
  */
 export const initialRangeFieldState = {
   ...initialNumberFieldState,
   name: "New Range Field",
   option: "range",
-  value: [0, 100],
-  default: [0, 100],
+  defaultValue: [0, 100],
 };
 
 /**
@@ -132,15 +130,12 @@ export const initialRangeFieldState = {
  * @property {string} id - The id of the log field
  * @property {string} name - The name of the log field
  * @property {"tags"} type - The type of the log field
- * @property {string[]} value - The value of the log field
- * @property {string[]} default - The default value of the log field
  */
 export const initialTagsFieldState = {
   ...initialFieldState,
   name: "New Tags Field",
   type: "tags",
-  value: [],
-  default: [],
+  defaultValue: [],
 };
 
 /**
@@ -149,15 +144,12 @@ export const initialTagsFieldState = {
  * @property {string} id - The id of the log field
  * @property {string} name - The name of the log field
  * @property {"boolean"} type - The type of the log field
- * @property {boolean} value - The value of the log field
- * @property {boolean} default - The default value of the log field
  */
 export const initialBooleanFieldState = {
   ...initialFieldState,
   name: "New Boolean Field",
   type: "boolean",
-  value: false,
-  default: false,
+  defaultValue: false,
 };
 
 /**
@@ -167,7 +159,6 @@ export const initialBooleanFieldState = {
  * @property {string} name - The name of the log field
  * @property {"select"} type - The type of the log field
  * @property {string[]} value - The value of the log field
- * @property {string[]} default - The default value of the log field
  * @property {string[]} options - The options of the select log field
  * @property {"one"|"many"} option - The selected option of the log field
  * @property {["one"|"many"]} typeOptions - The options of the log field
@@ -181,8 +172,7 @@ export const initialSelectFieldState = {
   option: "one",
   typeOptions: ["one", "many"],
   typeOptionStrings: ["Select One", "Select Many"],
-  value: [],
-  default: [],
+  defaultValue: [],
   options: [],
 };
 
@@ -190,30 +180,28 @@ export const initialSelectFieldState = {
  * Initial state for a date log field in the store
  * @typedef {Object} DateLogField
  * @property {string} id - The id of the log field
- * @property {"_date"} name - The name of the log field
+ * @property {string} name - The name of the log field
  * @property {"date"} type - The type of the log field
- * @property {string} value - The value of the log field
  */
 export const initialDateFieldState = {
   ...initialFieldState,
-  name: "_date",
+  name: "New Date Field",
   type: "date",
-  value: new Date().toISOString().slice(0, 10),
+  defaultValue: new Date().toISOString().slice(0, 10),
 };
 
 /**
  * Initial state for a time log field in the store
  * @typedef {Object} TimeLogField
  * @property {string} id - The id of the log field
- * @property {"_time"} name - The name of the log field
+ * @property {string} name - The name of the log field
  * @property {"time"} type - The type of the log field
- * @property {string} value - The value of the log field
  */
 export const initialTimeFieldState = {
   ...initialFieldState,
-  name: "_time",
+  name: "New Time Field",
   type: "time",
-  value: new Date().toISOString().slice(11, 16),
+  defaultValue: new Date().toISOString().slice(11, 16),
 };
 
 /**
