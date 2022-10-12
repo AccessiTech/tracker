@@ -1,29 +1,17 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { store, persistor } from './store/store';
-import { Provider } from 'react-redux';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { store, persistor } from "./store/store";
+import { Provider } from "react-redux";
 import { PersistGate } from "reduxjs-toolkit-persist/integration/react";
 
-import { App } from './containers/App';
-import { New } from './containers/New';
-import { Edit } from './containers/Edit';
-import reportWebVitals from './reportWebVitals';
+import { App } from "./App";
+import reportWebVitals from "./reportWebVitals";
 
-import './index.scss';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-    <HashRouter>
-      <Routes>
-        <Route path='*' element={<h1>404</h1>} />
-        <Route path='/' element={<App />} />
-        <Route path='/new' element={<New />} />
-        <Route path='/edit/:id' element={<Edit />} />
-      </Routes>
-    </HashRouter>
+      <App />
     </PersistGate>
   </Provider>
 );
