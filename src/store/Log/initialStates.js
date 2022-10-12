@@ -66,7 +66,8 @@ export const initialFieldState = {
  * @property {"text"|"textarea"} option - The selected option of the log field
  * @property {["text"|"textarea"]} typeOptions - The options of the log field
  * @property {[string,string]} typeOptionStrings - The human readable options of the log field
- * @property {string} default - The default value of the log field
+ * @property {number} min - The minimum character length of the text field
+ * @property {number} max - The maximum character length of the text field
  */
 export const initialTextFieldState = {
   ...initialFieldState,
@@ -75,6 +76,8 @@ export const initialTextFieldState = {
   option: "text",
   typeOptions: ["text", "textarea"],
   typeOptionStrings: ["Single Line", "Multi Line"],
+  min: 0,
+  max: 0,
 };
 
 /**

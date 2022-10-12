@@ -13,6 +13,7 @@ import {
 import { Form, Button, Row, Col } from "react-bootstrap";
 import { EditFieldText } from "./EditFieldText";
 import "./editFieldForm.scss";
+import EditFieldNumber from "./EditFieldNumber";
 
 export const onHandleField = (values, log, field) => {
   const { id, name, type, required, option, defaultValue } = values;
@@ -78,7 +79,6 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
         setFieldValue,
       }) => (
         <Form onSubmit={handleSubmit} className="form__field_edit">
-          
           {/* Name, Type, and Required inputs */}
           <Form.Group>
             <Form.Label>Field Name</Form.Label>
@@ -154,6 +154,16 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
               handleChange={handleChange}
               handleBlur={handleBlur}
               setFieldValue={setFieldValue}
+            />
+          )}
+
+          {values.type === "number" && (
+            <EditFieldNumber
+              values={values}
+              errors={errors}
+              touched={touched}
+              handleChange={handleChange}
+              handleBlur={handleBlur}
             />
           )}
 

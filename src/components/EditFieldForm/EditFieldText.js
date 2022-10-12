@@ -1,5 +1,5 @@
 import React from "react";
-import { Form } from "react-bootstrap";
+import { Col, Form, Row } from "react-bootstrap";
 import { TypeOptionSelect } from "./TypeOptionSelect";
 import { formikPartialPropTypes } from "./../../utils";
 
@@ -22,6 +22,41 @@ export const EditFieldText = ({
         handleChange={handleChange}
         handleBlur={handleBlur}
       />
+
+      <Form.Group>
+        <Row>
+          <Col>
+            <Form.Label>{"Min Length"}</Form.Label>
+            <Form.Control
+              type="number"
+              name="min"
+              placeholder={values.min || "None"} 
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.min}
+            />
+            {(touched.min && errors.min && (
+              <Form.Text className="text-danger">{errors.min}</Form.Text>
+            )) || <Form.Text className="text-muted">{"Default: 0"}</Form.Text>}
+        </Col>
+        <Col>
+            <Form.Label>{"Max Length"}</Form.Label>
+            <Form.Control
+              type="number"
+              name="max"
+
+              onChange={handleChange}
+              onBlur={handleBlur}
+              value={values.max}
+            />
+            {(touched.max && errors.max && (
+              <Form.Text className="text-danger">{errors.max}</Form.Text>
+            )) || (
+              <Form.Text className="text-muted">{"Default: 0 (none)"}</Form.Text>
+            )}
+          </Col>
+        </Row>
+      </Form.Group>
 
       <Form.Group>
         <Form.Label>{"Default Value"}</Form.Label>
