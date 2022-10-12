@@ -180,12 +180,12 @@ export const initialSelectFieldState = {
  * Initial state for a date log field in the store
  * @typedef {Object} DateLogField
  * @property {string} id - The id of the log field
- * @property {"_date"} name - The name of the log field
+ * @property {string} name - The name of the log field
  * @property {"date"} type - The type of the log field
  */
 export const initialDateFieldState = {
   ...initialFieldState,
-  name: "_date",
+  name: "New Date Field",
   type: "date",
   defaultValue: new Date().toISOString().slice(0, 10),
 };
@@ -194,12 +194,12 @@ export const initialDateFieldState = {
  * Initial state for a time log field in the store
  * @typedef {Object} TimeLogField
  * @property {string} id - The id of the log field
- * @property {"_time"} name - The name of the log field
+ * @property {string} name - The name of the log field
  * @property {"time"} type - The type of the log field
  */
 export const initialTimeFieldState = {
   ...initialFieldState,
-  name: "_time",
+  name: "New Time Field",
   type: "time",
   defaultValue: new Date().toISOString().slice(11, 16),
 };
