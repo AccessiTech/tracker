@@ -2,13 +2,13 @@ import React from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import "./App.scss";
+import "./Home.scss";
 import { Button, ButtonGroup, Dropdown } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { removeLog, useGetLogsArray } from "../../store/Log";
 import store from "../../store/store";
 
-function App() {
+function Home() {
   const navigate = useNavigate();
   const logs = useGetLogsArray();
 
@@ -93,4 +93,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;
