@@ -1,5 +1,6 @@
 import React from "react";
 import { Form } from "react-bootstrap";
+import { initialFieldStates } from "../../store/Log";
 import { capitalizeFirstLetter, formikPartialPropTypes } from "./../../utils";
 
 export const TypeOptionSelect = ({
@@ -9,6 +10,9 @@ export const TypeOptionSelect = ({
   handleChange,
   handleBlur,
 }) => {
+  const { typeOptions, typeOptionStrings } = initialFieldStates[values.type];
+  if (!typeOptions || !typeOptions.length) return null;
+
   return (
     <Form.Group>
       <Form.Label>{capitalizeFirstLetter(values.type)} Field Type</Form.Label>
@@ -19,9 +23,9 @@ export const TypeOptionSelect = ({
         onBlur={handleBlur}
         value={values.option}
       >
-        {values.typeOptions.map((option, i) => {
+        {typeOptions.map((option, i) => {
           const key = `${values.type}-${i}`;
-          const displayValue = values.typeOptionStrings[i];
+          const displayValue = typeOptionStrings[i];
           return (
             <option key={key} value={option}>
               {displayValue}
