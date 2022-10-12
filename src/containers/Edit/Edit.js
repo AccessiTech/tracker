@@ -61,10 +61,16 @@ function Edit() {
         <Row>
           <Col>
             <h1>Edit Log</h1>
+            <hr />
             <LogNameForm
               onSubmit={(e) => onUpdateLog(e, log)}
               logName={log.name}
             />
+          </Col>
+        </Row>
+        <hr />
+        <Row>
+          <Col>
             <h2>Fields</h2>
             {fields && fields.length ? (
               <EditFieldsTable
@@ -88,7 +94,11 @@ function Edit() {
             >
               Add a new field...
             </Button>
-            <br />
+          </Col>
+        </Row>
+        <hr />
+        <Row>
+          <Col>
             <Button
               variant="danger"
               type="submit"
@@ -106,6 +116,7 @@ function Edit() {
             </Button>
           </Col>
         </Row>
+        <hr />
       </Container>
 
       <Modal id="addFieldModal" show={showModal} onHide={resetModal}>

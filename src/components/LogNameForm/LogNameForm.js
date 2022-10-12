@@ -55,6 +55,10 @@ export const LogNameForm = ({ onSubmit, logName }) => {
           </InputGroup>
           {touched.name && errors.name && (
             <Form.Text className="text-danger">{errors.name}</Form.Text>
+          ) || (
+            <Form.Text className="text-muted">
+              This is the name of the log.
+            </Form.Text>
           )}
         </Form>
       )}
