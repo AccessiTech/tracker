@@ -8,25 +8,36 @@ import FieldText from "../../components/FieldText/FieldText";
 import { FieldNumber } from "../../components/FieldNumber";
 
 function LogEntry() {
-  const { logId } = useParams();
+  const { id: logId } = useParams();
   const navigate = useNavigate();
   const log = useGetLog(logId);
+  const [cancel, setCancel] = React.useState(false);
 
-  if (!log) {
-    return navigate("/");
-  } else if (!log.fields || !Object.keys(log.fields).length) {
-    return navigate(`/edit/${logId}`);
-  }
+  const { name, fields } = log || {};
+  const logFields = Object.values(fields || {});
 
-  const { name } = log;
-  const fields = Object.values(log.fields);
+
+  React.useEffect(() => {
+    if (!log) {
+      navigate("/");
+    } else if (!fields) {
+      navigate(`/edit/${logId}`);
+    }
+  }, [log, fields, logId, navigate]);
+
+  React.useEffect(() => {
+    if (cancel) {
+      navigate(`/`);
+    }
+  }, [cancel, navigate]);
+
   const initialValues = {};
 
-  for (const f of fields) {
+  for (const f of logFields) {
     initialValues[f.id] = f.defaultValue;
   }
 
-  return (
+  return !log || !logFields.length ? null : (
     <>
       <Container>
         <Row>
@@ -44,12 +55,12 @@ function LogEntry() {
 
                 return (
                   <Form onSubmit={handleSubmit}>
-                    {fields.map((field) => {
-                      const { id, name, type } = field;
+                    {logFields.map((field) => {
+                      const { id, type } = field;
+                      <Form.Label>{log.name}</Form.Label>;
 
                       return (
                         <Form.Group key={id}>
-                          <Form.Label>{name}</Form.Label>
                           {type === "text" && (
                             <FieldText {...formikProps} field={field} />
                           )}
@@ -59,7 +70,16 @@ function LogEntry() {
                         </Form.Group>
                       );
                     })}
-                    <Button type="submit">Submit</Button>
+                    <Button variant="primary" type="submit">
+                      Submit
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      type="reset"
+                      onClick={() => setCancel(true)}
+                    >
+                      Cancel
+                    </Button>
                   </Form>
                 );
               }}

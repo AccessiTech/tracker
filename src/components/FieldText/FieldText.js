@@ -6,13 +6,14 @@ export const FieldText = (props) => {
   const { values, errors, touched, handleChange, handleBlur } = props;
   const { id:fieldId, option, name, required } = props.field;
 
+  const inputAs = (option === "textarea" && "textarea") || "input";
   return (
     <>
       <Form.Group>
         <Form.Label>{name}</Form.Label>
         <Form.Control
           type="text"
-          as={option || "text"}
+          as={inputAs}
           name={fieldId}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -21,9 +22,7 @@ export const FieldText = (props) => {
         />
         {(touched[fieldId] && errors[fieldId] && (
           <Form.Text className="text-danger">{errors[fieldId]}</Form.Text>
-        )) || (
-          <Form.Text className="text-muted">{"Default: none"}</Form.Text>
-        )}
+        )) || <Form.Text className="text-muted">{"Default: none"}</Form.Text>}
       </Form.Group>
     </>
   );
