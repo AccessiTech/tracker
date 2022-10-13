@@ -3,6 +3,7 @@ import { PropTypes } from "prop-types";
 import { v4 as uuidv4 } from "uuid";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { Form, Button, Row, Col } from "react-bootstrap";
 import store from "../../store/store";
 import {
   addLogField,
@@ -10,10 +11,9 @@ import {
   initialFieldStates,
   initialTextFieldState,
 } from "../../store/Log";
-import { Form, Button, Row, Col } from "react-bootstrap";
 import { EditFieldText } from "./EditFieldText";
+import { EditFieldNumber } from "./EditFieldNumber";
 import "./editFieldForm.scss";
-import EditFieldNumber from "./EditFieldNumber";
 
 export const onHandleField = (values, log, field) => {
   const { id, name, type, required, option, defaultValue } = values;
