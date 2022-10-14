@@ -31,7 +31,7 @@ function Home() {
                 logs.map((log) => (
                   <tr key={log.id}>
                     <td>
-                      <Link to={`/log/${log.id}/edit`}>{log.name}</Link>
+                      <Link to={`/log/${log.id}`}>{log.name}</Link>
                     </td>
                     <td>
                       <Dropdown
