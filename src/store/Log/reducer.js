@@ -40,7 +40,7 @@ export const logSlice = createSlice({
     },
     [ADD_LOG_ENTRY_ACTION]: (state, action) => {
       const { logId, entry } = action.payload;
-      state[logId].entries[entry.id] = entry;
+      state[logId].entries[entry.id] = { ...entry };
       state[logId].entries[entry.id].createdAt = new Date().toISOString();
     },
     [REMOVE_LOG_ENTRY_ACTION]: (state, action) => {

@@ -1,11 +1,26 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import "./logEntry.scss";
-import { useGetLog } from "../../store/Log";
+import { addLogEntry, useGetLog } from "../../store/Log";
 import { Formik } from "formik";
+import store from "../../store/store";
 import FieldText from "../../components/FieldText/FieldText";
 import { FieldNumber } from "../../components/FieldNumber";
+
+export const onLogEntrySubmit = (values, log) => {
+  const { id } = values;
+  store.dispatch(
+    addLogEntry({
+      logId: log.id,
+      entry: {
+        ...values,
+        id: id || uuidv4(),
+      },
+    })
+  );
+};
 
 function LogEntry() {
   const { id: logId } = useParams();
@@ -15,7 +30,6 @@ function LogEntry() {
 
   const { name, fields } = log || {};
   const logFields = Object.values(fields || {});
-
 
   React.useEffect(() => {
     if (!log) {
@@ -47,7 +61,8 @@ function LogEntry() {
             <Formik
               initialValues={initialValues}
               onSubmit={(values) => {
-                console.log(values);
+                onLogEntrySubmit(values, log);
+                setCancel(true);
               }}
             >
               {(formikProps) => {
