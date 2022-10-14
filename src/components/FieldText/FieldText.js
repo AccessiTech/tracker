@@ -4,13 +4,18 @@ import { fieldPropTypes, formikPartialPropTypes } from "../../utils";
 
 export const FieldText = (props) => {
   const { values, errors, touched, handleChange, handleBlur } = props;
-  const { id:fieldId, option, name, required } = props.field;
+  const { id: fieldId, option, name, required, defaultValue } = props.field;
 
   const inputAs = (option === "textarea" && "textarea") || "input";
+  const fieldLabel = `${name}${required ? "*" : ""}`;
+  const defaultValueString = `Default: ${
+    typeof defaultValue === "undefined" ? "none" : defaultValue
+  }`;
+
   return (
     <>
       <Form.Group>
-        <Form.Label>{name}</Form.Label>
+        <Form.Label>{fieldLabel}</Form.Label>
         <Form.Control
           type="text"
           as={inputAs}
@@ -22,7 +27,9 @@ export const FieldText = (props) => {
         />
         {(touched[fieldId] && errors[fieldId] && (
           <Form.Text className="text-danger">{errors[fieldId]}</Form.Text>
-        )) || <Form.Text className="text-muted">{"Default: none"}</Form.Text>}
+        )) || (
+          <Form.Text className="text-muted">{defaultValueString}</Form.Text>
+        )}
       </Form.Group>
     </>
   );
@@ -34,5 +41,3 @@ FieldText.propTypes = {
 };
 
 export default FieldText;
-
-

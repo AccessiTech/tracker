@@ -54,7 +54,7 @@ function LogEntry() {
                 const { handleSubmit } = formikProps;
 
                 return (
-                  <Form onSubmit={handleSubmit}>
+                  <Form onSubmit={handleSubmit} className="form__log_entry">
                     {logFields.map((field) => {
                       const { id, type } = field;
                       <Form.Label>{log.name}</Form.Label>;
@@ -70,15 +70,16 @@ function LogEntry() {
                         </Form.Group>
                       );
                     })}
-                    <Button variant="primary" type="submit">
-                      Submit
-                    </Button>
                     <Button
                       variant="secondary"
                       type="reset"
                       onClick={() => setCancel(true)}
                     >
                       Cancel
+                    </Button>
+                    &nbsp;
+                    <Button variant="primary" type="submit">
+                      Submit
                     </Button>
                   </Form>
                 );
