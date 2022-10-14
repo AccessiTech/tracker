@@ -34,10 +34,10 @@ function LogEntry() {
   React.useEffect(() => {
     if (!log) {
       navigate("/");
-    } else if (!fields) {
+    } else if (!logFields.length) {
       navigate(`/log/${logId}/edit`);
     }
-  }, [log, fields, logId, navigate]);
+  }, [log, logId, navigate, logFields.length]);
 
   React.useEffect(() => {
     if (cancel) {
