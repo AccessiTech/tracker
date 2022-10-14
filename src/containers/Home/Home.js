@@ -31,7 +31,7 @@ function Home() {
                 logs.map((log) => (
                   <tr key={log.id}>
                     <td>
-                      <Link to={`/edit/${log.id}`}>{log.name}</Link>
+                      <Link to={`/log/${log.id}/edit`}>{log.name}</Link>
                     </td>
                     <td>
                       <Dropdown
@@ -54,7 +54,7 @@ function Home() {
 
                         <Dropdown.Menu>
                           <Dropdown.Item
-                            onClick={() => navigate(`/edit/${log.id}`)}
+                            onClick={() => navigate(`/log/${log.id}/edit`)}
                           >
                             Edit
                           </Dropdown.Item>
@@ -82,7 +82,7 @@ function Home() {
             variant="primary"
             onClick={(e) => {
               e.preventDefault();
-              navigate("/new");
+              navigate("/log/new");
             }}
           >
             Create a new log...

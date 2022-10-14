@@ -51,14 +51,14 @@ function Edit() {
 
   const resetModal = () => {
     setShowModal(false);
-    navigate(`/edit/${id}`);
+    navigate(`/log/${id}/edit`);
     setModalMode("add");
     setFieldId("");
   };
 
   const onEditField = (e, field) => {
     e.preventDefault();
-    navigate(`/edit/${log.id}/field/${field.id}`);
+    navigate(`/log/${log.id}/edit/field/${field.id}`);
     setShowModal(true);
     setModalMode("edit");
     setFieldId(field.id);
@@ -66,7 +66,7 @@ function Edit() {
 
   const onAddField = (e) => {
     e.preventDefault();
-    navigate(`/edit/${log.id}/field/new`);
+    navigate(`/log/${log.id}/edit/field/new`);
     setShowModal(true);
     setModalMode("add");
     setFieldId("");

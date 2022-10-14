@@ -35,7 +35,7 @@ function LogEntry() {
     if (!log) {
       navigate("/");
     } else if (!fields) {
-      navigate(`/edit/${logId}`);
+      navigate(`/log/${logId}/edit`);
     }
   }, [log, fields, logId, navigate]);
 

@@ -12,11 +12,15 @@ function App() {
       <Routes>
         <Route path="*" element={<h1>404</h1>} />
         <Route path="/" element={<Home />} />
-        <Route path="/new" element={<New />} />
-        <Route path="/edit/:id" element={<Edit />}>
-          <Route path="field/:field" element={<Edit />} />
+        <Route path="/log">
+          <Route path="new" element={<New />} />
+          <Route path=":id">
+            <Route path="entry" element={<LogEntry />} />
+            <Route path="edit" element={<Edit />}>
+              <Route path="field/:field" element={<Edit />} />
+            </Route>
+          </Route>
         </Route>
-        <Route path="/log/:id/entry" element={<LogEntry />} />
       </Routes>
     </HashRouter>
   );

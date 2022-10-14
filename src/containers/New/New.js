@@ -21,7 +21,7 @@ export const onCreateLog = (e, navigate) => {
     entries: {},
   };
   store.dispatch(addLog({ log }));
-  navigate('/edit/' + log.id);
+  navigate('/log/' + log.id + '/edit');
 };
 
 function New() {
