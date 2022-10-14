@@ -8,7 +8,9 @@ function Log() {
   const navigate = useNavigate();
   const { id } = useParams();
   const log = useGetLog(id);
-  const { name, entries, fields } = log;
+  const { name, fields } = log;
+  const entries = Object.values(log.entries || {});
+  const hasEntries = entries.length > 0;
 
   return (
     <Container className="log__container">
@@ -20,9 +22,9 @@ function Log() {
       <hr />
       <Row>
         <Col className="log__entries">
-          <h4>Entries</h4>
-          {entries && Object.values(entries).length ? (
-            Object.values(entries)
+          <h4>{`Entries (${entries.length})`}</h4>
+          {hasEntries ? (
+            entries
               .filter((entry) => entry && Object.keys(entry).length > 2)
               .map((entry) => {
                 return (
