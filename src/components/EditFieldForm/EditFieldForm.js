@@ -16,7 +16,7 @@ import { EditFieldNumber } from "./EditFieldNumber";
 import "./editFieldForm.scss";
 
 export const onHandleField = (values, log, field) => {
-  const { id, name, type, required, option, defaultValue } = values;
+  const { id, name, type, required, option, defaultValue, unit } = values;
 
   const prevField = {
     ...(field.type === type
@@ -31,11 +31,9 @@ export const onHandleField = (values, log, field) => {
     type,
     required,
     defaultValue,
+    unit,
+    option,
   };
-
-  if (field.option) {
-    newField.option = option;
-  }
 
   if (id) {
     store.dispatch(
