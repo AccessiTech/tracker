@@ -18,7 +18,8 @@ function App() {
           <Route path="new/" element={<New />} />
           <Route path=":id/">
             <Route path="" element={<Log/>} />
-            <Route path="entry/" element={<LogEntry />} />
+            <Route path="entry/" element={<LogEntry />}/>
+            <Route path="entry/:entry" element={<LogEntry />}/>
             <Route path="edit/">
               <Route path="" element={<Edit />} />
               <Route path="field/:field/" element={<Edit />} />

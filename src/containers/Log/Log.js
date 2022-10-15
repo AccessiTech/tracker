@@ -1,8 +1,21 @@
 import React from "react";
-import { Button, Card, Container, Col, Row } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Container,
+  Col,
+  Row,
+  DropdownButton,
+  Dropdown,
+} from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetLog } from "../../store/Log";
+import store from "../../store/store";
+import { useGetLog, removeLogEntry } from "../../store/Log";
 import "./log.scss";
+
+export const onDeleteEntry = (log, entryId) => {
+  store.dispatch(removeLogEntry({ logId: log.id, entryId }));
+};
 
 function Log() {
   const navigate = useNavigate();
@@ -35,7 +48,7 @@ function Log() {
                         .map((fieldId) => {
                           return (
                             <div
-                              key={id + "-" + fieldId}
+                              key={entry.id + "-" + fieldId}
                               className="log__entry__field"
                             >
                               <strong>{fields[fieldId].name}</strong>:{" "}
@@ -43,6 +56,25 @@ function Log() {
                             </div>
                           );
                         })}
+                      <DropdownButton
+                        id={`dropdown-basic-button-${id}-${entry.id}`}
+                        title="Actions"
+                        variant="secondary"
+                        className="log__entry__actions"
+                      >
+                        <Dropdown.Item
+                          onClick={() =>
+                            navigate(`/log/${id}/entry/${entry.id}`)
+                          }
+                        >
+                          Edit Entry
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => onDeleteEntry(log, entry.id)}
+                        >
+                          Delete Entry
+                        </Dropdown.Item>
+                      </DropdownButton>
                     </Card.Body>
                   </Card>
                 );

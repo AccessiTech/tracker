@@ -22,7 +22,7 @@ export const FieldText = (props) => {
           name={fieldId}
           onChange={handleChange}
           onBlur={handleBlur}
-          value={values[fieldId]}
+          value={values[fieldId] || ""}
           required={required}
         />
         {(touched[fieldId] && errors[fieldId] && (

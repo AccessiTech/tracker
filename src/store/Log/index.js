@@ -20,6 +20,7 @@ export {
   useGetLogs,
   useGetLogsArray,
   useGetLog,
+  useGetLogEntry,
   useGetLogEntries,
   useGetLogEntriesArray,
   useGetLogEntryValue,
