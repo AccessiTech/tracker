@@ -27,7 +27,8 @@ function Home() {
               </tr>
             </thead>
             <tbody>
-              {logs && logs.length ? (
+              {logs &&
+                logs.length > 0 &&
                 logs.map((log) => (
                   <tr key={log.id}>
                     <td>
@@ -62,7 +63,7 @@ function Home() {
                             className="text-danger"
                             onClick={(e) => {
                               e.preventDefault();
-                              store.dispatch(removeLog({ logId: log.id}));
+                              store.dispatch(removeLog({ logId: log.id }));
                             }}
                           >
                             Delete
@@ -71,12 +72,10 @@ function Home() {
                       </Dropdown>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <p>No logs yet.</p>
-              )}
+                ))}
             </tbody>
           </table>
+          {logs && logs.length === 0 && <p>No logs yet.</p>}
 
           <Button
             variant="primary"
