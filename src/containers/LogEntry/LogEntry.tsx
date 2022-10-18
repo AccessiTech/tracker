@@ -15,7 +15,7 @@ import store from "../../store/store";
 import FieldText from "../../components/FieldText/FieldText";
 import { FieldNumber } from "../../components/FieldNumber";
 
-export const onLogEntrySubmit = (values, log, entry) => {
+export const onLogEntrySubmit = (values:any, log:any, entry:any) => {
   const payload = {
     logId: log.id,
     entryId: entry && entry.id,
@@ -27,22 +27,22 @@ export const onLogEntrySubmit = (values, log, entry) => {
   store.dispatch((entry ? updateLogEntry : addLogEntry)(payload));
 };
 
-export const onLogEntryDelete = (entry, log) => {
+export const onLogEntryDelete = (entry:any, log:any) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId: entry.id }));
 };
 
 function LogEntry() {
-  const { id: logId, entry: entryId } = useParams();
+  const { id: logId, entry: entryId }= useParams() as { id: string, entry: string };
   const navigate = useNavigate();
-  const log = useGetLog(logId);
-  const entry = useGetLogEntry(logId, entryId);
+  const log = useGetLog(logId) as any;
+  const entry = useGetLogEntry(logId, entryId) as any;
   const [cancel, setCancel] = React.useState(false);
   const [isNewEntry] = React.useState(
     typeof entryId === "undefined" || typeof entry === "undefined"
   );
 
   const { name, fields } = log || {};
-  const logFields = Object.values(fields || {});
+  const logFields = Object.values(fields || {}) as any;
 
   React.useEffect(() => {
     if (!log) {
@@ -58,7 +58,7 @@ function LogEntry() {
     }
   }, [cancel, navigate]);
 
-  const initialValues = {};
+  const initialValues = {} as any;
 
   for (const f of logFields) {
     initialValues[f.id] = isNewEntry ? f.defaultValue : entry[f.id];
@@ -83,7 +83,7 @@ function LogEntry() {
 
                 return (
                   <Form onSubmit={handleSubmit} className="form__log_entry">
-                    {logFields.map((field) => {
+                    {logFields.map((field: any) => {
                       const { id, type } = field;
                       <Form.Label>{log.name}</Form.Label>;
 
