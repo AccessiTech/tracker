@@ -22,5 +22,9 @@ module.exports = {
     ],
     "rules": {
         "typescript/no-unused-vars": "warn"
-    }
+    },
+    "overrides": [{
+        "files": ["**/*.ts", "**/*.tsx"],
+        "parser": "@typescript-eslint/parser",
+    }]
 }
