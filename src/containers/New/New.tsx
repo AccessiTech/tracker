@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC, ReactElement } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -23,7 +23,7 @@ export const onCreateLog = (e: any, navigate: NavigateFunction) => {
   navigate("/log/" + log.id + "/edit");
 };
 
-function New() {
+export const New: FC = (): ReactElement => {
   const navigate = useNavigate();
 
   return (
