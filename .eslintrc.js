@@ -17,8 +17,10 @@ module.exports = {
     },
     "plugins": [
         "react",
+        "typescript",
         "jsx-a11y"
     ],
     "rules": {
+        "typescript/no-unused-vars": "warn"
     }
 }
