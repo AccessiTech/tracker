@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC, ReactElement } from "react";
 import {
   Button,
   Card,
@@ -13,16 +13,16 @@ import store from "../../store/store";
 import { useGetLog, removeLogEntry } from "../../store/Log";
 import "./log.scss";
 
-export const onDeleteEntry = (log, entryId) => {
+export const onDeleteEntry = (log:any, entryId: string) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId }));
 };
 
-function Log() {
+export const Log: FC = ():ReactElement => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const log = useGetLog(id);
+  const log = useGetLog(id as string) as any;
   const { name, fields } = log;
-  const entries = Object.values(log.entries || {});
+  const entries = Object.values(log.entries || {}) as any[];
   const hasEntries = entries.length > 0;
 
   return (
