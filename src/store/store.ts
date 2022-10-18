@@ -1,4 +1,4 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore, EnhancedStore, Reducer, CombinedState } from '@reduxjs/toolkit';
 import {
   persistStore,
   persistReducer,
@@ -10,20 +10,21 @@ import {
   REGISTER,
 } from "reduxjs-toolkit-persist";
 import storage from "reduxjs-toolkit-persist/lib/storage";
+import { PersistConfig, Persistor } from 'reduxjs-toolkit-persist/lib/types';
 import { logSlice, logSliceName } from './Log';
 
-const persistConfig = {
+const persistConfig:PersistConfig<any> = {
   key: '@accessitech/tracker',
   storage,
 };
 
-const reducers = combineReducers({
+const reducers: Reducer<CombinedState<any>> = combineReducers({
   [logSliceName]: logSlice.reducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, reducers);
+const persistedReducer: Reducer = persistReducer(persistConfig, reducers);
 
-export const store = configureStore({
+export const store: EnhancedStore = configureStore({
   reducer: persistedReducer,
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
@@ -32,6 +33,6 @@ export const store = configureStore({
   }),
 });
 
-export const persistor = persistStore(store);
+export const persistor: Persistor = persistStore(store);
 
 export default store;
