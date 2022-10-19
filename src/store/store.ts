@@ -1,4 +1,4 @@
-import { combineReducers, configureStore, EnhancedStore, Reducer, CombinedState } from '@reduxjs/toolkit';
+import { combineReducers, configureStore, Reducer, CombinedState } from '@reduxjs/toolkit';
 import {
   persistStore,
   persistReducer,
@@ -24,7 +24,7 @@ const reducers: Reducer<CombinedState<any>> = combineReducers({
 
 const persistedReducer: Reducer = persistReducer(persistConfig, reducers);
 
-export const store: EnhancedStore = configureStore({
+export const store = configureStore({
   reducer: persistedReducer,
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({

@@ -1,91 +1,84 @@
 import { useSelector } from 'react-redux';
-import { logSliceName } from './reducer';
+import { logSliceName, LogState } from './reducer';
+import { Log, LogEntry, FieldValue } from './initialStates';
 
 /**
  * Use this hook to access the log state.
- * @returns {Log|undefined} The log state.
- * @typedef {Object} Any
+ * @returns {LogState|undefined} The log state.
  */
-export const useGetLogs = () => {
-  return useSelector((state) => state[logSliceName]);
+export const useGetLogs = ():LogState => {
+  return useSelector((state: any) => state[logSliceName]);
 }
 
 /**
  * Use this hook to access the log state.
- * @returns {Array|undefined} An array of log objects.
- * @typedef {Array} Log[] An array of log objects.
+ * @returns {Log[]|undefined} An array of log objects.
  */
-export const useGetLogsArray = () => {
+export const useGetLogsArray = ():Log[] => {
   const logs = useGetLogs();
-  return logs && Object.values(logs);
+  return logs && (Object.values(logs) as Log[]);
 }
 
 /**
  * Use this hook to access the log state.
  * @returns {Log|undefined} The log object.
- * @typedef {Object} Log
  * @param {string} logId The id of the log to get.
  */
-export const useGetLog = (logId) => {
+export const useGetLog = (logId:string):Log => {
   const logs = useGetLogs();
   return logs && logs[logId];
 }
 
 /**
  * Use this hook to access the log state.
- * @returns {Object|undefined} An object of log entry objects.
- * @typedef {Object} Any of log entry objects.
+ * @returns {{[entryId:string]: LogEntry}|undefined} An object of log entry objects.
  * @param {string} logId The id of the log to get.
  */
-export const useGetLogEntries = (logId) => {
+export const useGetLogEntries = (logId:string): {[entryId:string]: LogEntry} => {
   const log = useGetLog(logId);
   return log && log.entries;
 }
 
 /**
  * Use this hook to access the log state.
- * @returns {Array|undefined} An array of log entry objects.
- * @typedef {Array} LogEntry[] array of log entry objects.
+ * @returns {LogEntry[]|undefined} An array of log entry objects.
  * @param {string} logId The id of the log to get.
  */
-export const useGetLogEntriesArray = (logId) => {
+export const useGetLogEntriesArray = (logId:string):LogEntry[] => {
   const entries = useGetLogEntries(logId);
   return entries && Object.values(entries);
 }
 
 /**
  * Use this hook to access the log state.
- * @returns {Object|undefined} An object of log entry objects.
- * @typedef {Object} Any of log entry objects.
+ * @returns {LogEntry|undefined} An object of log entry objects.
  * @param {string} logId The id of the log to get.
  * @param {string} entryId The id of the log entry to get.
  */
-export const useGetLogEntry = (logId, entryId) => {
+export const useGetLogEntry = (logId:string, entryId:string):LogEntry => {
   const entries = useGetLogEntries(logId);
   return entries && entries[entryId];
 }
 
 /**
  * Use this hook to access the log state.
- * @returns {Array|undefined} An array of log entry objects.
- * @typedef {Array} LogEntry[] array of log entry objects.
+ * @returns {{[fieldId:string]: FieldValue}|undefined} An array of log entry objects.
  * @param {string} logId The id of the log to get.
  * @param {string} entryId The id of the log entry to get.
  */
-export const useGetLogEntryValues = (logId, entryId) => {
+export const useGetLogEntryValues = (logId:string, entryId:string): {[fieldId:string]: FieldValue} => {
   const entry = useGetLogEntry(logId, entryId);
   return entry && entry.values;
 }
 
 /**
  * Use this hook to access the log state.
- * @returns {Number|String|Boolean|undefined} The value of the log entry value.
- * @typedef {Number|String|Boolean} Any The value of the log entry value.
+ * @returns {FieldValue|undefined} The value of the log entry value.
  * @param {string} logId The id of the log to get.
  * @param {string} entryId The id of the log entry to get.
  * @param {string} valueId The id of the log entry value to get.
  */
-export const useGetLogEntryValue = (logId, entryId, valueId) => {
+export const useGetLogEntryValue = (logId:string, entryId:string, valueId:string): FieldValue => {
   const values = useGetLogEntryValues(logId, entryId);
   return values && values[valueId];
 }

@@ -13,7 +13,9 @@ export {
   addLogField,
   removeLogField,
   updateLogField,
-} from './reducer';
+} from "./reducer";
+
+export type { LogState } from "./reducer";
 
 export {
   // Hooks
@@ -46,3 +48,20 @@ export {
   initialFieldStates,
   getNewFieldState,
 } from "./initialStates";
+
+export type {
+  CrudState,
+  Log,
+  FieldValue,
+  LogField,
+  TextLogField,
+  NumberLogField,
+  BooleanLogField,
+  TagsLogField,
+  SelectLogField,
+  DateLogField,
+  TimeLogField,
+  LogEntry,
+  LogFields,
+  LogEntryStates,
+} from './initialStates';
