@@ -31,7 +31,7 @@ export interface Log extends CrudState {
   id: string;
   name: string;
   user?: string;
-  fields: { [fieldId: string]: LogField };
+  fields: { [fieldId: string]: LogFields };
   entries: { [entryId: string]: LogEntry };
 }
 export const initialLogState: Log = {
@@ -264,21 +264,20 @@ export const initialTimeFieldState: TimeLogField = {
  * @property {string} id - The id of the log entry
  * @property {string} user - The user of the log entry
  * @property {string} log - The log of the log entry
- * @property {Object.<string,FieldValue>} values - The values of the log entry
  */
-export interface LogEntry extends CrudState {
+export interface EntryValues extends CrudState {
+  [fieldId: string]: FieldValue;
+}
+
+export interface LogEntry extends EntryValues {
   id: string;
   user: string;
   log: string;
-  values: {
-    [fieldId: string]: FieldValue;
-  };
 }
 export const initialLogEntryState: LogEntry = {
   id: "",
   log: "",
   user: "",
-  values: {},
   ...initialCRUDState,
 };
 export type LogFields = TextLogField | NumberLogField | RangeLogField | TagsLogField | BooleanLogField | SelectLogField | DateLogField | TimeLogField;

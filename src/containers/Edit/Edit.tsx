@@ -10,14 +10,16 @@ import {
   updateLog,
   removeLog,
   removeLogField,
+  Log,
+  LogFields,
 } from "../../store/Log";
 import "./Edit.scss";
 import { LogNameForm } from "../../components/LogNameForm";
 import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTable";
 import { EditFieldForm } from "../../components/EditFieldForm";
 
-export const onUpdateLog = (e: React.FormEvent<HTMLFormElement>, log: any) => {
-  const updatedLog = {
+export const onUpdateLog = (e: React.FormEvent<HTMLFormElement>, log: Log) => {
+  const updatedLog:Log = {
     ...log,
     ...e,
   };
@@ -26,7 +28,7 @@ export const onUpdateLog = (e: React.FormEvent<HTMLFormElement>, log: any) => {
 
 export const onDeleteLog = (
   e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  log: any
+  log: Log
 ) => {
   e.preventDefault();
   store.dispatch(removeLog({ logId: log.id }));
@@ -34,7 +36,7 @@ export const onDeleteLog = (
 
 export const onDeleteField = (
   e: React.MouseEvent<HTMLElement, MouseEvent>,
-  log: any,
+  log: Log,
   fieldId: string
 ) => {
   e.preventDefault();
@@ -43,8 +45,9 @@ export const onDeleteField = (
 
 export const Edit: FC = (): ReactElement => {
   const navigate = useNavigate();
-  const { id, field: fid } = useParams();
-  const log = useGetLog(id as string) as any;
+  const { id, field: fid } = useParams() as {id: string, field: string};
+  
+  const log:Log = useGetLog(id as string);
 
   if (!log || id !== log.id || !log.fields) {
     navigate("/");
@@ -65,7 +68,7 @@ export const Edit: FC = (): ReactElement => {
 
   const onEditField = (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
-    field: any
+    field: LogFields
   ) => {
     e.preventDefault();
     navigate(`/log/${log.id}/edit/field/${field.id}`);
@@ -82,7 +85,7 @@ export const Edit: FC = (): ReactElement => {
     setFieldId("");
   };
 
-  const fields = Object.values(log.fields);
+  const fields: LogFields[] = Object.values(log.fields);
 
   return (
     <>

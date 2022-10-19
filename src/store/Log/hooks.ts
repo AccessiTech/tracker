@@ -62,23 +62,12 @@ export const useGetLogEntry = (logId:string, entryId:string):LogEntry => {
 
 /**
  * Use this hook to access the log state.
- * @returns {{[fieldId:string]: FieldValue}|undefined} An array of log entry objects.
- * @param {string} logId The id of the log to get.
- * @param {string} entryId The id of the log entry to get.
- */
-export const useGetLogEntryValues = (logId:string, entryId:string): {[fieldId:string]: FieldValue} => {
-  const entry = useGetLogEntry(logId, entryId);
-  return entry && entry.values;
-}
-
-/**
- * Use this hook to access the log state.
  * @returns {FieldValue|undefined} The value of the log entry value.
  * @param {string} logId The id of the log to get.
  * @param {string} entryId The id of the log entry to get.
  * @param {string} valueId The id of the log entry value to get.
  */
 export const useGetLogEntryValue = (logId:string, entryId:string, valueId:string): FieldValue => {
-  const values = useGetLogEntryValues(logId, entryId);
+  const values = useGetLogEntry(logId, entryId);
   return values && values[valueId];
 }

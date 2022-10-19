@@ -10,19 +10,19 @@ import {
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import store from "../../store/store";
-import { useGetLog, removeLogEntry } from "../../store/Log";
+import { useGetLog, removeLogEntry, Log as LogType, LogEntry } from "../../store/Log";
 import "./log.scss";
 
-export const onDeleteEntry = (log:any, entryId: string) => {
+export const onDeleteEntry = (log:LogType, entryId: string) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId }));
 };
 
 export const Log: FC = ():ReactElement => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const log = useGetLog(id as string) as any;
+  const { id } = useParams() as { id: string };
+  const log:LogType = useGetLog(id);
   const { name, fields } = log;
-  const entries = Object.values(log.entries || {}) as any[];
+  const entries: LogEntry[] = Object.values(log.entries || {});
   const hasEntries = entries.length > 0;
 
   return (
@@ -38,14 +38,15 @@ export const Log: FC = ():ReactElement => {
           <h4>{`Entries (${entries.length})`}</h4>
           {hasEntries ? (
             entries
-              .filter((entry) => entry && Object.keys(entry).length > 2)
-              .map((entry) => {
+              .filter((entry:LogEntry) => entry && Object.keys(entry).length > 2)
+              .map((entry:LogEntry) => {
+                console.log(entry);
                 return (
                   <Card key={id + "-" + entry.id} className="log__entry">
                     <Card.Body>
                       {Object.keys(entry)
-                        .filter((fieldId) => fields[fieldId])
-                        .map((fieldId) => {
+                        .filter((fieldId:string) => fields[fieldId])
+                        .map((fieldId:string) => {
                           return (
                             <div
                               key={entry.id + "-" + fieldId}
