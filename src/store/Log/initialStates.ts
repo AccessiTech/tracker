@@ -60,6 +60,9 @@ export interface LogField extends CrudState {
   type: string;
   required: boolean;
   user?: string;
+  option?: string;
+  typeOptions?: string[];
+  typeOptionStrings?: string[];
   defaultValue: undefined | FieldValue;
 }
 export const initialFieldState: LogField = {
