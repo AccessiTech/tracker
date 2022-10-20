@@ -24,7 +24,7 @@ module.exports = {
         "@typescript-eslint/no-unused-vars": "warn"
     },
     "overrides": [{
-        "files": ["**/*.ts", "**/*.tsx"],
+        "files": ["*.ts", "*.tsx", "**/*.ts", "**/*.tsx"],
         "parser": "@typescript-eslint/parser",
     }]
 }
