@@ -1,10 +1,14 @@
-import React from "react";
+import React, { FC, ReactElement } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import "./logEntry.scss";
 import {
   addLogEntry,
+  FieldValue,
+  Log,
+  LogEntry as LogEntryType,
+  LogFields,
   removeLogEntry,
   updateLogEntry,
   useGetLog,
@@ -15,10 +19,10 @@ import store from "../../store/store";
 import FieldText from "../../components/FieldText/FieldText";
 import { FieldNumber } from "../../components/FieldNumber";
 
-export const onLogEntrySubmit = (values, log, entry) => {
+export const onLogEntrySubmit = (values:{[fieldId:string]: FieldValue}, log:Log, entry:LogEntryType) => {
   const payload = {
     logId: log.id,
-    entryId: entry && entry.id,
+    entryId: entry.id,
     entry: {
       ...values,
       id: values.id || uuidv4(),
@@ -27,22 +31,22 @@ export const onLogEntrySubmit = (values, log, entry) => {
   store.dispatch((entry ? updateLogEntry : addLogEntry)(payload));
 };
 
-export const onLogEntryDelete = (entry, log) => {
+export const onLogEntryDelete = (entry:LogEntryType, log:Log) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId: entry.id }));
 };
 
-function LogEntry() {
-  const { id: logId, entry: entryId } = useParams();
+export const LogEntry:FC = ():ReactElement|null => {
+  const { id: logId, entry: entryId }= useParams() as { id: string, entry: string };
   const navigate = useNavigate();
-  const log = useGetLog(logId);
-  const entry = useGetLogEntry(logId, entryId);
+  const log:Log = useGetLog(logId);
+  const entry:LogEntryType = useGetLogEntry(logId, entryId);
   const [cancel, setCancel] = React.useState(false);
   const [isNewEntry] = React.useState(
     typeof entryId === "undefined" || typeof entry === "undefined"
   );
 
-  const { name, fields } = log || {};
-  const logFields = Object.values(fields || {});
+  const { name, fields } = log;
+  const logFields: LogFields[] = Object.values(fields || {});
 
   React.useEffect(() => {
     if (!log) {
@@ -58,7 +62,7 @@ function LogEntry() {
     }
   }, [cancel, navigate]);
 
-  const initialValues = {};
+  const initialValues = {} as any;
 
   for (const f of logFields) {
     initialValues[f.id] = isNewEntry ? f.defaultValue : entry[f.id];
@@ -83,7 +87,7 @@ function LogEntry() {
 
                 return (
                   <Form onSubmit={handleSubmit} className="form__log_entry">
-                    {logFields.map((field) => {
+                    {logFields.map((field: LogFields) => {
                       const { id, type } = field;
                       <Form.Label>{log.name}</Form.Label>;
 

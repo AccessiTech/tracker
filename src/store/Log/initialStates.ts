@@ -3,22 +3,20 @@
   @typedef {Object} CrudState
   @property {string} createdAt - The date the object was created
   @property {string} updatedAt - The date the object was last updated
-  @property {string} deletedAt - The date the object was deleted
-  @property {string} archivedAt - The date the object was archived
-  @property {string} restoredAt - The date the object was restored
-  @property {boolean} deleted - Whether the object is deleted
-  @property {boolean} archived - Whether the object is archived
-  @property {boolean} restored - Whether the object is restored
  */
-export const initialCRUDState = {
+export interface CrudState {
+  createdAt: string;
+  updatedAt: string;
+}
+export const initialCRUDState: CrudState = {
   createdAt: "",
   updatedAt: "",
-  deletedAt: "",
-  archivedAt: "",
-  restoredAt: "",
-  deleted: false,
-  archived: false,
-  restored: false,
+  // deletedAt: "",
+  // archivedAt: "",
+  // restoredAt: "",
+  // deleted: false,
+  // archived: false,
+  // restored: false,
 };
 
 /**
@@ -29,7 +27,14 @@ export const initialCRUDState = {
  * @property {Object.<string, LogField>} fields - The fields of the log
  * @property {Object.<string, LogEntry>} entries - The entries of the log
  */
-export const initialLogState = {
+export interface Log extends CrudState {
+  id: string;
+  name: string;
+  user?: string;
+  fields: { [fieldId: string]: LogFields };
+  entries: { [entryId: string]: LogEntry };
+}
+export const initialLogState: Log = {
   id: "",
   name: "",
   user: "",
@@ -38,6 +43,8 @@ export const initialLogState = {
   ...initialCRUDState,
 };
 
+export type FieldValue = string | number | boolean | [number, number] | string[];
+
 /**
  * Initial state for a log field in the store
  * @typedef {Object} LogField
@@ -45,9 +52,20 @@ export const initialLogState = {
  * @property {string} name - The name of the log field
  * @property {string} type - The type of the log field
  * @property {boolean} required - Whether the log field is required
- * @property {undefined|string|number|boolean|[number,number]|string[]} defaultValue - The default value of the log field
+ * @property {FieldValue|undefined} defaultValue - The default value of the log field
  */
-export const initialFieldState = {
+export interface LogField extends CrudState {
+  id: string;
+  name: string;
+  type: string;
+  required: boolean;
+  user?: string;
+  option?: string;
+  typeOptions?: string[];
+  typeOptionStrings?: string[];
+  defaultValue: undefined | FieldValue;
+}
+export const initialFieldState: LogField = {
   id: "",
   name: "",
   type: "",
@@ -69,7 +87,15 @@ export const initialFieldState = {
  * @property {number} min - The minimum character length of the text field
  * @property {number} max - The maximum character length of the text field
  */
-export const initialTextFieldState = {
+export interface TextLogField extends LogField {
+  type: "text";
+  option: "text" | "textarea";
+  typeOptions: ["text", "textarea"];
+  typeOptionStrings: ["Single Line", "Multi Line"];
+  min: number;
+  max: number;
+}
+export const initialTextFieldState: TextLogField = {
   ...initialFieldState,
   name: "New Text Field",
   type: "text",
@@ -94,7 +120,18 @@ export const initialTextFieldState = {
  * @property {"number"|"range"} option - The selected option of the log field
  * @property {string} unit - The unit of the log field
  */
-export const initialNumberFieldState = {
+export interface NumberLogField extends LogField {
+  type: "number";
+  min: number;
+  max: number;  
+  step: number;
+  typeOptions: ["number", "range"];
+  typeOptionStrings: ["Number Input", "Range Slider"],
+  option: "number" | "range";
+  unit: string;
+}
+
+export const initialNumberFieldState: NumberLogField = {
   ...initialFieldState,
   name: "New Number Field",
   type: "number",
@@ -117,7 +154,10 @@ export const initialNumberFieldState = {
  * @property {number} max - The maximum value of the log field
  * @property {number} step - The step value of the log field
  */
-export const initialRangeFieldState = {
+export interface RangeLogField extends NumberLogField {
+  option: "range";
+}
+export const initialRangeFieldState: RangeLogField = {
   ...initialNumberFieldState,
   name: "New Range Field",
   option: "range",
@@ -131,7 +171,10 @@ export const initialRangeFieldState = {
  * @property {string} name - The name of the log field
  * @property {"tags"} type - The type of the log field
  */
-export const initialTagsFieldState = {
+export interface TagsLogField extends LogField {
+  type: "tags";
+}
+export const initialTagsFieldState: TagsLogField = {
   ...initialFieldState,
   name: "New Tags Field",
   type: "tags",
@@ -145,7 +188,10 @@ export const initialTagsFieldState = {
  * @property {string} name - The name of the log field
  * @property {"boolean"} type - The type of the log field
  */
-export const initialBooleanFieldState = {
+export interface BooleanLogField extends LogField {
+  type: "boolean";
+}
+export const initialBooleanFieldState: BooleanLogField = {
   ...initialFieldState,
   name: "New Boolean Field",
   type: "boolean",
@@ -158,14 +204,19 @@ export const initialBooleanFieldState = {
  * @property {string} id - The id of the log field
  * @property {string} name - The name of the log field
  * @property {"select"} type - The type of the log field
- * @property {string[]} value - The value of the log field
  * @property {string[]} options - The options of the select log field
  * @property {"one"|"many"} option - The selected option of the log field
  * @property {["one"|"many"]} typeOptions - The options of the log field
  * @property {[string,string]} typeOptionStrings - The human readable options of the log field
  */
-
-export const initialSelectFieldState = {
+export interface SelectLogField extends LogField {
+  type: "select";
+  options: string[];
+  option: "one" | "many";
+  typeOptions: ["one", "many"];
+  typeOptionStrings: ["Select One", "Select Many"];
+}
+export const initialSelectFieldState: SelectLogField = {
   ...initialFieldState,
   name: "New Select Field",
   type: "select",
@@ -183,7 +234,10 @@ export const initialSelectFieldState = {
  * @property {string} name - The name of the log field
  * @property {"date"} type - The type of the log field
  */
-export const initialDateFieldState = {
+export interface DateLogField extends LogField {
+  type: "date";
+}
+export const initialDateFieldState: DateLogField = {
   ...initialFieldState,
   name: "New Date Field",
   type: "date",
@@ -197,7 +251,10 @@ export const initialDateFieldState = {
  * @property {string} name - The name of the log field
  * @property {"time"} type - The type of the log field
  */
-export const initialTimeFieldState = {
+export interface TimeLogField extends LogField {
+  type: "time";
+}
+export const initialTimeFieldState: TimeLogField = {
   ...initialFieldState,
   name: "New Time Field",
   type: "time",
@@ -210,17 +267,27 @@ export const initialTimeFieldState = {
  * @property {string} id - The id of the log entry
  * @property {string} user - The user of the log entry
  * @property {string} log - The log of the log entry
- * @property {Object.<string,TextLogField|NumberLogField|RangeLogField|TagsLogField|BooleanLogField|SelectLogField|DateLogField|TimeLogField>} values - The values of the log entry
  */
-export const initialLogEntryState = {
+export interface EntryValues extends CrudState {
+  [fieldId: string]: FieldValue;
+}
+
+export interface LogEntry extends EntryValues {
+  id: string;
+  user: string;
+  log: string;
+}
+export const initialLogEntryState: LogEntry = {
   id: "",
   log: "",
   user: "",
-  values: {},
   ...initialCRUDState,
 };
-
-export const initialFieldStates = {
+export type LogFields = TextLogField | NumberLogField | RangeLogField | TagsLogField | BooleanLogField | SelectLogField | DateLogField | TimeLogField;
+export interface LogEntryStates {
+  [type: string]: LogFields;
+}
+export const initialFieldStates: LogEntryStates = {
   text: initialTextFieldState,
   number: initialNumberFieldState,
   range: initialRangeFieldState,
@@ -234,34 +301,34 @@ export const initialFieldStates = {
 /**
  * Get the initial state for a log field based on type
  * @param {string} type - The type of the log field
- * @returns {TextLogField|NumberLogField|RangeLogField|TagsLogField|BooleanLogField|SelectLogField|DateLogField|TimeLogField} The initial state for the log field
+ * @returns {LogFields|LogField} The initial state for the log field
  * @example var newTextFieldState = getInitialFieldState("text")
  * @example var newNumberFieldState = getInitialFieldState("number")
  */
-export const getNewFieldState = (type) => {
-  let newFieldState = {};
+export const getNewFieldState = (type:string = "text"):LogField => {
+  let newFieldState = {} as LogField;
   switch (type) {
     case "number":
-      newFieldState = { ...initialNumberFieldState };
+      newFieldState = { ...initialNumberFieldState } as NumberLogField;
       break;
     case "tags":
-      newFieldState = { ...initialTagsFieldState };
+      newFieldState = { ...initialTagsFieldState } as TagsLogField;
       break;
     case "boolean":
-      newFieldState = { ...initialBooleanFieldState };
+      newFieldState = { ...initialBooleanFieldState } as BooleanLogField;
       break;
     case "select":
-      newFieldState = { ...initialSelectFieldState };
+      newFieldState = { ...initialSelectFieldState } as SelectLogField;
       break;
     case "date":
-      newFieldState = { ...initialDateFieldState };
+      newFieldState = { ...initialDateFieldState } as DateLogField;
       break;
     case "time":
-      newFieldState = { ...initialTimeFieldState };
+      newFieldState = { ...initialTimeFieldState } as TimeLogField;
       break;
     case "text":
     default:
-      newFieldState = { ...initialTextFieldState };
+      newFieldState = { ...initialTextFieldState } as TextLogField;
       break;
   }
   return newFieldState;

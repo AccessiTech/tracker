@@ -1,18 +1,17 @@
-import React from "react";
+import React, { FC, ReactElement } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 import "./New.scss";
 
 import { Form, Button } from "react-bootstrap";
-import { useNavigate } from 'react-router-dom';
+import { NavigateFunction, useNavigate } from "react-router-dom";
 import store from "../../store/store";
 import { addLog } from "../../store/Log";
 
-
-export const onCreateLog = (e, navigate) => {
+export const onCreateLog = (e: any, navigate: NavigateFunction) => {
   e.preventDefault();
   const log = {
     id: uuidv4(),
@@ -21,10 +20,10 @@ export const onCreateLog = (e, navigate) => {
     entries: {},
   };
   store.dispatch(addLog({ log }));
-  navigate('/log/' + log.id + '/edit');
+  navigate("/log/" + log.id + "/edit");
 };
 
-function New() {
+export const New: FC = (): ReactElement => {
   const navigate = useNavigate();
 
   return (
@@ -44,7 +43,9 @@ function New() {
               variant="primary"
               type="submit"
               onClick={(e) => onCreateLog(e, navigate)}
-            >Create Log</Button>
+            >
+              Create Log
+            </Button>
           </Form>
         </Col>
       </Row>

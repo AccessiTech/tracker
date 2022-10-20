@@ -17,8 +17,14 @@ module.exports = {
     },
     "plugins": [
         "react",
+        "@typescript-eslint",
         "jsx-a11y"
     ],
     "rules": {
-    }
+        "@typescript-eslint/no-unused-vars": "warn"
+    },
+    "overrides": [{
+        "files": ["*.ts", "*.tsx", "**/*.ts", "**/*.tsx"],
+        "parser": "@typescript-eslint/parser",
+    }]
 }

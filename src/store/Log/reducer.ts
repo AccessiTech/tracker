@@ -1,9 +1,13 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, Slice, SliceCaseReducers } from "@reduxjs/toolkit";
+import { Log } from "./initialStates";
 
 export const logSliceName = "logs";
 
 // Define the initial state using that type
-export const initialState = {};
+export interface LogState {
+  [logId: string]: Log;
+}
+export const initialState: LogState = {};
 
 // Define the action name strings
 export const ADD_LOG_ACTION = "log/add";
@@ -17,7 +21,7 @@ export const REMOVE_LOG_FIELD_ACTION = "field/remove";
 export const UPDATE_LOG_FIELD_ACTION = "field/update";
 
 // Define the slice
-export const logSlice = createSlice({
+export const logSlice: Slice<any, SliceCaseReducers<any>, string> = createSlice({
   name: logSliceName,
   initialState,
   reducers: {
@@ -32,7 +36,7 @@ export const logSlice = createSlice({
     },
     [UPDATE_LOG_ACTION]: (state, action) => {
       const { logId, log } = action.payload;
-      state[logId] = { 
+      state[logId] = {
         ...state[logId],
         ...log,
         updatedAt: new Date().toISOString(),

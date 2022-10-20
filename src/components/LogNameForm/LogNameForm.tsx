@@ -1,5 +1,4 @@
-import React from "react";
-import { PropTypes } from "prop-types";
+import React, { FC, ReactElement} from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { Form, Button, InputGroup } from "react-bootstrap"
@@ -11,17 +10,29 @@ export const LogNameFormValidationSchema = yup.object().shape({
     .test(
       "is-valid-name",
       "Name cannot just be spaces",
-      (value) => value && value.trim().length > 0
+      (value) => (typeof value !== 'undefined') && value.trim().length > 0
     ),
 });
 
-export const LogNameForm = ({ onSubmit, logName }) => {
+export interface LogNameFormProps {
+  logName: string;
+  onSubmit: () => void;
+}
+
+export interface LogNameFormValues {
+  name: string;
+}
+
+export const LogNameForm: FC<LogNameFormProps> = ({ onSubmit, logName }): ReactElement => {
   if (!onSubmit) {
     throw new Error("onSubmit is required");
   }
+  const initialValues: LogNameFormValues = {
+    name: logName || "",
+  };
   return (
     <Formik
-      initialValues={{ name: logName || "" }}
+      initialValues={initialValues as React.FormEvent<HTMLFormElement> & LogNameFormValues}
       onSubmit={onSubmit}
       validationSchema={LogNameFormValidationSchema}
     >
@@ -67,8 +78,3 @@ export const LogNameForm = ({ onSubmit, logName }) => {
 }
 
 export default LogNameForm;
-
-LogNameForm.propTypes = {
-  logName: PropTypes.string.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-};

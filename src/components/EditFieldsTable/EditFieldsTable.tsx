@@ -1,9 +1,21 @@
-import React from "react";
-import { PropTypes } from "prop-types";
+import React, { FC, ReactElement } from "react";
 import { Dropdown } from "react-bootstrap";
-import { initialFieldStates } from "../../store/Log";
+import { initialFieldStates, LogFields } from "../../store/Log";
 
-export const EditFieldsTable = ({ fields, onEditClick, onDeleteClick }) => {
+interface EditFieldClickFunction {
+  (e: React.MouseEvent<HTMLElement, MouseEvent>, field: LogFields): void;
+}
+interface DeleteFieldClickFunction {
+  (e: React.MouseEvent<HTMLElement, MouseEvent>, fieldId: string): void;
+}
+
+export interface EditFieldsTableProps {
+  fields: LogFields[];
+  onEditClick: EditFieldClickFunction;
+  onDeleteClick: DeleteFieldClickFunction;
+}
+
+export const EditFieldsTable:FC<EditFieldsTableProps> = ({ fields, onEditClick, onDeleteClick }): ReactElement => {
   return (
     <table className="table table-striped">
       <thead>
@@ -18,7 +30,7 @@ export const EditFieldsTable = ({ fields, onEditClick, onDeleteClick }) => {
         </tr>
       </thead>
       <tbody>
-        {fields.map((field) => (
+        {fields.map((field:LogFields) => (
           <tr key={field.id} style={{ verticalAlign: "middle" }}>
             <td>{field.name}</td>
             <td>{field.type}</td>
@@ -63,14 +75,4 @@ export const EditFieldsTable = ({ fields, onEditClick, onDeleteClick }) => {
   );
 };
 
-EditFieldsTable.propTypes = {
-  fields: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      type: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  onEditClick: PropTypes.func.isRequired,
-  onDeleteClick: PropTypes.func.isRequired,
-};
+export default EditFieldsTable;

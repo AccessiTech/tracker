@@ -1,17 +1,21 @@
-import React from "react";
+import { FormikProps } from "formik";
+import React, { FC, ReactElement} from "react";
 import { Form } from "react-bootstrap";
 import { initialFieldStates } from "../../store/Log";
-import { capitalizeFirstLetter, formikPartialPropTypes } from "./../../utils";
+import { capitalizeFirstLetter } from "./../../utils";
 
-export const TypeOptionSelect = ({
+export interface TypeOptionSelectProps extends FormikProps<{[key:string]:string}> {}
+
+
+export const TypeOptionSelect:FC<TypeOptionSelectProps> = ({
   values,
   errors,
   touched,
   handleChange,
   handleBlur,
-}) => {
+}):ReactElement|null => {
   const { typeOptions, typeOptionStrings } = initialFieldStates[values.type];
-  if (!typeOptions || !typeOptions.length) return null;
+  if (!typeOptions || !typeOptionStrings) return null;
 
   return (
     <Form.Group>
@@ -45,5 +49,3 @@ export const TypeOptionSelect = ({
 };
 
 export default TypeOptionSelect;
-
-TypeOptionSelect.propTypes = { ...formikPartialPropTypes };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC, ReactElement } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Modal } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
@@ -10,37 +10,44 @@ import {
   updateLog,
   removeLog,
   removeLogField,
+  Log,
+  LogFields,
 } from "../../store/Log";
 import "./Edit.scss";
 import { LogNameForm } from "../../components/LogNameForm";
 import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTable";
 import { EditFieldForm } from "../../components/EditFieldForm";
 
-export const onUpdateLog = (e, log) => {
-  const updatedLog = {
+export const onUpdateLog = (log: Log) => {
+  const updatedLog:Log = {
     ...log,
-    ...e,
   };
   store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
 };
 
-export const onDeleteLog = (e, log) => {
+export const onDeleteLog = (
+  e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  log: Log
+) => {
   e.preventDefault();
   store.dispatch(removeLog({ logId: log.id }));
 };
 
-export const onDeleteField = (e, log, fieldId) => {
-  e.preventDefault();
+export const onDeleteField = (
+  log: Log,
+  fieldId: string
+) => {
   store.dispatch(removeLogField({ logId: log.id, fieldId }));
 };
 
-function Edit() {
+export const Edit: FC = (): ReactElement => {
   const navigate = useNavigate();
-  const { id, field: fid } = useParams();
-  const log = useGetLog(id);
+  const { id, field: fid } = useParams() as {id: string, field: string};
+  
+  const log:Log = useGetLog(id as string);
 
   if (!log || id !== log.id || !log.fields) {
-    return navigate("/");
+    navigate("/");
   }
 
   const [showModal, setShowModal] = React.useState(fid ? true : false);
@@ -56,23 +63,24 @@ function Edit() {
     setFieldId("");
   };
 
-  const onEditField = (e, field) => {
-    e.preventDefault();
+  const onEditField = (
+    _: React.MouseEvent<HTMLElement, MouseEvent>,
+    field: LogFields
+  ) => {
     navigate(`/log/${log.id}/edit/field/${field.id}`);
     setShowModal(true);
     setModalMode("edit");
     setFieldId(field.id);
   };
 
-  const onAddField = (e) => {
-    e.preventDefault();
+  const onAddField = () => {
     navigate(`/log/${log.id}/edit/field/new`);
     setShowModal(true);
     setModalMode("add");
     setFieldId("");
   };
 
-  const fields = Object.values(log.fields);
+  const fields: LogFields[] = Object.values(log.fields);
 
   return (
     <>
@@ -82,7 +90,9 @@ function Edit() {
             <h1>Edit Log</h1>
             <hr />
             <LogNameForm
-              onSubmit={(e) => onUpdateLog(e, log)}
+              onSubmit={() =>
+                onUpdateLog(log)
+              }
               logName={log.name}
             />
           </Col>
@@ -94,7 +104,10 @@ function Edit() {
             {fields && fields.length ? (
               <EditFieldsTable
                 fields={fields}
-                onDeleteClick={(e, fieldId) => onDeleteField(e, log, fieldId)}
+                onDeleteClick={(
+                  e: React.MouseEvent<HTMLElement, MouseEvent>,
+                  fieldId: string
+                ) => onDeleteField(log, fieldId)}
                 onEditClick={onEditField}
               />
             ) : (
@@ -149,6 +162,6 @@ function Edit() {
       </Modal>
     </>
   );
-}
+};
 
 export default Edit;

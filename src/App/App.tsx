@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC, ReactElement } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { Home } from "../containers/Home";
 import { New } from "../containers/New";
@@ -7,7 +7,7 @@ import { Log } from "../containers/Log";
 import { LogEntry } from "../containers/LogEntry";
 import "./App.scss";
 
-function App() {
+export const App: FC = ():ReactElement => {
   return (
     <HashRouter>
       <Routes>
