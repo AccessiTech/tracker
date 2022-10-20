@@ -1,9 +1,12 @@
-import React from "react";
+import React, { FC, ReactElement } from "react";
 import { Col, Form, Row } from "react-bootstrap";
+import { FormikProps } from "formik";
 import { formikPartialPropTypes } from "../../utils";
 import { TypeOptionSelect } from "./TypeOptionSelect";
 
-export const EditFieldNumber = (formikProps) => {
+export interface EditFieldTextProps extends FormikProps<{[key:string]:string}> {}
+
+export const EditFieldNumber:FC<EditFieldTextProps> = (formikProps):ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = formikProps;
   
   return (

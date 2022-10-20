@@ -1,26 +1,25 @@
-import React from "react";
+import React, { FC, ReactElement } from "react";
 import { Col, Form, Row } from "react-bootstrap";
 import { TypeOptionSelect } from "./TypeOptionSelect";
-import { formikPartialPropTypes } from "./../../utils";
+import { FormikProps } from "formik";
 
-export const EditFieldText = ({
-  values,
-  errors,
-  touched,
-  handleChange,
-  handleBlur,
-}) => {
+export interface EditFieldTextProps extends FormikProps<{[key:string]:string}> {}
+
+export const EditFieldText:FC<EditFieldTextProps> = (props):ReactElement => {
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+  } = props;
   return (
     <>
       <hr />
       <h5>Text Field Options</h5>
 
       <TypeOptionSelect
-        values={values}
-        errors={errors}
-        touched={touched}
-        handleChange={handleChange}
-        handleBlur={handleBlur}
+        {...props}
       />
 
       <Form.Group>
@@ -82,4 +81,3 @@ export const EditFieldText = ({
 
 export default EditFieldText;
 
-EditFieldText.propTypes = { ...formikPartialPropTypes };

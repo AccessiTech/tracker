@@ -1,7 +1,6 @@
-import React from "react";
-import { PropTypes } from "prop-types";
+import React, { FC, ReactElement } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Formik } from "formik";
+import { Formik, FormikProps } from "formik";
 import * as Yup from "yup";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import store from "../../store/store";
@@ -10,12 +9,17 @@ import {
   updateLogField,
   initialFieldStates,
   initialTextFieldState,
+  Log,
+  LogFields,
 } from "../../store/Log";
 import { EditFieldText } from "./EditFieldText";
 import { EditFieldNumber } from "./EditFieldNumber";
 import "./editFieldForm.scss";
 
-export const onHandleField = (values, log, field) => {
+export interface HandleFieldsFunction {
+  (values: {[key:string]:string}, log: Log, field: LogFields): void;
+}
+export const onHandleField:HandleFieldsFunction = (values, log, field) => {
   const { id, name, type, required, option, defaultValue, unit } = values;
 
   const prevField = {
@@ -44,8 +48,18 @@ export const onHandleField = (values, log, field) => {
   }
 };
 
-export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
-  const fieldState = fieldId
+export interface EditFieldFormProps {
+  log: Log,
+  fieldId: string | undefined,
+  modalMode: string,
+  resetModal: ()=>void,
+}
+export interface EditFieldFormValues {
+  [key:string]: any,
+}
+
+export const EditFieldForm: FC<EditFieldFormProps> = ({ fieldId, log, modalMode, resetModal }):ReactElement => {
+  const fieldState:EditFieldFormValues = fieldId
     ? log.fields[fieldId]
     : { ...initialTextFieldState };
 
@@ -62,21 +76,21 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
           then: Yup.string().required("Required"),
         }),
       })}
-      onSubmit={(values) => {
-        onHandleField(values, log, fieldState);
+      onSubmit={(values:{[key:string]:string}) => {
+        onHandleField(values, log, fieldState as LogFields);
         resetModal();
       }}
     >
-      {({
-        values,
-        errors,
-        touched,
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        setFieldValue,
-      }) => (
-        <Form onSubmit={handleSubmit} className="form__field_edit">
+      {(props: FormikProps<{[key:string]:string}>) => {
+        const {
+          values,
+          errors,
+          touched,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+        } = props;
+        return <Form onSubmit={handleSubmit} className="form__field_edit">
           {/* Name, Type, and Required inputs */}
           <Form.Group>
             <Form.Label>Field Name</Form.Label>
@@ -129,7 +143,7 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
                   className="form__field_edit__required"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  defaultChecked={values.required}
+                  defaultChecked={values.required as unknown as boolean}
                 />
                 {(touched.required && errors.required && (
                   <Form.Text className="text-danger">
@@ -146,22 +160,13 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
 
           {values.type === "text" && (
             <EditFieldText
-              values={values}
-              errors={errors}
-              touched={touched}
-              handleChange={handleChange}
-              handleBlur={handleBlur}
-              setFieldValue={setFieldValue}
+              {...props}
             />
           )}
 
           {values.type === "number" && (
             <EditFieldNumber
-              values={values}
-              errors={errors}
-              touched={touched}
-              handleChange={handleChange}
-              handleBlur={handleBlur}
+              {...props}
             />
           )}
 
@@ -189,16 +194,9 @@ export const EditFieldForm = ({ fieldId, log, modalMode, resetModal }) => {
             </Row>
           </Form.Group>
         </Form>
-      )}
+      }}
     </Formik>
   );
-};
-
-EditFieldForm.propTypes = {
-  fieldId: PropTypes.string.isRequired,
-  log: PropTypes.object.isRequired,
-  modalMode: PropTypes.string.isRequired,
-  resetModal: PropTypes.func.isRequired,
 };
 
 export default EditFieldForm;
