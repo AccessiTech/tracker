@@ -51,6 +51,6 @@ export const New: FC = (): ReactElement => {
       </Row>
     </Container>
   );
-}
+};
 
 export default New;

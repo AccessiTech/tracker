@@ -15,7 +15,11 @@ export interface EditFieldsTableProps {
   onDeleteClick: DeleteFieldClickFunction;
 }
 
-export const EditFieldsTable:FC<EditFieldsTableProps> = ({ fields, onEditClick, onDeleteClick }): ReactElement => {
+export const EditFieldsTable: FC<EditFieldsTableProps> = ({
+  fields,
+  onEditClick,
+  onDeleteClick,
+}): ReactElement => {
   return (
     <table className="table table-striped">
       <thead>
@@ -30,7 +34,7 @@ export const EditFieldsTable:FC<EditFieldsTableProps> = ({ fields, onEditClick, 
         </tr>
       </thead>
       <tbody>
-        {fields.map((field:LogFields) => (
+        {fields.map((field: LogFields) => (
           <tr key={field.id} style={{ verticalAlign: "middle" }}>
             <td>{field.name}</td>
             <td>{field.type}</td>

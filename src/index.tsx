@@ -7,7 +7,7 @@ import { PersistGate } from "reduxjs-toolkit-persist/integration/react";
 import { App } from "./App";
 import reportWebVitals from "./reportWebVitals";
 
-const root:ReactDOM.Root = ReactDOM.createRoot(
+const root: ReactDOM.Root = ReactDOM.createRoot(
   document.getElementById("root") as Element | DocumentFragment
 );
 root.render(

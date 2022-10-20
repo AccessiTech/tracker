@@ -7,7 +7,7 @@ import { Log } from "../containers/Log";
 import { LogEntry } from "../containers/LogEntry";
 import "./App.scss";
 
-export const App: FC = ():ReactElement => {
+export const App: FC = (): ReactElement => {
   return (
     <HashRouter>
       <Routes>
@@ -17,9 +17,9 @@ export const App: FC = ():ReactElement => {
           <Route path="" element={<h1>404</h1>} />
           <Route path="new/" element={<New />} />
           <Route path=":id/">
-            <Route path="" element={<Log/>} />
-            <Route path="entry/" element={<LogEntry />}/>
-            <Route path="entry/:entry" element={<LogEntry />}/>
+            <Route path="" element={<Log />} />
+            <Route path="entry/" element={<LogEntry />} />
+            <Route path="entry/:entry" element={<LogEntry />} />
             <Route path="edit/">
               <Route path="" element={<Edit />} />
               <Route path="field/:field/" element={<Edit />} />
@@ -29,6 +29,6 @@ export const App: FC = ():ReactElement => {
       </Routes>
     </HashRouter>
   );
-}
+};
 
 export default App;

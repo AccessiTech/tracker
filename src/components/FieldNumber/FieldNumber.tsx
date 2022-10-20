@@ -3,11 +3,12 @@ import { FormikProps } from "formik";
 import { Form, InputGroup } from "react-bootstrap";
 import { NumberLogField } from "../../store/Log";
 
-export interface FieldNumberProps extends FormikProps<{[key:string]:string}> {
+export interface FieldNumberProps
+  extends FormikProps<{ [key: string]: string }> {
   field: NumberLogField;
 }
 
-export const FieldNumber: FC<FieldNumberProps> = (props):ReactElement => {
+export const FieldNumber: FC<FieldNumberProps> = (props): ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = props;
   const {
     id: fieldId,

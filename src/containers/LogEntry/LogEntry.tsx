@@ -19,7 +19,11 @@ import store from "../../store/store";
 import FieldText from "../../components/FieldText/FieldText";
 import { FieldNumber } from "../../components/FieldNumber";
 
-export const onLogEntrySubmit = (values:{[fieldId:string]: FieldValue}, log:Log, entry:LogEntryType) => {
+export const onLogEntrySubmit = (
+  values: { [fieldId: string]: FieldValue },
+  log: Log,
+  entry: LogEntryType
+) => {
   const payload = {
     logId: log.id,
     entryId: entry.id,
@@ -31,15 +35,18 @@ export const onLogEntrySubmit = (values:{[fieldId:string]: FieldValue}, log:Log,
   store.dispatch((entry ? updateLogEntry : addLogEntry)(payload));
 };
 
-export const onLogEntryDelete = (entry:LogEntryType, log:Log) => {
+export const onLogEntryDelete = (entry: LogEntryType, log: Log) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId: entry.id }));
 };
 
-export const LogEntry:FC = ():ReactElement|null => {
-  const { id: logId, entry: entryId }= useParams() as { id: string, entry: string };
+export const LogEntry: FC = (): ReactElement | null => {
+  const { id: logId, entry: entryId } = useParams() as {
+    id: string;
+    entry: string;
+  };
   const navigate = useNavigate();
-  const log:Log = useGetLog(logId);
-  const entry:LogEntryType = useGetLogEntry(logId, entryId);
+  const log: Log = useGetLog(logId);
+  const entry: LogEntryType = useGetLogEntry(logId, entryId);
   const [cancel, setCancel] = React.useState(false);
   const [isNewEntry] = React.useState(
     typeof entryId === "undefined" || typeof entry === "undefined"
@@ -122,6 +129,6 @@ export const LogEntry:FC = ():ReactElement|null => {
       </Container>
     </>
   );
-}
+};
 
 export default LogEntry;

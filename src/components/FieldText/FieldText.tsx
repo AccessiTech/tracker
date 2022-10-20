@@ -3,11 +3,11 @@ import { FormikProps } from "formik";
 import { Form } from "react-bootstrap";
 import { TextLogField } from "../../store/Log";
 
-export interface FieldTextProps extends FormikProps<{[key:string]:string}> {
+export interface FieldTextProps extends FormikProps<{ [key: string]: string }> {
   field: TextLogField;
 }
 
-export const FieldText: FC<FieldTextProps> = (props):ReactElement => {
+export const FieldText: FC<FieldTextProps> = (props): ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = props;
   const { id: fieldId, option, name, required, defaultValue } = props.field;
 

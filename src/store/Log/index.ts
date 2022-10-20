@@ -26,7 +26,7 @@ export {
   useGetLogEntries,
   useGetLogEntriesArray,
   useGetLogEntryValue,
-} from './hooks';
+} from "./hooks";
 
 export {
   // Initial States
@@ -64,4 +64,4 @@ export type {
   LogEntry,
   LogFields,
   LogEntryStates,
-} from './initialStates';
+} from "./initialStates";

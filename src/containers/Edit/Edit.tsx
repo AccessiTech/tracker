@@ -19,7 +19,7 @@ import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTabl
 import { EditFieldForm } from "../../components/EditFieldForm";
 
 export const onUpdateLog = (log: Log) => {
-  const updatedLog:Log = {
+  const updatedLog: Log = {
     ...log,
   };
   store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
@@ -33,18 +33,15 @@ export const onDeleteLog = (
   store.dispatch(removeLog({ logId: log.id }));
 };
 
-export const onDeleteField = (
-  log: Log,
-  fieldId: string
-) => {
+export const onDeleteField = (log: Log, fieldId: string) => {
   store.dispatch(removeLogField({ logId: log.id, fieldId }));
 };
 
 export const Edit: FC = (): ReactElement => {
   const navigate = useNavigate();
-  const { id, field: fid } = useParams() as {id: string, field: string};
-  
-  const log:Log = useGetLog(id as string);
+  const { id, field: fid } = useParams() as { id: string; field: string };
+
+  const log: Log = useGetLog(id as string);
 
   if (!log || id !== log.id || !log.fields) {
     navigate("/");
@@ -89,12 +86,7 @@ export const Edit: FC = (): ReactElement => {
           <Col>
             <h1>Edit Log</h1>
             <hr />
-            <LogNameForm
-              onSubmit={() =>
-                onUpdateLog(log)
-              }
-              logName={log.name}
-            />
+            <LogNameForm onSubmit={() => onUpdateLog(log)} logName={log.name} />
           </Col>
         </Row>
         <hr />

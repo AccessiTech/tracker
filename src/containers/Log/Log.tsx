@@ -10,17 +10,22 @@ import {
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import store from "../../store/store";
-import { useGetLog, removeLogEntry, Log as LogType, LogEntry } from "../../store/Log";
+import {
+  useGetLog,
+  removeLogEntry,
+  Log as LogType,
+  LogEntry,
+} from "../../store/Log";
 import "./log.scss";
 
-export const onDeleteEntry = (log:LogType, entryId: string) => {
+export const onDeleteEntry = (log: LogType, entryId: string) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId }));
 };
 
-export const Log: FC = ():ReactElement => {
+export const Log: FC = (): ReactElement => {
   const navigate = useNavigate();
   const { id } = useParams() as { id: string };
-  const log:LogType = useGetLog(id);
+  const log: LogType = useGetLog(id);
   const { name, fields } = log;
   const entries: LogEntry[] = Object.values(log.entries || {});
   const hasEntries = entries.length > 0;
@@ -38,15 +43,17 @@ export const Log: FC = ():ReactElement => {
           <h4>{`Entries (${entries.length})`}</h4>
           {hasEntries ? (
             entries
-              .filter((entry:LogEntry) => entry && Object.keys(entry).length > 2)
-              .map((entry:LogEntry) => {
+              .filter(
+                (entry: LogEntry) => entry && Object.keys(entry).length > 2
+              )
+              .map((entry: LogEntry) => {
                 console.log(entry);
                 return (
                   <Card key={id + "-" + entry.id} className="log__entry">
                     <Card.Body>
                       {Object.keys(entry)
-                        .filter((fieldId:string) => fields[fieldId])
-                        .map((fieldId:string) => {
+                        .filter((fieldId: string) => fields[fieldId])
+                        .map((fieldId: string) => {
                           return (
                             <div
                               key={entry.id + "-" + fieldId}
@@ -118,6 +125,6 @@ export const Log: FC = ():ReactElement => {
       </Row>
     </Container>
   );
-}
+};
 
 export default Log;
