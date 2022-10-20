@@ -1,8 +1,13 @@
-import React from "react";
+import React, { FC, ReactElement } from "react";
+import { FormikProps } from "formik";
 import { Form, InputGroup } from "react-bootstrap";
-import { fieldPropTypes, formikPartialPropTypes } from "../../utils";
+import { NumberLogField } from "../../store/Log";
 
-export const FieldNumber = (props) => {
+export interface FieldNumberProps extends FormikProps<{[key:string]:string}> {
+  field: NumberLogField;
+}
+
+export const FieldNumber: FC<FieldNumberProps> = (props):ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = props;
   const {
     id: fieldId,
@@ -63,11 +68,6 @@ export const FieldNumber = (props) => {
       </Form.Group>
     </>
   );
-};
-
-FieldNumber.propTypes = {
-  ...formikPartialPropTypes,
-  ...fieldPropTypes,
 };
 
 export default FieldNumber;

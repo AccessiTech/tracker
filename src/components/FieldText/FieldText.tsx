@@ -1,8 +1,13 @@
-import React from "react";
+import React, { FC, ReactElement } from "react";
+import { FormikProps } from "formik";
 import { Form } from "react-bootstrap";
-import { fieldPropTypes, formikPartialPropTypes } from "../../utils";
+import { TextLogField } from "../../store/Log";
 
-export const FieldText = (props) => {
+export interface FieldTextProps extends FormikProps<{[key:string]:string}> {
+  field: TextLogField;
+}
+
+export const FieldText: FC<FieldTextProps> = (props):ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = props;
   const { id: fieldId, option, name, required, defaultValue } = props.field;
 
@@ -33,11 +38,6 @@ export const FieldText = (props) => {
       </Form.Group>
     </>
   );
-};
-
-FieldText.propTypes = {
-  ...formikPartialPropTypes,
-  ...fieldPropTypes,
 };
 
 export default FieldText;
