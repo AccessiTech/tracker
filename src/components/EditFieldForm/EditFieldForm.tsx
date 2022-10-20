@@ -17,9 +17,9 @@ import { EditFieldNumber } from "./EditFieldNumber";
 import "./editFieldForm.scss";
 
 export interface HandleFieldsFunction {
-  (values: {[key:string]:string}, log: Log, field: LogFields): void;
+  (values: { [key: string]: string }, log: Log, field: LogFields): void;
 }
-export const onHandleField:HandleFieldsFunction = (values, log, field) => {
+export const onHandleField: HandleFieldsFunction = (values, log, field) => {
   const { id, name, type, required, option, defaultValue, unit } = values;
 
   const prevField = {
@@ -49,17 +49,22 @@ export const onHandleField:HandleFieldsFunction = (values, log, field) => {
 };
 
 export interface EditFieldFormProps {
-  log: Log,
-  fieldId: string | undefined,
-  modalMode: string,
-  resetModal: ()=>void,
+  log: Log;
+  fieldId: string | undefined;
+  modalMode: string;
+  resetModal: () => void;
 }
 export interface EditFieldFormValues {
-  [key:string]: any,
+  [key: string]: any;
 }
 
-export const EditFieldForm: FC<EditFieldFormProps> = ({ fieldId, log, modalMode, resetModal }):ReactElement => {
-  const fieldState:EditFieldFormValues = fieldId
+export const EditFieldForm: FC<EditFieldFormProps> = ({
+  fieldId,
+  log,
+  modalMode,
+  resetModal,
+}): ReactElement => {
+  const fieldState: EditFieldFormValues = fieldId
     ? log.fields[fieldId]
     : { ...initialTextFieldState };
 
@@ -76,12 +81,12 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({ fieldId, log, modalMode,
           then: Yup.string().required("Required"),
         }),
       })}
-      onSubmit={(values:{[key:string]:string}) => {
+      onSubmit={(values: { [key: string]: string }) => {
         onHandleField(values, log, fieldState as LogFields);
         resetModal();
       }}
     >
-      {(props: FormikProps<{[key:string]:string}>) => {
+      {(props: FormikProps<{ [key: string]: string }>) => {
         const {
           values,
           errors,
@@ -90,110 +95,104 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({ fieldId, log, modalMode,
           handleBlur,
           handleSubmit,
         } = props;
-        return <Form onSubmit={handleSubmit} className="form__field_edit">
-          {/* Name, Type, and Required inputs */}
-          <Form.Group>
-            <Form.Label>Field Name</Form.Label>
-            <Form.Control
-              type="text"
-              name="name"
-              placeholder="Enter field name"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.name}
-            />
-            {(touched.name && errors.name && (
-              <Form.Text className="text-danger">{errors.name}</Form.Text>
-            )) || (
-              <Form.Text className="text-muted">
-                This is the name of the field
-              </Form.Text>
-            )}
-          </Form.Group>
-          <Form.Group>
-            <Row>
-              <Col>
-                <Form.Label>Field Type</Form.Label>
-                <Form.Control
-                  as="select"
-                  name="type"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.type}
-                >
-                  <option value="text">Text</option>
-                  <option value="number">Number</option>
-                  <option value="select">Selection</option>
-                  <option value="tags">Tags</option>
-                  <option value="boolean">Boolean</option>
-                </Form.Control>
-                {(touched.type && errors.type && (
-                  <Form.Text className="text-danger">{errors.type}</Form.Text>
-                )) || (
-                  <Form.Text className="text-muted">
-                    This is the type of the field.
-                  </Form.Text>
-                )}
-              </Col>
-              <Col>
-                <Form.Label>Required</Form.Label>
-                <Form.Check
-                  type="switch"
-                  name="required"
-                  className="form__field_edit__required"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  defaultChecked={values.required as unknown as boolean}
-                />
-                {(touched.required && errors.required && (
-                  <Form.Text className="text-danger">
-                    {errors.required}
-                  </Form.Text>
-                )) || (
-                  <Form.Text className="text-muted">
-                    Is this field required?
-                  </Form.Text>
-                )}
-              </Col>
-            </Row>
-          </Form.Group>
+        return (
+          <Form onSubmit={handleSubmit} className="form__field_edit">
+            {/* Name, Type, and Required inputs */}
+            <Form.Group>
+              <Form.Label>Field Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="name"
+                placeholder="Enter field name"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.name}
+              />
+              {(touched.name && errors.name && (
+                <Form.Text className="text-danger">{errors.name}</Form.Text>
+              )) || (
+                <Form.Text className="text-muted">
+                  This is the name of the field
+                </Form.Text>
+              )}
+            </Form.Group>
+            <Form.Group>
+              <Row>
+                <Col>
+                  <Form.Label>Field Type</Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="type"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.type}
+                  >
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="select">Selection</option>
+                    <option value="tags">Tags</option>
+                    <option value="boolean">Boolean</option>
+                  </Form.Control>
+                  {(touched.type && errors.type && (
+                    <Form.Text className="text-danger">{errors.type}</Form.Text>
+                  )) || (
+                    <Form.Text className="text-muted">
+                      This is the type of the field.
+                    </Form.Text>
+                  )}
+                </Col>
+                <Col>
+                  <Form.Label>Required</Form.Label>
+                  <Form.Check
+                    type="switch"
+                    name="required"
+                    className="form__field_edit__required"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    defaultChecked={values.required as unknown as boolean}
+                  />
+                  {(touched.required && errors.required && (
+                    <Form.Text className="text-danger">
+                      {errors.required}
+                    </Form.Text>
+                  )) || (
+                    <Form.Text className="text-muted">
+                      Is this field required?
+                    </Form.Text>
+                  )}
+                </Col>
+              </Row>
+            </Form.Group>
 
-          {values.type === "text" && (
-            <EditFieldText
-              {...props}
-            />
-          )}
+            {values.type === "text" && <EditFieldText {...props} />}
 
-          {values.type === "number" && (
-            <EditFieldNumber
-              {...props}
-            />
-          )}
+            {values.type === "number" && <EditFieldNumber {...props} />}
 
-          <hr />
-          {/* Cancel and Submit Buttons */}
-          <Form.Group>
-            <Row className="form__field_edit__submit_row">
-              <Col>
-                <Button
-                  variant="secondary"
-                  type="reset"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    resetModal();
-                  }}
-                >
-                  Cancel
-                </Button>
-              </Col>
-              <Col>
-                <Button variant="primary" type="submit">
-                  {`${modalMode === "add" ? "Create" : "Update"} Field`}
-                </Button>
-              </Col>
-            </Row>
-          </Form.Group>
-        </Form>
+            <hr />
+            {/* Cancel and Submit Buttons */}
+            <Form.Group>
+              <Row className="form__field_edit__submit_row">
+                <Col>
+                  <Button
+                    variant="secondary"
+                    type="reset"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      resetModal();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Col>
+                <Col>
+                  <Button variant="primary" type="submit">
+                    {`${modalMode === "add" ? "Create" : "Update"} Field`}
+                  </Button>
+                </Col>
+              </Row>
+            </Form.Group>
+          </Form>
+        );
       }}
     </Formik>
   );
