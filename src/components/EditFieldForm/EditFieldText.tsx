@@ -3,24 +3,17 @@ import { Col, Form, Row } from "react-bootstrap";
 import { TypeOptionSelect } from "./TypeOptionSelect";
 import { FormikProps } from "formik";
 
-export interface EditFieldTextProps extends FormikProps<{[key:string]:string}> {}
+export interface EditFieldTextProps
+  extends FormikProps<{ [key: string]: string }> {}
 
-export const EditFieldText:FC<EditFieldTextProps> = (props):ReactElement => {
-  const {
-    values,
-    errors,
-    touched,
-    handleChange,
-    handleBlur,
-  } = props;
+export const EditFieldText: FC<EditFieldTextProps> = (props): ReactElement => {
+  const { values, errors, touched, handleChange, handleBlur } = props;
   return (
     <>
       <hr />
       <h5>Text Field Options</h5>
 
-      <TypeOptionSelect
-        {...props}
-      />
+      <TypeOptionSelect {...props} />
 
       <Form.Group>
         <Row>
@@ -29,7 +22,7 @@ export const EditFieldText:FC<EditFieldTextProps> = (props):ReactElement => {
             <Form.Control
               type="number"
               name="min"
-              placeholder={values.min || "None"} 
+              placeholder={values.min || "None"}
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.min}
@@ -37,13 +30,12 @@ export const EditFieldText:FC<EditFieldTextProps> = (props):ReactElement => {
             {(touched.min && errors.min && (
               <Form.Text className="text-danger">{errors.min}</Form.Text>
             )) || <Form.Text className="text-muted">{"Default: 0"}</Form.Text>}
-        </Col>
-        <Col>
+          </Col>
+          <Col>
             <Form.Label>{"Max Length"}</Form.Label>
             <Form.Control
               type="number"
               name="max"
-
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.max}
@@ -51,7 +43,9 @@ export const EditFieldText:FC<EditFieldTextProps> = (props):ReactElement => {
             {(touched.max && errors.max && (
               <Form.Text className="text-danger">{errors.max}</Form.Text>
             )) || (
-              <Form.Text className="text-muted">{"Default: 0 (none)"}</Form.Text>
+              <Form.Text className="text-muted">
+                {"Default: 0 (none)"}
+              </Form.Text>
             )}
           </Col>
         </Row>
@@ -80,4 +74,3 @@ export const EditFieldText:FC<EditFieldTextProps> = (props):ReactElement => {
 };
 
 export default EditFieldText;
-

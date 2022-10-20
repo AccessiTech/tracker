@@ -3,11 +3,14 @@ import { Col, Form, Row } from "react-bootstrap";
 import { FormikProps } from "formik";
 import { TypeOptionSelect } from "./TypeOptionSelect";
 
-export interface EditFieldTextProps extends FormikProps<{[key:string]:string}> {}
+export interface EditFieldTextProps
+  extends FormikProps<{ [key: string]: string }> {}
 
-export const EditFieldNumber:FC<EditFieldTextProps> = (formikProps):ReactElement => {
+export const EditFieldNumber: FC<EditFieldTextProps> = (
+  formikProps
+): ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = formikProps;
-  
+
   return (
     <>
       <hr />
@@ -64,9 +67,7 @@ export const EditFieldNumber:FC<EditFieldTextProps> = (formikProps):ReactElement
             />
             {(touched.step && errors.step && (
               <Form.Text className="text-danger">{errors.step}</Form.Text>
-            )) || (
-              <Form.Text className="text-muted">{"Default: 1"}</Form.Text>
-            )}
+            )) || <Form.Text className="text-muted">{"Default: 1"}</Form.Text>}
           </Col>
           <Col>
             <Form.Label>{"Unit"}</Form.Label>
@@ -107,6 +108,6 @@ export const EditFieldNumber:FC<EditFieldTextProps> = (formikProps):ReactElement
       </Form.Group>
     </>
   );
-}
+};
 
 export default EditFieldNumber;

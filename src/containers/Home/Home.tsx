@@ -90,6 +90,6 @@ export const Home: FC = (): ReactElement => {
       </Row>
     </Container>
   );
-}
+};
 
 export default Home;

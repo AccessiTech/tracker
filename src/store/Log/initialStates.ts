@@ -11,12 +11,6 @@ export interface CrudState {
 export const initialCRUDState: CrudState = {
   createdAt: "",
   updatedAt: "",
-  // deletedAt: "",
-  // archivedAt: "",
-  // restoredAt: "",
-  // deleted: false,
-  // archived: false,
-  // restored: false,
 };
 
 /**
@@ -43,7 +37,12 @@ export const initialLogState: Log = {
   ...initialCRUDState,
 };
 
-export type FieldValue = string | number | boolean | [number, number] | string[];
+export type FieldValue =
+  | string
+  | number
+  | boolean
+  | [number, number]
+  | string[];
 
 /**
  * Initial state for a log field in the store
@@ -123,10 +122,10 @@ export const initialTextFieldState: TextLogField = {
 export interface NumberLogField extends LogField {
   type: "number";
   min: number;
-  max: number;  
+  max: number;
   step: number;
   typeOptions: ["number", "range"];
-  typeOptionStrings: ["Number Input", "Range Slider"],
+  typeOptionStrings: ["Number Input", "Range Slider"];
   option: "number" | "range";
   unit: string;
 }
@@ -283,7 +282,15 @@ export const initialLogEntryState: LogEntry = {
   user: "",
   ...initialCRUDState,
 };
-export type LogFields = TextLogField | NumberLogField | RangeLogField | TagsLogField | BooleanLogField | SelectLogField | DateLogField | TimeLogField;
+export type LogFields =
+  | TextLogField
+  | NumberLogField
+  | RangeLogField
+  | TagsLogField
+  | BooleanLogField
+  | SelectLogField
+  | DateLogField
+  | TimeLogField;
 export interface LogEntryStates {
   [type: string]: LogFields;
 }
@@ -305,7 +312,7 @@ export const initialFieldStates: LogEntryStates = {
  * @example var newTextFieldState = getInitialFieldState("text")
  * @example var newNumberFieldState = getInitialFieldState("number")
  */
-export const getNewFieldState = (type:string = "text"):LogField => {
+export const getNewFieldState = (type: string = "text"): LogField => {
   let newFieldState = {} as LogField;
   switch (type) {
     case "number":

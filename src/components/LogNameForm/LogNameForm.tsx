@@ -1,7 +1,7 @@
-import React, { FC, ReactElement} from "react";
+import React, { FC, ReactElement } from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
-import { Form, Button, InputGroup } from "react-bootstrap"
+import { Form, Button, InputGroup } from "react-bootstrap";
 
 export const LogNameFormValidationSchema = yup.object().shape({
   name: yup
@@ -10,7 +10,7 @@ export const LogNameFormValidationSchema = yup.object().shape({
     .test(
       "is-valid-name",
       "Name cannot just be spaces",
-      (value) => (typeof value !== 'undefined') && value.trim().length > 0
+      (value) => typeof value !== "undefined" && value.trim().length > 0
     ),
 });
 
@@ -23,7 +23,10 @@ export interface LogNameFormValues {
   name: string;
 }
 
-export const LogNameForm: FC<LogNameFormProps> = ({ onSubmit, logName }): ReactElement => {
+export const LogNameForm: FC<LogNameFormProps> = ({
+  onSubmit,
+  logName,
+}): ReactElement => {
   if (!onSubmit) {
     throw new Error("onSubmit is required");
   }
@@ -32,7 +35,9 @@ export const LogNameForm: FC<LogNameFormProps> = ({ onSubmit, logName }): ReactE
   };
   return (
     <Formik
-      initialValues={initialValues as React.FormEvent<HTMLFormElement> & LogNameFormValues}
+      initialValues={
+        initialValues as React.FormEvent<HTMLFormElement> & LogNameFormValues
+      }
       onSubmit={onSubmit}
       validationSchema={LogNameFormValidationSchema}
     >
@@ -64,9 +69,9 @@ export const LogNameForm: FC<LogNameFormProps> = ({ onSubmit, logName }): ReactE
               Save
             </Button>
           </InputGroup>
-          {touched.name && errors.name && (
+          {(touched.name && errors.name && (
             <Form.Text className="text-danger">{errors.name}</Form.Text>
-          ) || (
+          )) || (
             <Form.Text className="text-muted">
               This is the name of the log.
             </Form.Text>
@@ -75,6 +80,6 @@ export const LogNameForm: FC<LogNameFormProps> = ({ onSubmit, logName }): ReactE
       )}
     </Formik>
   );
-}
+};
 
 export default LogNameForm;
