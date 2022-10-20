@@ -34,11 +34,9 @@ export const onDeleteLog = (
 };
 
 export const onDeleteField = (
-  e: React.MouseEvent<HTMLElement, MouseEvent>,
   log: Log,
   fieldId: string
 ) => {
-  e.preventDefault();
   store.dispatch(removeLogField({ logId: log.id, fieldId }));
 };
 
@@ -66,18 +64,16 @@ export const Edit: FC = (): ReactElement => {
   };
 
   const onEditField = (
-    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    _: React.MouseEvent<HTMLElement, MouseEvent>,
     field: LogFields
   ) => {
-    e.preventDefault();
     navigate(`/log/${log.id}/edit/field/${field.id}`);
     setShowModal(true);
     setModalMode("edit");
     setFieldId(field.id);
   };
 
-  const onAddField = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-    e.preventDefault();
+  const onAddField = () => {
     navigate(`/log/${log.id}/edit/field/new`);
     setShowModal(true);
     setModalMode("add");
@@ -111,7 +107,7 @@ export const Edit: FC = (): ReactElement => {
                 onDeleteClick={(
                   e: React.MouseEvent<HTMLElement, MouseEvent>,
                   fieldId: string
-                ) => onDeleteField(e, log, fieldId)}
+                ) => onDeleteField(log, fieldId)}
                 onEditClick={onEditField}
               />
             ) : (

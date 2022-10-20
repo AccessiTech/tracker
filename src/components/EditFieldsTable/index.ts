@@ -1,2 +1,2 @@
-import { EditFieldsTable } from "./EditFieldsTable";
+import EditFieldsTable from "./EditFieldsTable";
 export { EditFieldsTable };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC, ReactElement} from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { Form, Button, InputGroup } from "react-bootstrap"
@@ -23,7 +23,7 @@ export interface LogNameFormValues {
   name: string;
 }
 
-export const LogNameForm = ({ onSubmit, logName }:LogNameFormProps) => {
+export const LogNameForm: FC<LogNameFormProps> = ({ onSubmit, logName }): ReactElement => {
   if (!onSubmit) {
     throw new Error("onSubmit is required");
   }
