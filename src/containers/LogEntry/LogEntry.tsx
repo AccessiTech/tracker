@@ -24,12 +24,13 @@ export const onLogEntrySubmit = (
   log: Log,
   entry: LogEntryType
 ) => {
+  const newId: string = uuidv4();
   const payload = {
     logId: log.id,
-    entryId: entry.id,
+    entryId: entry && entry.id ? entry.id : newId,
     entry: {
       ...values,
-      id: values.id || uuidv4(),
+      id: values.id || newId,
     },
   };
   store.dispatch((entry ? updateLogEntry : addLogEntry)(payload));
