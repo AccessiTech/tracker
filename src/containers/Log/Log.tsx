@@ -43,13 +43,13 @@ export const Log: FC = (): ReactElement => {
           <h4>{`Entries (${entries.length})`}</h4>
           {hasEntries ? (
             entries
-              .filter(
-                (entry: LogEntry) => entry && entry.values
-              )
+              .filter((entry: LogEntry) => entry && entry.values)
               .map((entry: LogEntry) => {
                 return (
                   <Card key={id + "-" + entry.id} className="log__entry">
                     <Card.Body>
+                      <Card.Title>{entry.values.label}</Card.Title>
+
                       {Object.keys(entry.values)
                         .filter((fieldId: string) => fields[fieldId])
                         .map((fieldId: string) => {

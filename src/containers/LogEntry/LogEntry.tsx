@@ -24,13 +24,16 @@ export const onLogEntrySubmit = (
   log: Log,
   entry: LogEntryType
 ) => {
-  const newId: string = uuidv4();
+  console.log(entry && entry.id);
+  const entryId: string = entry && entry.id ? entry.id : uuidv4();
+  console.log(entryId);
+  console.log(values);
   const payload = {
     logId: log.id,
-    entryId: entry && entry.id ? entry.id : newId,
+    entryId,
     entry: {
       ...entry,
-      id: values.id || newId,
+      id: entryId,
       values: {
         ...values,
       },
@@ -73,15 +76,13 @@ export const LogEntry: FC = (): ReactElement | null => {
     }
   }, [cancel, navigate]);
 
-  const initialValues = {} as any;
+  const initialValues = {
+    label: entry ? entry.values.label : new Date().toLocaleString(),
+    labelOption: entry ? entry.values.labelOption : "date",
+  } as any;
 
   for (const f of logFields) {
     initialValues[f.id] = isNewEntry ? f.defaultValue : entry.values[f.id];
-  }
-
-  if (isNewEntry) {
-    initialValues.label = new Date().toLocaleString();
-    initialValues.labelOption = "date";
   }
 
   return !log || !logFields.length ? null : (
