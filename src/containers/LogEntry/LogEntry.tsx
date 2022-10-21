@@ -29,8 +29,11 @@ export const onLogEntrySubmit = (
     logId: log.id,
     entryId: entry && entry.id ? entry.id : newId,
     entry: {
-      ...values,
+      ...entry,
       id: values.id || newId,
+      values: {
+        ...values
+      }
     },
   };
   store.dispatch((entry ? updateLogEntry : addLogEntry)(payload));
@@ -73,7 +76,7 @@ export const LogEntry: FC = (): ReactElement | null => {
   const initialValues = {} as any;
 
   for (const f of logFields) {
-    initialValues[f.id] = isNewEntry ? f.defaultValue : entry[f.id];
+    initialValues[f.id] = isNewEntry ? f.defaultValue : entry.values[f.id];
   }
 
   return !log || !logFields.length ? null : (
@@ -95,9 +98,9 @@ export const LogEntry: FC = (): ReactElement | null => {
 
                 return (
                   <Form onSubmit={handleSubmit} className="form__log_entry">
+
                     {logFields.map((field: LogFields) => {
                       const { id, type } = field;
-                      <Form.Label>{log.name}</Form.Label>;
 
                       return (
                         <Form.Group key={id}>

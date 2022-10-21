@@ -74,6 +74,6 @@ export const useGetLogEntryValue = (
   entryId: string,
   valueId: string
 ): FieldValue => {
-  const values = useGetLogEntry(logId, entryId);
+  const { values } = useGetLogEntry(logId, entryId);
   return values && values[valueId];
 };

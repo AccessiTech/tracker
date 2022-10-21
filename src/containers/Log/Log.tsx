@@ -44,14 +44,13 @@ export const Log: FC = (): ReactElement => {
           {hasEntries ? (
             entries
               .filter(
-                (entry: LogEntry) => entry && Object.keys(entry).length > 2
+                (entry: LogEntry) => entry && entry.values
               )
               .map((entry: LogEntry) => {
-                console.log(entry);
                 return (
                   <Card key={id + "-" + entry.id} className="log__entry">
                     <Card.Body>
-                      {Object.keys(entry)
+                      {Object.keys(entry.values)
                         .filter((fieldId: string) => fields[fieldId])
                         .map((fieldId: string) => {
                           return (
@@ -60,7 +59,7 @@ export const Log: FC = (): ReactElement => {
                               className="log__entry__field"
                             >
                               <strong>{fields[fieldId].name}</strong>:{" "}
-                              {entry[fieldId]}
+                              {entry.values[fieldId]}
                             </div>
                           );
                         })}

@@ -42,7 +42,8 @@ export type FieldValue =
   | number
   | boolean
   | [number, number]
-  | string[];
+  | string[]
+  | undefined;
 
 /**
  * Initial state for a log field in the store
@@ -62,7 +63,7 @@ export interface LogField extends CrudState {
   option?: string;
   typeOptions?: string[];
   typeOptionStrings?: string[];
-  defaultValue: undefined | FieldValue;
+  defaultValue: FieldValue;
 }
 export const initialFieldState: LogField = {
   id: "",
@@ -267,19 +268,21 @@ export const initialTimeFieldState: TimeLogField = {
  * @property {string} user - The user of the log entry
  * @property {string} log - The log of the log entry
  */
-export interface EntryValues extends CrudState {
+export interface EntryValues {
   [fieldId: string]: FieldValue;
 }
 
-export interface LogEntry extends EntryValues {
+export interface LogEntry extends CrudState{
   id: string;
   user: string;
   log: string;
+  values: EntryValues;
 }
 export const initialLogEntryState: LogEntry = {
   id: "",
   log: "",
   user: "",
+  values: {},
   ...initialCRUDState,
 };
 export type LogFields =

@@ -64,4 +64,5 @@ export type {
   LogEntry,
   LogFields,
   LogEntryStates,
+  EntryValues,
 } from "./initialStates";
