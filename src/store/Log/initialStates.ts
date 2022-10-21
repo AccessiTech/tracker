@@ -269,6 +269,7 @@ export const initialTimeFieldState: TimeLogField = {
  * @property {string} log - The log of the log entry
  */
 export interface EntryValues {
+  label: string;
   [fieldId: string]: FieldValue;
 }
 
@@ -282,7 +283,9 @@ export const initialLogEntryState: LogEntry = {
   id: "",
   log: "",
   user: "",
-  values: {},
+  values: {
+    label: "",
+  },
   ...initialCRUDState,
 };
 export type LogFields =
