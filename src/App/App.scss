@@ -5,4 +5,8 @@ a {
   }
 }
 
+.table td {
+    vertical-align: middle;
+}
+
 @import "~bootstrap/scss/bootstrap.scss";
