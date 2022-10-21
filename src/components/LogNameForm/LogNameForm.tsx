@@ -2,6 +2,7 @@ import React, { FC, ReactElement } from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { Form, Button, InputGroup } from "react-bootstrap";
+import { Log } from "../../store/Log";
 
 export const LogNameFormValidationSchema = yup.object().shape({
   name: yup
@@ -15,8 +16,8 @@ export const LogNameFormValidationSchema = yup.object().shape({
 });
 
 export interface LogNameFormProps {
-  logName: string;
-  onSubmit: () => void;
+  log: Log;
+  onSubmit: (log:Log, values:any) => void;
 }
 
 export interface LogNameFormValues {
@@ -25,20 +26,20 @@ export interface LogNameFormValues {
 
 export const LogNameForm: FC<LogNameFormProps> = ({
   onSubmit,
-  logName,
+  log,
 }): ReactElement => {
   if (!onSubmit) {
     throw new Error("onSubmit is required");
   }
-  const initialValues: LogNameFormValues = {
-    name: logName || "",
-  };
+  const initialValues = {
+    name: log.name || "",
+  } as LogNameFormValues;
   return (
     <Formik
       initialValues={
-        initialValues as React.FormEvent<HTMLFormElement> & LogNameFormValues
+        initialValues
       }
-      onSubmit={onSubmit}
+      onSubmit={(values:any) => onSubmit(log, values)}
       validationSchema={LogNameFormValidationSchema}
     >
       {({
@@ -63,7 +64,7 @@ export const LogNameForm: FC<LogNameFormProps> = ({
               variant="primary"
               type="submit"
               disabled={
-                Object.keys(errors).length > 0 || values.name === logName
+                Object.keys(errors).length > 0 || values.name === log.name
               }
             >
               Save

@@ -18,9 +18,10 @@ import { LogNameForm } from "../../components/LogNameForm";
 import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTable";
 import { EditFieldForm } from "../../components/EditFieldForm";
 
-export const onUpdateLog = (log: Log) => {
+export const onUpdateLog = (log: Log, values: any):void => {
   const updatedLog: Log = {
     ...log,
+    ...values,
   };
   store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
 };
@@ -86,7 +87,7 @@ export const Edit: FC = (): ReactElement => {
           <Col>
             <h1>Edit Log</h1>
             <hr />
-            <LogNameForm onSubmit={() => onUpdateLog(log)} logName={log.name} />
+            <LogNameForm onSubmit={onUpdateLog} log={log} />
           </Col>
         </Row>
         <hr />
