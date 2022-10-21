@@ -18,26 +18,28 @@ import { Formik } from "formik";
 import store from "../../store/store";
 import FieldText from "../../components/FieldText/FieldText";
 import { FieldNumber } from "../../components/FieldNumber";
+import { FieldDate } from "../../components/FieldDate";
 
 export const onLogEntrySubmit = (
-  values: { [fieldId: string]: FieldValue },
+  values: { [fieldId: string]: FieldValue; label: string },
   log: Log,
   entry: LogEntryType
 ) => {
-  console.log(entry && entry.id);
   const entryId: string = entry && entry.id ? entry.id : uuidv4();
-  console.log(entryId);
-  console.log(values);
+  const newValues = {
+    ...values,
+  };
+
+  const newEntry: LogEntryType = {
+    ...entry,
+    id: entryId,
+    values: newValues,
+  };
+
   const payload = {
     logId: log.id,
     entryId,
-    entry: {
-      ...entry,
-      id: entryId,
-      values: {
-        ...values,
-      },
-    },
+    entry: newEntry,
   };
   store.dispatch((entry ? updateLogEntry : addLogEntry)(payload));
 };
@@ -161,6 +163,9 @@ export const LogEntry: FC = (): ReactElement | null => {
                           )}
                           {type === "number" && (
                             <FieldNumber {...formikProps} field={field} />
+                          )}
+                          {type === "date" && (
+                            <FieldDate {...formikProps} field={field} />
                           )}
                         </Form.Group>
                       );
