@@ -236,12 +236,18 @@ export const initialSelectFieldState: SelectLogField = {
  */
 export interface DateLogField extends LogField {
   type: "date";
+  option: "date" | "datetime-local" | "time";
+  typeOptions: ["date", "datetime-local", "time"];
+  typeOptionStrings: ["Date", "Date & Time", "Time"];
 }
 export const initialDateFieldState: DateLogField = {
   ...initialFieldState,
   name: "New Date Field",
   type: "date",
-  defaultValue: new Date().toISOString().slice(0, 10),
+  typeOptions: ["date", "datetime-local", "time"],
+  typeOptionStrings: ["Date", "Date & Time", "Time"],
+  option: "date",
+  defaultValue: new Date().toLocaleString(),
 };
 
 /**

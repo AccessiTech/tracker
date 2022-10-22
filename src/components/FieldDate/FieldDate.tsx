@@ -9,18 +9,19 @@ export interface FieldDateProps extends FormikProps<{ [key: string]: string }> {
 
 export const FieldDate: FC<FieldDateProps> = (props): ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = props;
-  const { id: fieldId, name, required, defaultValue } = props.field;
+  const { id: fieldId, name, required, defaultValue, option } = props.field;
 
   const defaultValueString = `Default: ${
     typeof defaultValue === "undefined" ? "none" : defaultValue
   }`;
+  const fieldLabel = `${name}${required ? "*" : ""}`;
 
   return (
     <>
       <Form.Group>
-        <Form.Label>{name}</Form.Label>
+        <Form.Label>{fieldLabel}</Form.Label>
         <Form.Control
-          type="datetime-local"
+          type={option}
           name={fieldId}
           onChange={handleChange}
           onBlur={handleBlur}
