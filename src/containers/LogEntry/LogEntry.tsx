@@ -18,23 +18,28 @@ import { Formik } from "formik";
 import store from "../../store/store";
 import FieldText from "../../components/FieldText/FieldText";
 import { FieldNumber } from "../../components/FieldNumber";
+import { FieldDate } from "../../components/FieldDate";
 
 export const onLogEntrySubmit = (
-  values: { [fieldId: string]: FieldValue },
+  values: { [fieldId: string]: FieldValue; label: string },
   log: Log,
   entry: LogEntryType
 ) => {
-  const newId: string = uuidv4();
+  const entryId: string = entry && entry.id ? entry.id : uuidv4();
+  const newValues = {
+    ...values,
+  };
+
+  const newEntry: LogEntryType = {
+    ...entry,
+    id: entryId,
+    values: newValues,
+  };
+
   const payload = {
     logId: log.id,
-    entryId: entry && entry.id ? entry.id : newId,
-    entry: {
-      ...entry,
-      id: values.id || newId,
-      values: {
-        ...values
-      }
-    },
+    entryId,
+    entry: newEntry,
   };
   store.dispatch((entry ? updateLogEntry : addLogEntry)(payload));
 };
@@ -56,7 +61,7 @@ export const LogEntry: FC = (): ReactElement | null => {
     typeof entryId === "undefined" || typeof entry === "undefined"
   );
 
-  const { name, fields } = log;
+  const { name, fields, labelOption } = log;
   const logFields: LogFields[] = Object.values(fields || {});
 
   React.useEffect(() => {
@@ -94,11 +99,24 @@ export const LogEntry: FC = (): ReactElement | null => {
               }}
             >
               {(formikProps) => {
-                const { handleSubmit } = formikProps;
-
+                const isTextLabel = labelOption === "text";
                 return (
-                  <Form onSubmit={handleSubmit} className="form__log_entry">
-
+                  <Form
+                    onSubmit={formikProps.handleSubmit}
+                    className="form__log_entry"
+                  >
+                    {isTextLabel && (
+                      <Form.Group>
+                        <Form.Label>Entry Label</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="label"
+                          onChange={formikProps.handleChange}
+                          onBlur={formikProps.handleBlur}
+                          value={formikProps.values.label}
+                        />
+                      </Form.Group>
+                    )}
                     {logFields.map((field: LogFields) => {
                       const { id, type } = field;
 
@@ -109,6 +127,9 @@ export const LogEntry: FC = (): ReactElement | null => {
                           )}
                           {type === "number" && (
                             <FieldNumber {...formikProps} field={field} />
+                          )}
+                          {type === "date" && (
+                            <FieldDate {...formikProps} field={field} />
                           )}
                         </Form.Group>
                       );

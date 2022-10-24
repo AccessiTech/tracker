@@ -26,10 +26,11 @@ export const Log: FC = (): ReactElement => {
   const navigate = useNavigate();
   const { id } = useParams() as { id: string };
   const log: LogType = useGetLog(id);
-  const { name, fields } = log;
+  const { name, fields, labelOption } = log;
   const entries: LogEntry[] = Object.values(log.entries || {});
   const hasEntries = entries.length > 0;
-
+  const isLabelDate = labelOption === "date";
+  const isLabelText = labelOption === "text";
   return (
     <Container className="log__container">
       <Row>
@@ -43,23 +44,34 @@ export const Log: FC = (): ReactElement => {
           <h4>{`Entries (${entries.length})`}</h4>
           {hasEntries ? (
             entries
-              .filter(
-                (entry: LogEntry) => entry && entry.values
-              )
+              .filter((entry: LogEntry) => entry && entry.values)
               .map((entry: LogEntry) => {
+                const labelText = isLabelDate
+                  ? new Date(entry.createdAt as string).toLocaleString()
+                  : isLabelText
+                  ? entry.values.label
+                  : entry.values[labelOption as string];
+
                 return (
                   <Card key={id + "-" + entry.id} className="log__entry">
                     <Card.Body>
+                      <Card.Title>{labelText}</Card.Title>
+
                       {Object.keys(entry.values)
                         .filter((fieldId: string) => fields[fieldId])
                         .map((fieldId: string) => {
+                          const isDate = fields[fieldId].type === "date";
                           return (
                             <div
                               key={entry.id + "-" + fieldId}
                               className="log__entry__field"
                             >
                               <strong>{fields[fieldId].name}</strong>:{" "}
-                              {entry.values[fieldId]}
+                              {isDate
+                                ? new Date(
+                                    entry.values[fieldId] as string
+                                  ).toLocaleString()
+                                : entry.values[fieldId]}
                             </div>
                           );
                         })}
