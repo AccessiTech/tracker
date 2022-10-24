@@ -61,7 +61,7 @@ export const LogEntry: FC = (): ReactElement | null => {
     typeof entryId === "undefined" || typeof entry === "undefined"
   );
 
-  const { name, fields } = log;
+  const { name, fields, labelOption } = log;
   const logFields: LogFields[] = Object.values(fields || {});
 
   React.useEffect(() => {
@@ -78,10 +78,7 @@ export const LogEntry: FC = (): ReactElement | null => {
     }
   }, [cancel, navigate]);
 
-  const initialValues = {
-    label: entry ? entry.values.label : new Date().toLocaleString(),
-    labelOption: entry ? entry.values.labelOption : "date",
-  } as any;
+  const initialValues = {} as any;
 
   for (const f of logFields) {
     initialValues[f.id] = isNewEntry ? f.defaultValue : entry.values[f.id];
@@ -102,57 +99,24 @@ export const LogEntry: FC = (): ReactElement | null => {
               }}
             >
               {(formikProps) => {
-                const { handleSubmit } = formikProps;
-
-                // define label value
-                const isLabelDate = formikProps.values.labelOption === "date";
-                const isLabelValue =
-                  !isLabelDate && formikProps.values.labelOption !== "text";
-                const labelValue = isLabelDate
-                  ? new Date().toLocaleString()
-                  : isLabelValue
-                  ? formikProps.values[formikProps.values.labelOption] || ""
-                  : formikProps.values.label;
-
+                const isTextLabel = labelOption === "text";
                 return (
-                  <Form onSubmit={handleSubmit} className="form__log_entry">
-                    <Form.Group>
-                      <Row>
-                        <Col>
-                          <Form.Label>Entry Label</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="label"
-                            onChange={formikProps.handleChange}
-                            onBlur={formikProps.handleBlur}
-                            value={labelValue}
-                            required
-                          />
-                        </Col>
-                        <Col>
-                          <Form.Label>Options</Form.Label>
-                          <Form.Control
-                            as="select"
-                            name="labelOption"
-                            onChange={formikProps.handleChange}
-                            onBlur={formikProps.handleBlur}
-                            value={formikProps.values.labelOption}
-                            required
-                          >
-                            <option value="text">Text</option>
-                            <option value="date">Date</option>
-                            {logFields.map((field) => (
-                              <option
-                                key={`label-options-${field.id}`}
-                                value={field.id}
-                              >
-                                {field.name}
-                              </option>
-                            ))}
-                          </Form.Control>
-                        </Col>
-                      </Row>
-                    </Form.Group>
+                  <Form
+                    onSubmit={formikProps.handleSubmit}
+                    className="form__log_entry"
+                  >
+                    {isTextLabel && (
+                      <Form.Group>
+                        <Form.Label>Entry Label</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="label"
+                          onChange={formikProps.handleChange}
+                          onBlur={formikProps.handleBlur}
+                          value={formikProps.values.label}
+                        />
+                      </Form.Group>
+                    )}
                     {logFields.map((field: LogFields) => {
                       const { id, type } = field;
 

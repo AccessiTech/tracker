@@ -17,8 +17,9 @@ import "./Edit.scss";
 import { LogNameForm } from "../../components/LogNameForm";
 import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTable";
 import { EditFieldForm } from "../../components/EditFieldForm";
+import { EditLabelForm } from "../../components/EditLabelForm";
 
-export const onUpdateLog = (log: Log, values: any):void => {
+export const onUpdateLog = (log: Log, values: any): void => {
   const updatedLog: Log = {
     ...log,
     ...values,
@@ -117,6 +118,10 @@ export const Edit: FC = (): ReactElement => {
             </Button>
           </Col>
         </Row>
+        <hr />
+        <h2>Entry Label</h2>
+        <EditLabelForm log={log} onSubmit={onUpdateLog} />
+
         <hr />
         <Row>
           <Col>

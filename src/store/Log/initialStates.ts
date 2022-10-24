@@ -18,6 +18,7 @@ export const initialCRUDState: CrudState = {
  * @typedef {Object} Log
  * @property {string} id - The id of the log
  * @property {string} name - The name of the log
+ * @property {"date"|"text"|string} labelOption - The option for the label
  * @property {Object.<string, LogField>} fields - The fields of the log
  * @property {Object.<string, LogEntry>} entries - The entries of the log
  */
@@ -25,6 +26,7 @@ export interface Log extends CrudState {
   id: string;
   name: string;
   user?: string;
+  labelOption?: "date" | "text" | string;
   fields: { [fieldId: string]: LogFields };
   entries: { [entryId: string]: LogEntry };
 }
@@ -279,7 +281,7 @@ export interface EntryValues {
   [fieldId: string]: FieldValue;
 }
 
-export interface LogEntry extends CrudState{
+export interface LogEntry extends CrudState {
   id: string;
   user: string;
   log: string;
