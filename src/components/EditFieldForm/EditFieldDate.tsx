@@ -1,5 +1,5 @@
 import React, { FC, ReactElement } from "react";
-// import { Col, Form, Row } from "react-bootstrap";
+import { Accordion } from "react-bootstrap";
 import { TypeOptionSelect } from "./TypeOptionSelect";
 import { FormikProps } from "formik";
 
@@ -10,12 +10,18 @@ export const EditFieldDate: FC<EditFieldTextProps> = (props): ReactElement => {
   return (
     <>
       <hr />
-      <h5>Date Field Options</h5>
-
-      <TypeOptionSelect {...props} />
-
+      <Accordion flush className="form__modal_accordion">
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>
+            <h5>Date Field Options</h5>
+          </Accordion.Header>
+          <Accordion.Body>
+            <TypeOptionSelect {...props} />
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
     </>
   );
 };
 
-export default EditFieldDate; 
+export default EditFieldDate;

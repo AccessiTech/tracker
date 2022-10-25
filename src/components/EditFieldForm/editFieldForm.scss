@@ -28,3 +28,14 @@
     }
   }
 }
+
+.form__modal_accordion {
+  width: calc(100% + 2rem);
+  margin: -1rem;
+
+  .accordion-button {
+    h5 {
+      margin-bottom: 0;
+    }
+  }
+}
