@@ -60,18 +60,24 @@ export const Log: FC = (): ReactElement => {
                       {Object.keys(entry.values)
                         .filter((fieldId: string) => fields[fieldId])
                         .map((fieldId: string) => {
-                          const isDate = fields[fieldId].type === "date";
-                          return (
+                          let value;
+                          switch (fields[fieldId].type) {
+                            case "date":
+                              value = new Date(entry.values[fieldId] as string).toLocaleString();
+                              break;
+                            case "boolean":
+                              value = entry.values[fieldId] || "false";
+                              break;
+                            default:
+                              value = entry.values[fieldId];
+                          }
+
+                            return (
                             <div
                               key={entry.id + "-" + fieldId}
                               className="log__entry__field"
                             >
-                              <strong>{fields[fieldId].name}</strong>:{" "}
-                              {isDate
-                                ? new Date(
-                                    entry.values[fieldId] as string
-                                  ).toLocaleString()
-                                : entry.values[fieldId]}
+                              <strong>{fields[fieldId].name}</strong>:{` ${value}`}
                             </div>
                           );
                         })}
