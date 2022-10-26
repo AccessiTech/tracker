@@ -16,6 +16,7 @@ import { EditFieldText } from "./EditFieldText";
 import { EditFieldNumber } from "./EditFieldNumber";
 import { EditFieldDate } from "./EditFieldDate";
 import "./editFieldForm.scss";
+import { EditFieldSelect } from "./EditFieldSelect";
 
 export interface HandleFieldsFunction {
   (values: { [key: string]: string }, log: Log, field: LogFields): void;
@@ -165,6 +166,8 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
             {values.type === "number" && <EditFieldNumber {...props} />}
 
             {values.type === "date" && <EditFieldDate {...props} />}
+
+            {values.type === "select" && <EditFieldSelect {...props} />}
 
             <hr />
             {/* Cancel and Submit Buttons */}
