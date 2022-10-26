@@ -21,8 +21,7 @@ export interface HandleFieldsFunction {
   (values: { [key: string]: string }, log: Log, field: LogFields): void;
 }
 export const onHandleField: HandleFieldsFunction = (values, log, field) => {
-  const { id, name, type, required, option, defaultValue, unit } = values;
-
+  const { id, type } = values;
   const prevField = {
     ...(field.type === type
       ? field
@@ -31,13 +30,8 @@ export const onHandleField: HandleFieldsFunction = (values, log, field) => {
 
   const newField = {
     ...prevField,
+    ...values,
     id: id || uuidv4(),
-    name,
-    type,
-    required,
-    defaultValue,
-    unit,
-    option,
   };
 
   if (id) {
