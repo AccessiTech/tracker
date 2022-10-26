@@ -63,21 +63,29 @@ export const Log: FC = (): ReactElement => {
                           let value;
                           switch (fields[fieldId].type) {
                             case "date":
-                              value = new Date(entry.values[fieldId] as string).toLocaleString();
+                              value = new Date(
+                                entry.values[fieldId] as string
+                              ).toLocaleString();
                               break;
                             case "boolean":
                               value = entry.values[fieldId] || "false";
+                              break;
+                            case "select":
+                              value = Array.isArray(entry.values[fieldId])
+                                ? ((entry.values[fieldId] as []) || []).join(", ")
+                                : entry.values[fieldId];
                               break;
                             default:
                               value = entry.values[fieldId];
                           }
 
-                            return (
+                          return (
                             <div
                               key={entry.id + "-" + fieldId}
                               className="log__entry__field"
                             >
-                              <strong>{fields[fieldId].name}</strong>:{` ${value}`}
+                              <strong>{fields[fieldId].name}</strong>:
+                              {` ${value}`}
                             </div>
                           );
                         })}
