@@ -90,6 +90,7 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
           handleChange,
           handleBlur,
           handleSubmit,
+          setValues,
         } = props;
         return (
           <Form onSubmit={handleSubmit} className="form__field_edit">
@@ -119,7 +120,23 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
                   <Form.Control
                     as="select"
                     name="type"
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      handleChange(e);
+                      const prevValues = { ...values };
+                      const newValues = {
+                        ...initialFieldStates[e.target.value],
+                      } as any;
+                      setValues({
+                        ...prevValues,
+                        ...newValues,
+                        id: prevValues.id,
+                        name:
+                          prevValues.name ===
+                          initialFieldStates[prevValues.type].name
+                            ? newValues.name
+                            : prevValues.name,
+                      });
+                    }}
                     onBlur={handleBlur}
                     value={values.type}
                   >
