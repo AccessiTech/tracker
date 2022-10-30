@@ -19,6 +19,8 @@ import store from "../../store/store";
 import FieldText from "../../components/FieldText/FieldText";
 import { FieldNumber } from "../../components/FieldNumber";
 import { FieldDate } from "../../components/FieldDate";
+import { FieldBoolean } from "../../components/FieldBoolean";
+import { FieldSelect } from "../../components/FieldSelect";
 
 export const onLogEntrySubmit = (
   values: { [fieldId: string]: FieldValue; label: string },
@@ -130,6 +132,12 @@ export const LogEntry: FC = (): ReactElement | null => {
                           )}
                           {type === "date" && (
                             <FieldDate {...formikProps} field={field} />
+                          )}
+                          {type === "boolean" && (
+                            <FieldBoolean {...formikProps} field={field} />
+                          )}
+                          {type === "select" && (
+                            <FieldSelect {...formikProps} field={field} />
                           )}
                         </Form.Group>
                       );

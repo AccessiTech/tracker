@@ -16,13 +16,13 @@ import { EditFieldText } from "./EditFieldText";
 import { EditFieldNumber } from "./EditFieldNumber";
 import { EditFieldDate } from "./EditFieldDate";
 import "./editFieldForm.scss";
+import { EditFieldSelect } from "./EditFieldSelect";
 
 export interface HandleFieldsFunction {
   (values: { [key: string]: string }, log: Log, field: LogFields): void;
 }
 export const onHandleField: HandleFieldsFunction = (values, log, field) => {
-  const { id, name, type, required, option, defaultValue, unit } = values;
-
+  const { id, type } = values;
   const prevField = {
     ...(field.type === type
       ? field
@@ -31,13 +31,8 @@ export const onHandleField: HandleFieldsFunction = (values, log, field) => {
 
   const newField = {
     ...prevField,
+    ...values,
     id: id || uuidv4(),
-    name,
-    type,
-    required,
-    defaultValue,
-    unit,
-    option,
   };
 
   if (id) {
@@ -132,7 +127,7 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
                     <option value="number">Number</option>
                     <option value="date">Date</option>
                     <option value="select">Selection</option>
-                    <option value="tags">Tags</option>
+                    {/* <option value="tags">Tags</option> */}
                     <option value="boolean">Boolean</option>
                   </Form.Control>
                   {(touched.type && errors.type && (
@@ -171,6 +166,8 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
             {values.type === "number" && <EditFieldNumber {...props} />}
 
             {values.type === "date" && <EditFieldDate {...props} />}
+
+            {values.type === "select" && <EditFieldSelect {...props} />}
 
             <hr />
             {/* Cancel and Submit Buttons */}

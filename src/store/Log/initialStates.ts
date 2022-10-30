@@ -213,7 +213,7 @@ export const initialBooleanFieldState: BooleanLogField = {
  */
 export interface SelectLogField extends LogField {
   type: "select";
-  options: string[];
+  options: string;
   option: "one" | "many";
   typeOptions: ["one", "many"];
   typeOptionStrings: ["Select One", "Select Many"];
@@ -225,8 +225,8 @@ export const initialSelectFieldState: SelectLogField = {
   option: "one",
   typeOptions: ["one", "many"],
   typeOptionStrings: ["Select One", "Select Many"],
-  defaultValue: [],
-  options: [],
+  defaultValue: "",
+  options: "",
 };
 
 /**
