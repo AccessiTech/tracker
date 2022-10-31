@@ -24,11 +24,48 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
+    <style>
+      #loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #loader {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border: 3px solid #0d6efd;
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        -webkit-animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+      @-webkit-keyframes spin {
+        to {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+    </style>
     <title>Tracker | Personal Data Logging</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="loading">
+      <div id="loader"></div>
+    </div>
+    <div id="root" aria-live="polite" aria-busy="true"></div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
