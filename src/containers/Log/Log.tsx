@@ -45,6 +45,10 @@ export const Log: FC = (): ReactElement => {
           {hasEntries ? (
             entries
               .filter((entry: LogEntry) => entry && entry.values)
+              .sort((a: LogEntry, b: LogEntry) => {
+                // Sort by date created
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+              })
               .map((entry: LogEntry) => {
                 const labelText = isLabelDate
                   ? new Date(entry.createdAt as string).toLocaleString()
