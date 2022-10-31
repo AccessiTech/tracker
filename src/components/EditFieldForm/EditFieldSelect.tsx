@@ -2,10 +2,21 @@ import React, { FC, ReactElement } from "react";
 import { Accordion, Col, Form, Row } from "react-bootstrap";
 import { FormikProps } from "formik";
 import { TypeOptionSelect } from "./TypeOptionSelect";
+import { TEXTAREA, TEXT_DANGER, TEXT_MUTED } from "../../strings";
 
-export interface EditFieldSelectProps extends FormikProps<{ [key: string]: string }> {}
+export const OPTIONS = "options";
 
-export const EditFieldSelect: FC<EditFieldSelectProps> = (formikProps): ReactElement => {
+export const SELECT_FIELD_OPTIONS = "Select Field Options";
+export const SELECT_OPTIONS = "Select Options";
+export const OPTIONS_PLACEHOLDER = "Option1, Option2, Option3";
+export const OPTIONS_LABEL = "Enter options separated by commas";
+
+export interface EditFieldSelectProps
+  extends FormikProps<{ [key: string]: string }> {}
+
+export const EditFieldSelect: FC<EditFieldSelectProps> = (
+  formikProps
+): ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = formikProps;
 
   return (
@@ -14,7 +25,7 @@ export const EditFieldSelect: FC<EditFieldSelectProps> = (formikProps): ReactEle
       <Accordion flush className="form__modal_accordion">
         <Accordion.Item eventKey="0">
           <Accordion.Header>
-            <h5>Select Field Options</h5>
+            <h5>{SELECT_FIELD_OPTIONS}</h5>
           </Accordion.Header>
           <Accordion.Body>
             <TypeOptionSelect {...formikProps} />
@@ -22,21 +33,23 @@ export const EditFieldSelect: FC<EditFieldSelectProps> = (formikProps): ReactEle
             <Form.Group>
               <Row>
                 <Col>
-                  <Form.Label>{"Select Options"}</Form.Label>
+                  <Form.Label>{SELECT_OPTIONS}</Form.Label>
                   <Form.Control
-                    as="textarea"
+                    as={TEXTAREA}
                     rows={3}
-                    name="options"
-                    placeholder="Option1, Option2, Option3"
+                    name={OPTIONS}
+                    placeholder={OPTIONS_PLACEHOLDER}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.options}
                   />
                   {(touched.option && errors.option && (
-                    <Form.Text className="text-danger">{errors.option}</Form.Text>
+                    <Form.Text className={TEXT_DANGER}>
+                      {errors.option}
+                    </Form.Text>
                   )) || (
-                    <Form.Text className="text-muted">
-                      {"Enter options separated by commas"}
+                    <Form.Text className={TEXT_MUTED}>
+                      {OPTIONS_LABEL}
                     </Form.Text>
                   )}
                 </Col>
@@ -47,4 +60,4 @@ export const EditFieldSelect: FC<EditFieldSelectProps> = (formikProps): ReactEle
       </Accordion>
     </>
   );
-}
+};

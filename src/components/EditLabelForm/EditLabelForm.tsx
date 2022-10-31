@@ -2,6 +2,21 @@ import React, { FC, ReactElement } from "react";
 import { Formik } from "formik";
 import { InputGroup, Form, Button } from "react-bootstrap";
 import { Log, LogFields } from "../../store/Log";
+import {
+  DATE,
+  DATE_LABEL,
+  DEFAULTS,
+  FIELDS,
+  LABEL_OPTIONS,
+  PRIMARY,
+  SAVE,
+  SELECT,
+  SUBMIT,
+  TEXT,
+  TEXT_LABEL,
+} from "../../strings";
+
+export const ENTRY_LABEL = "Entry Label";
 
 export interface EditLabelFormProps {
   log: Log;
@@ -14,7 +29,7 @@ export const EditLabelForm: FC<EditLabelFormProps> = ({
 }): ReactElement => {
   const { fields } = log as Log;
   const initialValues = {
-    labelOption: log.labelOption || "date",
+    labelOption: log.labelOption || DATE,
   } as Log & { [key: string]: string };
   const logFields: LogFields[] = Object.values(fields || {});
   return (
@@ -25,21 +40,21 @@ export const EditLabelForm: FC<EditLabelFormProps> = ({
       {(formikProps) => {
         return (
           <Form onSubmit={formikProps.handleSubmit}>
-            <Form.Label>Entry Label</Form.Label>
+            <Form.Label>{ENTRY_LABEL}</Form.Label>
             <InputGroup>
               <Form.Control
-                as="select"
-                name="labelOption"
+                as={SELECT}
+                name={LABEL_OPTIONS}
                 onChange={formikProps.handleChange}
                 onBlur={formikProps.handleBlur}
                 value={formikProps.values.labelOption}
                 required
               >
-                <optgroup label="Defaults">
-                  <option value="date">Date</option>
-                  <option value="text">Text</option>
+                <optgroup label={DEFAULTS}>
+                  <option value={DATE}>{DATE_LABEL}</option>
+                  <option value={TEXT}>{TEXT_LABEL}</option>
                 </optgroup>
-                <optgroup label="Fields">
+                <optgroup label={FIELDS}>
                   {logFields.map((field) => (
                     <option key={`label-options-${field.id}`} value={field.id}>
                       {field.name}
@@ -49,11 +64,11 @@ export const EditLabelForm: FC<EditLabelFormProps> = ({
               </Form.Control>
 
               <Button
-                variant="primary"
-                type="submit"
+                variant={PRIMARY}
+                type={SUBMIT}
                 disabled={formikProps.values.labelOption === log.labelOption}
               >
-                Save
+                {SAVE}
               </Button>
             </InputGroup>
           </Form>

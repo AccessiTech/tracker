@@ -17,6 +17,7 @@ import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTabl
 import { EditFieldForm } from "../../components/EditFieldForm";
 import { EditLabelForm } from "../../components/EditLabelForm";
 import {
+  ADD,
   ADD_ENTRY,
   DANGER,
   DARK,
@@ -30,7 +31,6 @@ import {
 
 export const NEW = "new";
 export const EDIT = "edit";
-export const ADD = "add";
 
 export const EDIT_HEADER = "Edit: ";
 export const LOG_FIELDS = "Log Fields";

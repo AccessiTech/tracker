@@ -3,21 +3,28 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import { Form, Button, InputGroup } from "react-bootstrap";
 import { Log } from "../../store/Log";
+import { EMPTY, PRIMARY, SAVE, SUBMIT, TEXT, TEXT_DANGER } from "../../strings";
+
+export const NAME = "name";
+
+export const NAME_IS_REQUIRED = "Name is required";
+export const NAME_IS_SPACES = "Name cannot be spaces";
+export const LOG_NAME = "Log Name";
 
 export const LogNameFormValidationSchema = yup.object().shape({
   name: yup
     .string()
-    .required("Name is required")
+    .required(NAME_IS_REQUIRED)
     .test(
       "is-valid-name",
-      "Name cannot just be spaces",
+      NAME_IS_SPACES,
       (value) => typeof value !== "undefined" && value.trim().length > 0
     ),
 });
 
 export interface LogNameFormProps {
   log: Log;
-  onSubmit: (log:Log, values:any) => void;
+  onSubmit: (log: Log, values: any) => void;
 }
 
 export interface LogNameFormValues {
@@ -28,18 +35,13 @@ export const LogNameForm: FC<LogNameFormProps> = ({
   onSubmit,
   log,
 }): ReactElement => {
-  if (!onSubmit) {
-    throw new Error("onSubmit is required");
-  }
   const initialValues = {
-    name: log.name || "",
+    name: log.name || EMPTY,
   } as LogNameFormValues;
   return (
     <Formik
-      initialValues={
-        initialValues
-      }
-      onSubmit={(values:any) => onSubmit(log, values)}
+      initialValues={initialValues}
+      onSubmit={(values: any) => onSubmit(log, values)}
       validationSchema={LogNameFormValidationSchema}
     >
       {({
@@ -51,28 +53,28 @@ export const LogNameForm: FC<LogNameFormProps> = ({
         handleSubmit,
       }) => (
         <Form onSubmit={handleSubmit}>
-          <Form.Label>Log Name</Form.Label>
+          <Form.Label>{LOG_NAME}</Form.Label>
           <InputGroup>
             <Form.Control
-              type="text"
-              name="name"
+              type={TEXT}
+              name={NAME}
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.name}
             />
             <Button
-              variant="primary"
-              type="submit"
+              variant={PRIMARY}
+              type={SUBMIT}
               disabled={
                 Object.keys(errors).length > 0 || values.name === log.name
               }
             >
-              Save
+              {SAVE}
             </Button>
           </InputGroup>
-          {(touched.name && errors.name && (
-            <Form.Text className="text-danger">{errors.name}</Form.Text>
-          ))}
+          {touched.name && errors.name && (
+            <Form.Text className={TEXT_DANGER}>{errors.name}</Form.Text>
+          )}
         </Form>
       )}
     </Formik>

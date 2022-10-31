@@ -17,6 +17,42 @@ import { EditFieldNumber } from "./EditFieldNumber";
 import { EditFieldDate } from "./EditFieldDate";
 import "./editFieldForm.scss";
 import { EditFieldSelect } from "./EditFieldSelect";
+import {
+  ADD,
+  BOOLEAN,
+  BOOLEAN_LABEL,
+  CANCEL,
+  CREATE_LABEL,
+  DATE,
+  DATE_LABEL,
+  FIELD,
+  NUMBER,
+  NUMBER_LABEL,
+  PRIMARY,
+  REQUIRED_LABEL,
+  RESET,
+  SECONDARY,
+  SELECT,
+  SELECT_LABEL,
+  SUBMIT,
+  SWITCH,
+  TEXT,
+  TEXT_DANGER,
+  TEXT_LABEL,
+  TEXT_MUTED,
+  TYPE,
+  UPDATE_LABEL,
+} from "../../strings";
+
+export const NAME = "name";
+export const REQUIRED = "required";
+
+export const FIELD_NAME_LABEL = "Field Name";
+export const FIELD_NAME_PLACEHOLDER = "Enter field name";
+export const FIELD_NAME_HELP_TEXT = "What is the name of this field?";
+export const FIELD_TYPE_LABEL = "Field Type";
+export const FIELD_TYPE_HELP_TEXT = "What type of field is this?";
+export const FIELD_REQUIRED_HELP_TEXT = "Is this field required?";
 
 export interface HandleFieldsFunction {
   (values: { [key: string]: string }, log: Log, field: LogFields): void;
@@ -70,11 +106,11 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
         ...fieldState,
       }}
       validationSchema={Yup.object({
-        name: Yup.string().required("Required"),
-        type: Yup.string().required("Required"),
-        option: Yup.string().when("type", {
-          is: "select",
-          then: Yup.string().required("Required"),
+        name: Yup.string().required(REQUIRED_LABEL),
+        type: Yup.string().required(REQUIRED_LABEL),
+        option: Yup.string().when(TYPE, {
+          is: SELECT,
+          then: Yup.string().required(REQUIRED_LABEL),
         }),
       })}
       onSubmit={(values: { [key: string]: string }) => {
@@ -96,30 +132,30 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
           <Form onSubmit={handleSubmit} className="form__field_edit">
             {/* Name, Type, and Required inputs */}
             <Form.Group>
-              <Form.Label>Field Name</Form.Label>
+              <Form.Label>{FIELD_NAME_LABEL}</Form.Label>
               <Form.Control
-                type="text"
-                name="name"
-                placeholder="Enter field name"
+                type={TEXT}
+                name={NAME}
+                placeholder={FIELD_NAME_PLACEHOLDER}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values.name}
               />
               {(touched.name && errors.name && (
-                <Form.Text className="text-danger">{errors.name}</Form.Text>
+                <Form.Text className={TEXT_DANGER}>{errors.name}</Form.Text>
               )) || (
-                <Form.Text className="text-muted">
-                  This is the name of the field
+                <Form.Text className={TEXT_MUTED}>
+                  {FIELD_NAME_HELP_TEXT}
                 </Form.Text>
               )}
             </Form.Group>
             <Form.Group>
               <Row>
                 <Col>
-                  <Form.Label>Field Type</Form.Label>
+                  <Form.Label>{FIELD_TYPE_LABEL}</Form.Label>
                   <Form.Control
-                    as="select"
-                    name="type"
+                    as={SELECT}
+                    name={TYPE}
                     onChange={(e) => {
                       handleChange(e);
                       const prevValues = { ...values };
@@ -140,51 +176,51 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
                     onBlur={handleBlur}
                     value={values.type}
                   >
-                    <option value="text">Text</option>
-                    <option value="number">Number</option>
-                    <option value="date">Date</option>
-                    <option value="select">Selection</option>
+                    <option value={TEXT}>{TEXT_LABEL}</option>
+                    <option value={NUMBER}>{NUMBER_LABEL}</option>
+                    <option value={DATE}>{DATE_LABEL}</option>
+                    <option value={SELECT}>{SELECT_LABEL}</option>
                     {/* <option value="tags">Tags</option> */}
-                    <option value="boolean">Boolean</option>
+                    <option value={BOOLEAN}>{BOOLEAN_LABEL}</option>
                   </Form.Control>
                   {(touched.type && errors.type && (
-                    <Form.Text className="text-danger">{errors.type}</Form.Text>
+                    <Form.Text className={TEXT_DANGER}>{errors.type}</Form.Text>
                   )) || (
-                    <Form.Text className="text-muted">
-                      This is the type of the field.
+                    <Form.Text className={TEXT_MUTED}>
+                      {FIELD_TYPE_HELP_TEXT}
                     </Form.Text>
                   )}
                 </Col>
                 <Col>
-                  <Form.Label>Required</Form.Label>
+                  <Form.Label>{REQUIRED_LABEL}</Form.Label>
                   <Form.Check
-                    type="switch"
-                    name="required"
+                    type={SWITCH}
+                    name={REQUIRED}
                     className="form__field_edit__required"
                     onChange={handleChange}
                     onBlur={handleBlur}
                     defaultChecked={values.required as unknown as boolean}
                   />
                   {(touched.required && errors.required && (
-                    <Form.Text className="text-danger">
+                    <Form.Text className={TEXT_DANGER}>
                       {errors.required}
                     </Form.Text>
                   )) || (
-                    <Form.Text className="text-muted">
-                      Is this field required?
+                    <Form.Text className={TEXT_MUTED}>
+                      {FIELD_REQUIRED_HELP_TEXT}
                     </Form.Text>
                   )}
                 </Col>
               </Row>
             </Form.Group>
 
-            {values.type === "text" && <EditFieldText {...props} />}
+            {values.type === TEXT && <EditFieldText {...props} />}
 
-            {values.type === "number" && <EditFieldNumber {...props} />}
+            {values.type === NUMBER && <EditFieldNumber {...props} />}
 
-            {values.type === "date" && <EditFieldDate {...props} />}
+            {values.type === DATE && <EditFieldDate {...props} />}
 
-            {values.type === "select" && <EditFieldSelect {...props} />}
+            {values.type === SELECT && <EditFieldSelect {...props} />}
 
             <hr />
             {/* Cancel and Submit Buttons */}
@@ -192,19 +228,21 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
               <Row className="form__field_edit__submit_row">
                 <Col>
                   <Button
-                    variant="secondary"
-                    type="reset"
+                    variant={SECONDARY}
+                    type={RESET}
                     onClick={(e) => {
                       e.preventDefault();
                       resetModal();
                     }}
                   >
-                    Cancel
+                    {CANCEL}
                   </Button>
                 </Col>
                 <Col>
-                  <Button variant="primary" type="submit">
-                    {`${modalMode === "add" ? "Create" : "Update"} Field`}
+                  <Button variant={PRIMARY} type={SUBMIT}>
+                    {`${
+                      modalMode === ADD ? CREATE_LABEL : UPDATE_LABEL
+                    } ${FIELD}`}
                   </Button>
                 </Col>
               </Row>
