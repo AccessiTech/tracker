@@ -1,9 +1,7 @@
 import React, { FC, ReactElement } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Modal } from "react-bootstrap";
+import { Accordion, Button, Col, Modal, Row } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import store from "../../store/store";
 import {
   useGetLog,
@@ -84,65 +82,86 @@ export const Edit: FC = (): ReactElement => {
   return (
     <>
       <Container>
-        <Row>
-          <Col>
-            <h1>Edit Log</h1>
-            <hr />
-            <LogNameForm onSubmit={onUpdateLog} log={log} />
-          </Col>
-        </Row>
-        <hr />
-        <Row>
-          <Col>
-            <h2>Fields</h2>
-            {fields && fields.length ? (
-              <EditFieldsTable
-                fields={fields}
-                onDeleteClick={(
-                  e: React.MouseEvent<HTMLElement, MouseEvent>,
-                  fieldId: string
-                ) => onDeleteField(log, fieldId)}
-                onEditClick={onEditField}
-              />
-            ) : (
-              <p>No fields yet.</p>
-            )}
-            <Button
-              variant="primary"
-              onClick={onAddField}
-              data-toggle="modal"
-              data-target="#addFieldModal"
-              style={{ marginBottom: "1rem" }}
-            >
-              Add a new field...
-            </Button>
-          </Col>
-        </Row>
-        <hr />
-        <h2>Entry Label</h2>
-        <EditLabelForm log={log} onSubmit={onUpdateLog} />
+        <h1>{`Edit: ${log.name}`}</h1>
 
-        <hr />
-        <Row>
+        <Accordion
+          alwaysOpen
+          flush
+          className="accordion__log_settings"
+          defaultActiveKey={["0"]}
+        >
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>
+              <h2>Log Fields</h2>
+            </Accordion.Header>
+            <Accordion.Body>
+              {fields && fields.length ? (
+                <EditFieldsTable
+                  fields={fields}
+                  onDeleteClick={(
+                    e: React.MouseEvent<HTMLElement, MouseEvent>,
+                    fieldId: string
+                  ) => onDeleteField(log, fieldId)}
+                  onEditClick={onEditField}
+                />
+              ) : (
+                <p>No fields yet.</p>
+              )}
+              <Button
+                variant="primary"
+                onClick={onAddField}
+                data-toggle="modal"
+                data-target="#addFieldModal"
+                style={{ marginBottom: "1rem" }}
+              >
+                Add a new field...
+              </Button>
+            </Accordion.Body>
+          </Accordion.Item>
+
+          <Accordion.Item eventKey="1">
+            <Accordion.Header>
+              <h2>Log Settings</h2>
+            </Accordion.Header>
+            <Accordion.Body>
+              <LogNameForm onSubmit={onUpdateLog} log={log} />
+              <br />
+              <EditLabelForm log={log} onSubmit={onUpdateLog} />
+              <br />
+              <Button
+                variant="danger"
+                type="submit"
+                onClick={(e) => (onDeleteLog(e, log), navigate("/"))}
+              >
+                Delete Log
+              </Button>
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
+
+        <Row className="edit__button_row">
           <Col>
-            <Button
-              variant="danger"
-              type="submit"
-              onClick={(e) => (onDeleteLog(e, log), navigate("/"))}
-            >
-              Delete Log
-            </Button>
-            &nbsp;
-            <Button
-              variant="secondary"
-              type="submit"
-              onClick={(e) => (e.preventDefault(), navigate("/"))}
-            >
+            <Button variant="dark" onClick={() => navigate(`/`)}>
               Back
             </Button>
           </Col>
+          <Col>
+            <Button
+              variant="secondary"
+              onClick={() => navigate(`/log/${log.id}`)}
+            >
+              View Log
+            </Button>
+          </Col>
+          <Col>
+            <Button
+              variant="primary"
+              onClick={() => navigate(`/log/${id}/entry`)}
+            >
+              Add Entry
+            </Button>
+          </Col>
         </Row>
-        <hr />
       </Container>
 
       <Modal id="addFieldModal" show={showModal} onHide={resetModal}>

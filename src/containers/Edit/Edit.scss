@@ -1,0 +1,36 @@
+.accordion__log_settings {
+  border-top: 1px solid var(--bs-accordion-border-color);
+  border-bottom: 1px solid var(--bs-accordion-border-color);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  .accordion-button {
+    padding-left: 0;
+    padding-right: 0;
+    background-color: transparent !important;
+    color: var(--bs-body-color) !important;
+
+    &:focus {
+      box-shadow: none !important;
+    }
+
+    &::after {
+      background-image: var(--bs-accordion-btn-icon) !important;
+    }
+
+    h2 {
+      margin-bottom: 0;
+    }
+  }
+
+  .accordion-body {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.edit__button_row {
+  button {
+    width: 100%;
+  }
+}
