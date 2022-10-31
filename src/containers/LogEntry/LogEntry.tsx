@@ -21,6 +21,25 @@ import { FieldNumber } from "../../components/FieldNumber";
 import { FieldDate } from "../../components/FieldDate";
 import { FieldBoolean } from "../../components/FieldBoolean";
 import { FieldSelect } from "../../components/FieldSelect";
+import {
+  BOOLEAN,
+  CANCEL,
+  DATE,
+  NUMBER,
+  PRIMARY,
+  RESET,
+  SECONDARY,
+  SELECT,
+  SUBMIT,
+  SUBMIT_STRING,
+  TEXT,
+  UNDEFINED,
+} from "../../strings";
+
+export const LABEL = "label";
+
+export const ENTRY_HEADER = " Entry";
+export const ENTRY_LABEL = "Entry Label";
 
 export const onLogEntrySubmit = (
   values: { [fieldId: string]: FieldValue; label: string },
@@ -60,7 +79,7 @@ export const LogEntry: FC = (): ReactElement | null => {
   const entry: LogEntryType = useGetLogEntry(logId, entryId);
   const [cancel, setCancel] = React.useState(false);
   const [isNewEntry] = React.useState(
-    typeof entryId === "undefined" || typeof entry === "undefined"
+    typeof entryId === UNDEFINED || typeof entry === UNDEFINED
   );
 
   const { name, fields, labelOption } = log;
@@ -91,7 +110,10 @@ export const LogEntry: FC = (): ReactElement | null => {
       <Container>
         <Row>
           <Col>
-            <h1>{`${name} Entry`}</h1>
+            <h1>
+              {name}
+              {ENTRY_HEADER}
+            </h1>
             <hr />
           </Col>
         </Row>
@@ -103,7 +125,7 @@ export const LogEntry: FC = (): ReactElement | null => {
           }}
         >
           {(formikProps) => {
-            const isTextLabel = labelOption === "text";
+            const isTextLabel = labelOption === TEXT;
             return (
               <Form
                 onSubmit={formikProps.handleSubmit}
@@ -113,10 +135,10 @@ export const LogEntry: FC = (): ReactElement | null => {
                   <Col>
                     {isTextLabel && (
                       <Form.Group>
-                        <Form.Label>Entry Label</Form.Label>
+                        <Form.Label>{ENTRY_LABEL}</Form.Label>
                         <Form.Control
-                          type="text"
-                          name="label"
+                          type={TEXT}
+                          name={LABEL}
                           onChange={formikProps.handleChange}
                           onBlur={formikProps.handleBlur}
                           value={formikProps.values.label}
@@ -128,19 +150,19 @@ export const LogEntry: FC = (): ReactElement | null => {
 
                       return (
                         <Form.Group key={id}>
-                          {type === "text" && (
+                          {type === TEXT && (
                             <FieldText {...formikProps} field={field} />
                           )}
-                          {type === "number" && (
+                          {type === NUMBER && (
                             <FieldNumber {...formikProps} field={field} />
                           )}
-                          {type === "date" && (
+                          {type === DATE && (
                             <FieldDate {...formikProps} field={field} />
                           )}
-                          {type === "boolean" && (
+                          {type === BOOLEAN && (
                             <FieldBoolean {...formikProps} field={field} />
                           )}
-                          {type === "select" && (
+                          {type === SELECT && (
                             <FieldSelect {...formikProps} field={field} />
                           )}
                         </Form.Group>
@@ -152,16 +174,16 @@ export const LogEntry: FC = (): ReactElement | null => {
                 <Row className="form__button_row">
                   <Col>
                     <Button
-                      variant="secondary"
-                      type="reset"
+                      variant={SECONDARY}
+                      type={RESET}
                       onClick={() => setCancel(true)}
                     >
-                      Cancel
+                      {CANCEL}
                     </Button>
                   </Col>
                   <Col>
-                    <Button variant="primary" type="submit">
-                      Submit
+                    <Button variant={PRIMARY} type={SUBMIT}>
+                      {SUBMIT_STRING}
                     </Button>
                   </Col>
                 </Row>

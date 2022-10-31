@@ -10,6 +10,13 @@ import { Form, Button } from "react-bootstrap";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import store from "../../store/store";
 import { addLog } from "../../store/Log";
+import { CANCEL, PRIMARY, SECONDARY, SUBMIT, TEXT, TEXT_MUTED } from "../../strings";
+
+export const NEW_LOG = "New Log";
+export const LOG_NAME_LABEL = "Log Name";
+export const LOG_NAME_PLACEHOLDER = "Enter log name";
+export const LOG_NAME_HELP_TEXT = "What is the name of this log?";
+export const CREATE_LOG = "Create Log";
 
 export const onCreateLog = (e: any, navigate: NavigateFunction) => {
   e.preventDefault();
@@ -30,28 +37,30 @@ export const New: FC = (): ReactElement => {
     <Container>
       <Row>
         <Col>
-          <h1>New Log</h1>
+          <h1>{NEW_LOG}</h1>
           <Form>
             <Form.Group controlId="formBasicName">
-              <Form.Label>Log Name</Form.Label>
-              <Form.Control type="text" placeholder="Enter log name" />
-              <Form.Text className="text-muted">
-                This is the name of the log.
+              <Form.Label>{LOG_NAME_LABEL}</Form.Label>
+              <Form.Control type={TEXT} placeholder={LOG_NAME_PLACEHOLDER} />
+              <Form.Text className={TEXT_MUTED}>
+                {LOG_NAME_HELP_TEXT}
               </Form.Text>
             </Form.Group>
             <br />
             <Button
-              variant="secondary"
+              variant={SECONDARY}
               onClick={() => navigate("/")}
               className="mr-2"
-            >Cancel</Button>
+            >
+              {CANCEL}
+            </Button>
             &nbsp;
             <Button
-              variant="primary"
-              type="submit"
+              variant={PRIMARY}
+              type={SUBMIT}
               onClick={(e) => onCreateLog(e, navigate)}
             >
-              Create Log
+              {CREATE_LOG}
             </Button>
           </Form>
         </Col>

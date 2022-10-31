@@ -2,6 +2,15 @@ import React, { FC, ReactElement } from "react";
 import { Form } from "react-bootstrap";
 import { FormikProps } from "formik";
 import { BooleanLogField } from "../../store/Log";
+import {
+  ASTERISK,
+  DEFAULT,
+  EMPTY,
+  SWITCH,
+  TEXT_DANGER,
+  TEXT_MUTED,
+  UNDEFINED,
+} from "../../strings";
 
 export interface FieldBooleanProps
   extends FormikProps<{ [key: string]: string }> {
@@ -12,9 +21,9 @@ export const FieldBoolean: FC<FieldBooleanProps> = (props): ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = props;
   const { id: fieldId, name, required, defaultValue } = props.field;
 
-  const fieldLabel = `${name}${required ? "*" : ""}`;
-  const defaultValueString = `Default: ${
-    typeof defaultValue === "undefined" ? false : defaultValue
+  const fieldLabel = `${name}${required ? ASTERISK : EMPTY}`;
+  const defaultValueString = `${DEFAULT}${
+    typeof defaultValue === UNDEFINED ? false : defaultValue
   }`;
 
   return (
@@ -22,7 +31,7 @@ export const FieldBoolean: FC<FieldBooleanProps> = (props): ReactElement => {
       <Form.Group>
         <Form.Label>{fieldLabel}</Form.Label>
         <Form.Check
-          type="switch"
+          type={SWITCH}
           name={fieldId}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -33,9 +42,9 @@ export const FieldBoolean: FC<FieldBooleanProps> = (props): ReactElement => {
         />
 
         {(touched[fieldId] && errors[fieldId] && (
-          <Form.Text className="text-danger">{errors[fieldId]}</Form.Text>
+          <Form.Text className={TEXT_DANGER}>{errors[fieldId]}</Form.Text>
         )) || (
-          <Form.Text className="text-muted">{defaultValueString}</Form.Text>
+          <Form.Text className={TEXT_MUTED}>{defaultValueString}</Form.Text>
         )}
       </Form.Group>
     </>

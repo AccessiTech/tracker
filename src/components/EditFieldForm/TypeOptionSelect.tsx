@@ -2,7 +2,11 @@ import { FormikProps } from "formik";
 import React, { FC, ReactElement } from "react";
 import { Form } from "react-bootstrap";
 import { initialFieldStates } from "../../store/Log";
+import { SELECT, TEXT_DANGER, TEXT_MUTED } from "../../strings";
 import { capitalizeFirstLetter } from "./../../utils";
+
+export const OPTION = "option";
+export const FIELD_TYPE = " Field Type";
 
 export interface TypeOptionSelectProps
   extends FormikProps<{ [key: string]: string }> {}
@@ -19,10 +23,13 @@ export const TypeOptionSelect: FC<TypeOptionSelectProps> = ({
 
   return (
     <Form.Group>
-      <Form.Label>{capitalizeFirstLetter(values.type)} Field Type</Form.Label>
+      <Form.Label>
+        {capitalizeFirstLetter(values.type)}
+        {FIELD_TYPE}
+      </Form.Label>
       <Form.Control
-        as="select"
-        name="option"
+        as={SELECT}
+        name={OPTION}
         onChange={handleChange}
         onBlur={handleBlur}
         value={values.option}
@@ -38,9 +45,9 @@ export const TypeOptionSelect: FC<TypeOptionSelectProps> = ({
         })}
       </Form.Control>
       {(touched.option && errors.option && (
-        <Form.Text className="text-danger">{errors.option}</Form.Text>
+        <Form.Text className={TEXT_DANGER}>{errors.option}</Form.Text>
       )) || (
-        <Form.Text className="text-muted">
+        <Form.Text className={TEXT_MUTED}>
           {`What type of ${values.type} field is this?`}
         </Form.Text>
       )}

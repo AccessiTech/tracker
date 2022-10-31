@@ -2,6 +2,26 @@ import React, { FC, ReactElement } from "react";
 import { Accordion, Col, Form, Row } from "react-bootstrap";
 import { TypeOptionSelect } from "./TypeOptionSelect";
 import { FormikProps } from "formik";
+import {
+  NUMBER,
+  MAX,
+  MIN,
+  DEFAULT,
+  NONE_LABEL,
+  NONE,
+  TEXT,
+  TEXT_DANGER,
+  TEXT_MUTED,
+} from "../../strings";
+
+export const TEXT_FIELD_OPTIONS = "Text Field Options";
+export const MIN_LENGTH = "Min Length";
+export const MAX_LENGTH = "Max Length";
+export const DEFAULT_VALUE = "defaultValue";
+export const DEFAULT_VALUE_LABEL = "Default Value";
+export const DEFAULT_TEXT_VALUE_PLACEHOLDER =
+  "Enter the default text for this field";
+export const DEFAULT_TEXT_LABEL = "This is the default value of the field";
 
 export interface EditFieldTextProps
   extends FormikProps<{ [key: string]: string }> {}
@@ -14,42 +34,44 @@ export const EditFieldText: FC<EditFieldTextProps> = (props): ReactElement => {
       <Accordion flush className="form__modal_accordion">
         <Accordion.Item eventKey="0">
           <Accordion.Header>
-            <h5>Text Field Options</h5>
+            <h5>{TEXT_FIELD_OPTIONS}</h5>
           </Accordion.Header>
           <Accordion.Body>
             <TypeOptionSelect {...props} />
             <Form.Group>
               <Row>
                 <Col>
-                  <Form.Label>{"Min Length"}</Form.Label>
+                  <Form.Label>{MIN_LENGTH}</Form.Label>
                   <Form.Control
-                    type="number"
-                    name="min"
-                    placeholder={values.min || "None"}
+                    type={NUMBER}
+                    name={MIN}
+                    placeholder={values.min || NONE_LABEL}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.min}
                   />
                   {(touched.min && errors.min && (
-                    <Form.Text className="text-danger">{errors.min}</Form.Text>
+                    <Form.Text className={TEXT_DANGER}>{errors.min}</Form.Text>
                   )) || (
-                    <Form.Text className="text-muted">{"Default: 0"}</Form.Text>
+                    <Form.Text
+                      className={TEXT_MUTED}
+                    >{`${DEFAULT}0`}</Form.Text>
                   )}
                 </Col>
                 <Col>
-                  <Form.Label>{"Max Length"}</Form.Label>
+                  <Form.Label>{MAX_LENGTH}</Form.Label>
                   <Form.Control
-                    type="number"
-                    name="max"
+                    type={NUMBER}
+                    name={MAX}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     value={values.max}
                   />
                   {(touched.max && errors.max && (
-                    <Form.Text className="text-danger">{errors.max}</Form.Text>
+                    <Form.Text className={TEXT_DANGER}>{errors.max}</Form.Text>
                   )) || (
-                    <Form.Text className="text-muted">
-                      {"Default: 0 (none)"}
+                    <Form.Text className={TEXT_MUTED}>
+                      {`${DEFAULT}0 (${NONE})`}
                     </Form.Text>
                   )}
                 </Col>
@@ -57,22 +79,22 @@ export const EditFieldText: FC<EditFieldTextProps> = (props): ReactElement => {
             </Form.Group>
 
             <Form.Group>
-              <Form.Label>{"Default Value"}</Form.Label>
+              <Form.Label>{DEFAULT_VALUE_LABEL}</Form.Label>
               <Form.Control
-                type="text"
-                name="defaultValue"
-                placeholder="Enter the default text for this field"
+                type={TEXT}
+                name={DEFAULT_VALUE}
+                placeholder={DEFAULT_TEXT_VALUE_PLACEHOLDER}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values.defaultValue}
               />
               {(touched.defaultValue && errors.defaultValue && (
-                <Form.Text className="text-danger">
+                <Form.Text className={TEXT_DANGER}>
                   {errors.defaultValue}
                 </Form.Text>
               )) || (
-                <Form.Text className="text-muted">
-                  {"This is the default value of the field"}
+                <Form.Text className={TEXT_MUTED}>
+                  {DEFAULT_TEXT_LABEL}
                 </Form.Text>
               )}
             </Form.Group>
