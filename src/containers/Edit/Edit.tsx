@@ -16,6 +16,29 @@ import { LogNameForm } from "../../components/LogNameForm";
 import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTable";
 import { EditFieldForm } from "../../components/EditFieldForm";
 import { EditLabelForm } from "../../components/EditLabelForm";
+import {
+  ADD_ENTRY,
+  DANGER,
+  DARK,
+  HOME,
+  MODAL,
+  PRIMARY,
+  SECONDARY,
+  SUBMIT,
+  VIEW_LOG,
+} from "../../strings";
+
+export const NEW = "new";
+export const EDIT = "edit";
+export const ADD = "add";
+
+export const EDIT_HEADER = "Edit: ";
+export const LOG_FIELDS = "Log Fields";
+export const NO_FIELDS_YET = "No fields yet.";
+export const ADD_NEW_FIELD = "Add a new field...";
+export const LOG_SETTINGS = "Log Settings";
+export const DELETE_LOG = "Delete Log";
+export const FIELD_SETTINGS = "Field Settings";
 
 export const onUpdateLog = (log: Log, values: any): void => {
   const updatedLog: Log = {
@@ -49,14 +72,14 @@ export const Edit: FC = (): ReactElement => {
 
   const [showModal, setShowModal] = React.useState(fid ? true : false);
   const [modalMode, setModalMode] = React.useState(
-    fid && fid !== "new" ? "edit" : "add"
+    fid && fid !== NEW ? EDIT : ADD
   ); // "add" or "edit"
   const [fieldId, setFieldId] = React.useState(fid && fid !== "new" ? fid : "");
 
   const resetModal = () => {
     setShowModal(false);
     navigate(`/log/${id}/edit`);
-    setModalMode("add");
+    setModalMode(ADD);
     setFieldId("");
   };
 
@@ -66,14 +89,14 @@ export const Edit: FC = (): ReactElement => {
   ) => {
     navigate(`/log/${log.id}/edit/field/${field.id}`);
     setShowModal(true);
-    setModalMode("edit");
+    setModalMode(EDIT);
     setFieldId(field.id);
   };
 
   const onAddField = () => {
     navigate(`/log/${log.id}/edit/field/new`);
     setShowModal(true);
-    setModalMode("add");
+    setModalMode(ADD);
     setFieldId("");
   };
 
@@ -82,7 +105,10 @@ export const Edit: FC = (): ReactElement => {
   return (
     <>
       <Container>
-        <h1>{`Edit: ${log.name}`}</h1>
+        <h1>
+          {EDIT_HEADER}
+          {log.name}
+        </h1>
 
         <Accordion
           alwaysOpen
@@ -92,7 +118,7 @@ export const Edit: FC = (): ReactElement => {
         >
           <Accordion.Item eventKey="0">
             <Accordion.Header>
-              <h2>Log Fields</h2>
+              <h2>{LOG_FIELDS}</h2>
             </Accordion.Header>
             <Accordion.Body>
               {fields && fields.length ? (
@@ -105,23 +131,23 @@ export const Edit: FC = (): ReactElement => {
                   onEditClick={onEditField}
                 />
               ) : (
-                <p>No fields yet.</p>
+                <p>{NO_FIELDS_YET}</p>
               )}
               <Button
-                variant="primary"
+                variant={PRIMARY}
                 onClick={onAddField}
-                data-toggle="modal"
+                data-toggle={MODAL}
                 data-target="#addFieldModal"
                 style={{ marginBottom: "1rem" }}
               >
-                Add a new field...
+                {ADD_NEW_FIELD}
               </Button>
             </Accordion.Body>
           </Accordion.Item>
 
           <Accordion.Item eventKey="1">
             <Accordion.Header>
-              <h2>Log Settings</h2>
+              <h2>{LOG_SETTINGS}</h2>
             </Accordion.Header>
             <Accordion.Body>
               <LogNameForm onSubmit={onUpdateLog} log={log} />
@@ -129,11 +155,11 @@ export const Edit: FC = (): ReactElement => {
               <EditLabelForm log={log} onSubmit={onUpdateLog} />
               <br />
               <Button
-                variant="danger"
-                type="submit"
+                variant={DANGER}
+                type={SUBMIT}
                 onClick={(e) => (onDeleteLog(e, log), navigate("/"))}
               >
-                Delete Log
+                {DELETE_LOG}
               </Button>
             </Accordion.Body>
           </Accordion.Item>
@@ -141,24 +167,24 @@ export const Edit: FC = (): ReactElement => {
 
         <Row className="edit__button_row">
           <Col>
-            <Button variant="dark" onClick={() => navigate(`/`)}>
-              Home
+            <Button variant={DARK} onClick={() => navigate(`/`)}>
+              {HOME}
             </Button>
           </Col>
           <Col>
             <Button
-              variant="secondary"
+              variant={SECONDARY}
               onClick={() => navigate(`/log/${log.id}`)}
             >
-              View Log
+              {VIEW_LOG}
             </Button>
           </Col>
           <Col>
             <Button
-              variant="primary"
+              variant={PRIMARY}
               onClick={() => navigate(`/log/${id}/entry`)}
             >
-              Add Entry
+              {ADD_ENTRY}
             </Button>
           </Col>
         </Row>
@@ -166,7 +192,7 @@ export const Edit: FC = (): ReactElement => {
 
       <Modal id="addFieldModal" show={showModal} onHide={resetModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Field Settings</Modal.Title>
+          <Modal.Title>{FIELD_SETTINGS}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <EditFieldForm

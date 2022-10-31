@@ -17,6 +17,26 @@ import {
   LogEntry,
 } from "../../store/Log";
 import "./log.scss";
+import {
+  ACTIONS,
+  ADD_ENTRY,
+  BOOLEAN,
+  DARK,
+  DATE,
+  DELETE_ENTRY,
+  EDIT_ENTRY,
+  EDIT_LOG,
+  FALSE,
+  HOME,
+  HYPHEN,
+  PRIMARY,
+  SECONDARY,
+  SELECT,
+  TEXT,
+} from "../../strings";
+
+export const ENTRIES_HEADER = "Entries ";
+export const NO_ENTRIES = "No entries";
 
 export const onDeleteEntry = (log: LogType, entryId: string) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId }));
@@ -29,8 +49,8 @@ export const Log: FC = (): ReactElement => {
   const { name, fields, labelOption } = log;
   const entries: LogEntry[] = Object.values(log.entries || {});
   const hasEntries = entries.length > 0;
-  const isLabelDate = labelOption === "date";
-  const isLabelText = labelOption === "text";
+  const isLabelDate = labelOption === DATE;
+  const isLabelText = labelOption === TEXT;
   return (
     <Container className="log__container">
       <Row>
@@ -41,13 +61,19 @@ export const Log: FC = (): ReactElement => {
       <hr />
       <Row>
         <Col className="log__entries">
-          <h4>{`Entries (${entries.length})`}</h4>
+          <h4>
+            {ENTRIES_HEADER}
+            {`(${entries.length})`}
+          </h4>
           {hasEntries ? (
             entries
               .filter((entry: LogEntry) => entry && entry.values)
               .sort((a: LogEntry, b: LogEntry) => {
                 // Sort by date created
-                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                return (
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+                );
               })
               .map((entry: LogEntry) => {
                 const labelText = isLabelDate
@@ -57,7 +83,7 @@ export const Log: FC = (): ReactElement => {
                   : entry.values[labelOption as string];
 
                 return (
-                  <Card key={id + "-" + entry.id} className="log__entry">
+                  <Card key={id + HYPHEN + entry.id} className="log__entry">
                     <Card.Body>
                       <Card.Title>{labelText}</Card.Title>
 
@@ -66,17 +92,19 @@ export const Log: FC = (): ReactElement => {
                         .map((fieldId: string) => {
                           let value;
                           switch (fields[fieldId].type) {
-                            case "date":
+                            case DATE:
                               value = new Date(
                                 entry.values[fieldId] as string
                               ).toLocaleString();
                               break;
-                            case "boolean":
-                              value = entry.values[fieldId] || "false";
+                            case BOOLEAN:
+                              value = entry.values[fieldId] || FALSE;
                               break;
-                            case "select":
+                            case SELECT:
                               value = Array.isArray(entry.values[fieldId])
-                                ? ((entry.values[fieldId] as []) || []).join(", ")
+                                ? ((entry.values[fieldId] as []) || []).join(
+                                    ", "
+                                  )
                                 : entry.values[fieldId];
                               break;
                             default:
@@ -85,7 +113,7 @@ export const Log: FC = (): ReactElement => {
 
                           return (
                             <div
-                              key={entry.id + "-" + fieldId}
+                              key={entry.id + HYPHEN + fieldId}
                               className="log__entry__field"
                             >
                               <strong>{fields[fieldId].name}</strong>:
@@ -95,8 +123,8 @@ export const Log: FC = (): ReactElement => {
                         })}
                       <DropdownButton
                         id={`dropdown-basic-button-${id}-${entry.id}`}
-                        title="Actions"
-                        variant="secondary"
+                        title={ACTIONS}
+                        variant={SECONDARY}
                         className="log__entry__actions"
                       >
                         <Dropdown.Item
@@ -104,12 +132,12 @@ export const Log: FC = (): ReactElement => {
                             navigate(`/log/${id}/entry/${entry.id}`)
                           }
                         >
-                          Edit Entry
+                          {EDIT_ENTRY}
                         </Dropdown.Item>
                         <Dropdown.Item
                           onClick={() => onDeleteEntry(log, entry.id)}
                         >
-                          Delete Entry
+                          {DELETE_ENTRY}
                         </Dropdown.Item>
                       </DropdownButton>
                     </Card.Body>
@@ -117,7 +145,7 @@ export const Log: FC = (): ReactElement => {
                 );
               })
           ) : (
-            <p>No entries</p>
+            <p>{NO_ENTRIES}</p>
           )}
         </Col>
       </Row>
@@ -125,30 +153,30 @@ export const Log: FC = (): ReactElement => {
       <Row className="form__button_row">
         <Col>
           <Button
-            variant="dark"
+            variant={DARK}
             onClick={() => {
               navigate(`/`);
             }}
           >
-            Home
+            {HOME}
           </Button>
         </Col>
         <Col>
           <Button
-            variant="secondary"
+            variant={SECONDARY}
             onClick={() => {
               navigate(`/log/${id}/edit`);
             }}
           >
-            Edit Log
+            {EDIT_LOG}
           </Button>
         </Col>
         <Col>
           <Button
-            variant="primary"
+            variant={PRIMARY}
             onClick={() => navigate(`/log/${id}/entry`)}
           >
-            Add Entry
+            {ADD_ENTRY}
           </Button>
         </Col>
       </Row>

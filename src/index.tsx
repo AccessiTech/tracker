@@ -6,11 +6,12 @@ import { PersistGate } from "reduxjs-toolkit-persist/integration/react";
 
 import { App } from "./App";
 import reportWebVitals from "./reportWebVitals";
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
+import { FALSE } from "./strings";
 
-
+const ROOT: string = "root";
 const root: ReactDOM.Root = ReactDOM.createRoot(
-  document.getElementById("root") as Element | DocumentFragment
+  document.getElementById(ROOT) as Element | DocumentFragment
 );
 root.render(
   <Provider store={store}>
@@ -30,5 +31,5 @@ serviceWorkerRegistration.register();
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
-// 
-document.getElementById("root")?.setAttribute("aria-busy", "false");
+//
+document.getElementById(ROOT)?.setAttribute("aria-busy", FALSE);
