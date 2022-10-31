@@ -1,3 +1,5 @@
+@import "~bootstrap/scss/bootstrap.scss";
+
 a {
   text-decoration: none;
   &:hover {
@@ -5,8 +7,17 @@ a {
   }
 }
 
+h1 {
+  margin-top: 1rem;
+}
+
 .table td {
     vertical-align: middle;
 }
 
-@import "~bootstrap/scss/bootstrap.scss";
+
+.form__button_row {
+  button {
+    width: 100%;
+  }
+}

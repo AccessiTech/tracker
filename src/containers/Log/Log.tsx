@@ -118,7 +118,7 @@ export const Log: FC = (): ReactElement => {
         </Col>
       </Row>
       <hr />
-      <Row className="form__log__button_row">
+      <Row className="form__button_row">
         <Col>
           <Button
             variant="dark"

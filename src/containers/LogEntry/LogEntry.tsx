@@ -93,20 +93,24 @@ export const LogEntry: FC = (): ReactElement | null => {
           <Col>
             <h1>{`${name} Entry`}</h1>
             <hr />
-            <Formik
-              initialValues={initialValues}
-              onSubmit={(values) => {
-                onLogEntrySubmit(values, log, entry);
-                setCancel(true);
-              }}
-            >
-              {(formikProps) => {
-                const isTextLabel = labelOption === "text";
-                return (
-                  <Form
-                    onSubmit={formikProps.handleSubmit}
-                    className="form__log_entry"
-                  >
+          </Col>
+        </Row>
+        <Formik
+          initialValues={initialValues}
+          onSubmit={(values) => {
+            onLogEntrySubmit(values, log, entry);
+            setCancel(true);
+          }}
+        >
+          {(formikProps) => {
+            const isTextLabel = labelOption === "text";
+            return (
+              <Form
+                onSubmit={formikProps.handleSubmit}
+                className="form__log_entry"
+              >
+                <Row>
+                  <Col>
                     {isTextLabel && (
                       <Form.Group>
                         <Form.Label>Entry Label</Form.Label>
@@ -142,6 +146,11 @@ export const LogEntry: FC = (): ReactElement | null => {
                         </Form.Group>
                       );
                     })}
+                  </Col>
+                </Row>
+
+                <Row className="form__button_row">
+                  <Col>
                     <Button
                       variant="secondary"
                       type="reset"
@@ -149,16 +158,17 @@ export const LogEntry: FC = (): ReactElement | null => {
                     >
                       Cancel
                     </Button>
-                    &nbsp;
+                  </Col>
+                  <Col>
                     <Button variant="primary" type="submit">
                       Submit
                     </Button>
-                  </Form>
-                );
-              }}
-            </Formik>
-          </Col>
-        </Row>
+                  </Col>
+                </Row>
+              </Form>
+            );
+          }}
+        </Formik>
       </Container>
     </>
   );
