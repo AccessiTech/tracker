@@ -39,6 +39,13 @@ export const New: FC = (): ReactElement => {
                 This is the name of the log.
               </Form.Text>
             </Form.Group>
+            <br />
+            <Button
+              variant="secondary"
+              onClick={() => navigate("/")}
+              className="mr-2"
+            >Cancel</Button>
+            &nbsp;
             <Button
               variant="primary"
               type="submit"
