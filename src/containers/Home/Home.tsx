@@ -16,8 +16,9 @@ export const Home: FC = (): ReactElement => {
     <Container>
       <Row>
         <Col>
-          <h1>Tracker</h1>
-          <h3>Your logs</h3>
+          <h1>Tracker Keeper</h1>
+          <hr /> 
+          <h2>Your logs</h2>
 
           <table className="table table-striped">
             <thead>
