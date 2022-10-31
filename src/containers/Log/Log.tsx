@@ -126,7 +126,7 @@ export const Log: FC = (): ReactElement => {
               navigate(`/`);
             }}
           >
-            Back
+            Home
           </Button>
         </Col>
         <Col>

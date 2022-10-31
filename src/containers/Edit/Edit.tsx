@@ -142,7 +142,7 @@ export const Edit: FC = (): ReactElement => {
         <Row className="edit__button_row">
           <Col>
             <Button variant="dark" onClick={() => navigate(`/`)}>
-              Back
+              Home
             </Button>
           </Col>
           <Col>

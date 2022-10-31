@@ -76,7 +76,7 @@ export const LogEntry: FC = (): ReactElement | null => {
 
   React.useEffect(() => {
     if (cancel) {
-      navigate(`/log/${logId}`);
+      navigate(-1);
     }
   }, [cancel, navigate]);
 
