@@ -13,6 +13,17 @@ export {
   addLogField,
   removeLogField,
   updateLogField,
+
+  // Strings
+  ADD_LOG_ACTION,
+  REMOVE_LOG_ACTION,
+  UPDATE_LOG_ACTION,
+  ADD_LOG_ENTRY_ACTION,
+  REMOVE_LOG_ENTRY_ACTION,
+  UPDATE_LOG_ENTRY_ACTION,
+  ADD_LOG_FIELD_ACTION,
+  REMOVE_LOG_FIELD_ACTION,
+  UPDATE_LOG_FIELD_ACTION,
 } from "./reducer";
 
 export type { LogState } from "./reducer";
