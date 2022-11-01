@@ -3,24 +3,60 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import "./Home.scss";
-import { Button, ButtonGroup, Dropdown } from "react-bootstrap";
+import { Button, ButtonGroup, Dropdown, Form, Modal } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { removeLog, useGetLogsArray } from "../../store/Log";
+import { v4 as uuidv4 } from "uuid";
+
 import store from "../../store/store";
-import { ADD_ENTRY, PRIMARY } from "../../strings";
+import { addLog } from "../../store/Log";
+import {
+  ADD_ENTRY,
+  CANCEL,
+  EMPTY,
+  PRIMARY,
+  SAVE,
+  SECONDARY,
+  TEXT,
+  TEXT_DANGER,
+} from "../../strings";
 
 export const TRACKER_KEEPER = "Tracker Keeper";
 export const YOUR_LOGS = "Your Logs";
 export const LOG = "Log";
+export const LOG_NAME = "Log Name";
+export const LOG_NAME_PLACEHOLDER = "Enter log name";
 export const ACTIONS = "Actions";
 export const EDIT = "Edit";
 export const DELETE = "Delete";
 export const NO_LOGS_YET = "No logs yet.";
 export const CREATE_NEW_LOG = "Create a new log...";
 
+export const onAddLog = (id: string, name: string) => {
+  const log = {
+    id,
+    name,
+    fields: {},
+    entries: {},
+  };
+  store.dispatch(addLog({ log }));
+};
+
 export const Home: FC = (): ReactElement => {
   const navigate = useNavigate();
+  const isNewLogModalOpen = window.location.hash === "#/new";
+  const [showModal, setShowModal] = React.useState(isNewLogModalOpen);
+  const [newLogId, setNewLogId] = React.useState(EMPTY);
+  const [newLogName, setNewLogName] = React.useState(EMPTY);
   const logs = useGetLogsArray();
+
+  if (
+    newLogId !== EMPTY &&
+    newLogName !== EMPTY &&
+    newLogName.trim() !== EMPTY
+  ) {
+    navigate("/log/" + newLogId + "/edit");
+  }
 
   return (
     <Container>
@@ -71,7 +107,7 @@ export const Home: FC = (): ReactElement => {
                             {EDIT}
                           </Dropdown.Item>
                           <Dropdown.Item
-                            className="text-danger"
+                            className={TEXT_DANGER}
                             onClick={(e) => {
                               e.preventDefault();
                               store.dispatch(removeLog({ logId: log.id }));
@@ -92,13 +128,71 @@ export const Home: FC = (): ReactElement => {
             variant={PRIMARY}
             onClick={(e) => {
               e.preventDefault();
-              navigate("/log/new");
+              navigate("/new");
+              setShowModal(true);
             }}
           >
             {CREATE_NEW_LOG}
           </Button>
         </Col>
       </Row>
+
+      <Modal
+        id="addLogModal"
+        show={showModal}
+        onHide={() => {
+          setShowModal(false);
+          setNewLogName(EMPTY);
+          navigate("/");
+        }}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{CREATE_NEW_LOG}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formLogName">
+              <Form.Label>{LOG_NAME}</Form.Label>
+              <Form.Control
+                type={TEXT}
+                placeholder={LOG_NAME_PLACEHOLDER}
+                onChange={(e) => setNewLogName(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Container>
+            <Row>
+              <Col>
+                <Button
+                  variant={SECONDARY}
+                  onClick={() => {
+                    setShowModal(false);
+                    setNewLogName(EMPTY);
+                    navigate("/");
+                  }}
+                >
+                  {CANCEL}
+                </Button>
+              </Col>
+              <Col>
+                <Button
+                  variant={PRIMARY}
+                  disabled={newLogName.trim() === EMPTY}
+                  onClick={() => {
+                    const newId = uuidv4();
+                    onAddLog(newId, newLogName);
+                    setNewLogId(newId);
+                  }}
+                >
+                  {SAVE}
+                </Button>
+              </Col>
+            </Row>
+          </Container>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
