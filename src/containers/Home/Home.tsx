@@ -8,6 +8,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { removeLog, useGetLogsArray } from "../../store/Log";
 import { v4 as uuidv4 } from "uuid";
 
+import { Sidebar} from "../../components/Sidebar";
+import { Header } from "../../components/Header";
+
 import store from "../../store/store";
 import { addLog } from "../../store/Log";
 import {
@@ -45,6 +48,7 @@ export const onAddLog = (id: string, name: string) => {
 export const Home: FC = (): ReactElement => {
   const navigate = useNavigate();
   const isNewLogModalOpen = window.location.hash === "#/new";
+  const [showSidebar, setShowSidebar] = React.useState(false);
   const [showModal, setShowModal] = React.useState(isNewLogModalOpen);
   const [newLogId, setNewLogId] = React.useState(EMPTY);
   const [newLogName, setNewLogName] = React.useState(EMPTY);
@@ -60,9 +64,15 @@ export const Home: FC = (): ReactElement => {
 
   return (
     <Container>
+      <Row className="header__row">
+        <Col>
+         
+            <Header title={TRACKER_KEEPER} toggleSidebar={setShowSidebar} />
+
+        </Col>
+      </Row>
       <Row>
         <Col>
-          <h1>{TRACKER_KEEPER}</h1>
           <hr />
           <h2>{YOUR_LOGS}</h2>
 
@@ -193,6 +203,11 @@ export const Home: FC = (): ReactElement => {
           </Container>
         </Modal.Footer>
       </Modal>
+
+      <Sidebar
+        showSidebar={showSidebar}
+        toggleSidebar={setShowSidebar}
+      />
     </Container>
   );
 };
