@@ -1,9 +1,9 @@
 import React from "react";
 import { FC, ReactElement } from "react";
 import { Offcanvas } from "react-bootstrap";
-import { END } from "../../strings";
+import { END, SIDEBAR_HEADER } from "../../strings";
 
-export const SIDEBAR_HEADER = "About the App";
+
 export const SIDEBAR_BODY = "This is a simple app to help you keep track of your logs. Highly customizable logs allow you to track anything you want!";
 export const SIDEBAR_DATA_HEADER = "Data Usage";
 export const SIDEBAR_DATA_BODY_1 = "This app uses local storage to store your logs, no data is sent to a server. Your data is never sold to anyone, EVER."

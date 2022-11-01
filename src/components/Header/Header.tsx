@@ -1,6 +1,7 @@
 import React from "react";
 import { FC, ReactElement } from "react";
 import { Button } from "react-bootstrap";
+import { OUTLINE_SECONDARY, SIDEBAR_HEADER } from "../../strings";
 import { ToggleSidebar } from "../Sidebar";
 import "./header.scss";
 
@@ -25,9 +26,9 @@ export const Header: FC<HeaderProps> = ({
       <h1>{title}</h1>
       <Button
         className="sidebar__button_toggle"
-        variant="outline-secondary"
+        variant={OUTLINE_SECONDARY}
         onClick={() => toggleSidebar(true)}
-        title="About the App"
+        title={SIDEBAR_HEADER}
       >
         <i>i</i>
       </Button>
