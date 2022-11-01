@@ -9,6 +9,10 @@ import {
   Dropdown,
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
+
+import { Sidebar} from "../../components/Sidebar";
+import { Header } from "../../components/Header";
+
 import store from "../../store/store";
 import {
   useGetLog,
@@ -45,6 +49,7 @@ export const onDeleteEntry = (log: LogType, entryId: string) => {
 export const Log: FC = (): ReactElement => {
   const navigate = useNavigate();
   const { id } = useParams() as { id: string };
+  const [showSidebar, setShowSidebar] = React.useState(false);
   const log: LogType = useGetLog(id);
   const { name, fields, labelOption } = log;
   const entries: LogEntry[] = Object.values(log.entries || {});
@@ -55,7 +60,7 @@ export const Log: FC = (): ReactElement => {
     <Container className="log__container">
       <Row>
         <Col>
-          <h1>{name}</h1>
+          <Header title={name} toggleSidebar={setShowSidebar} />
         </Col>
       </Row>
       <hr />
@@ -180,6 +185,11 @@ export const Log: FC = (): ReactElement => {
           </Button>
         </Col>
       </Row>
+
+      <Sidebar
+        showSidebar={showSidebar}
+        toggleSidebar={setShowSidebar}
+      />
     </Container>
   );
 };

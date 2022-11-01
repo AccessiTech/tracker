@@ -16,7 +16,9 @@ import {
 } from "../../store/Log";
 import { Formik } from "formik";
 import store from "../../store/store";
-import FieldText from "../../components/FieldText/FieldText";
+import { Sidebar} from "../../components/Sidebar";
+import { Header } from "../../components/Header";
+import {FieldText} from "../../components/FieldText";
 import { FieldNumber } from "../../components/FieldNumber";
 import { FieldDate } from "../../components/FieldDate";
 import { FieldBoolean } from "../../components/FieldBoolean";
@@ -77,6 +79,7 @@ export const LogEntry: FC = (): ReactElement | null => {
   const navigate = useNavigate();
   const log: Log = useGetLog(logId);
   const entry: LogEntryType = useGetLogEntry(logId, entryId);
+  const [showSidebar, setShowSidebar] = React.useState(false);
   const [cancel, setCancel] = React.useState(false);
   const [isNewEntry] = React.useState(
     typeof entryId === UNDEFINED || typeof entry === UNDEFINED
@@ -110,10 +113,10 @@ export const LogEntry: FC = (): ReactElement | null => {
       <Container>
         <Row>
           <Col>
-            <h1>
-              {name}
-              {ENTRY_HEADER}
-            </h1>
+            <Header
+              title={`${name}${ENTRY_HEADER}`}
+              toggleSidebar={setShowSidebar}
+            />
             <hr />
           </Col>
         </Row>
@@ -191,6 +194,10 @@ export const LogEntry: FC = (): ReactElement | null => {
             );
           }}
         </Formik>
+        <Sidebar
+          showSidebar={showSidebar}
+          toggleSidebar={setShowSidebar}
+        />
       </Container>
     </>
   );
