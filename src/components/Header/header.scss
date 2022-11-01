@@ -1,0 +1,16 @@
+header.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .sidebar__button_toggle {
+    border-radius: 50%;
+    padding-right: 6px;
+    padding-left: 6px;
+
+    i {
+      display: inline-block;
+      width: 1.5rem;
+    }
+  }
+}
