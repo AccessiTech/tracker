@@ -18,6 +18,7 @@ import {
   SAVE,
   SECONDARY,
   TEXT,
+  TEXT_DANGER,
 } from "../../strings";
 
 export const TRACKER_KEEPER = "Tracker Keeper";
@@ -106,7 +107,7 @@ export const Home: FC = (): ReactElement => {
                             {EDIT}
                           </Dropdown.Item>
                           <Dropdown.Item
-                            className="text-danger"
+                            className={TEXT_DANGER}
                             onClick={(e) => {
                               e.preventDefault();
                               store.dispatch(removeLog({ logId: log.id }));
