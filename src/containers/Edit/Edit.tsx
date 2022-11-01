@@ -16,6 +16,8 @@ import { LogNameForm } from "../../components/LogNameForm";
 import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTable";
 import { EditFieldForm } from "../../components/EditFieldForm";
 import { EditLabelForm } from "../../components/EditLabelForm";
+import { Sidebar } from "../../components/Sidebar";
+import { Header } from "../../components/Header";
 import {
   ADD,
   ADD_ENTRY,
@@ -69,7 +71,7 @@ export const Edit: FC = (): ReactElement => {
   if (!log || id !== log.id || !log.fields) {
     navigate("/");
   }
-
+  const [showSidebar, setShowSidebar] = React.useState(false);
   const [showModal, setShowModal] = React.useState(fid ? true : false);
   const [modalMode, setModalMode] = React.useState(
     fid && fid !== NEW ? EDIT : ADD
@@ -105,10 +107,14 @@ export const Edit: FC = (): ReactElement => {
   return (
     <>
       <Container>
-        <h1>
-          {EDIT_HEADER}
-          {log.name}
-        </h1>
+        <Row>
+          <Col>
+            <Header
+              title={EDIT_HEADER + log.name}
+              toggleSidebar={setShowSidebar}
+            />
+          </Col>
+        </Row>
 
         <Accordion
           alwaysOpen
@@ -203,6 +209,11 @@ export const Edit: FC = (): ReactElement => {
           />
         </Modal.Body>
       </Modal>
+
+      <Sidebar
+        showSidebar={showSidebar}
+        toggleSidebar={setShowSidebar}
+      />
     </>
   );
 };
