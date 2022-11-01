@@ -27,8 +27,9 @@ export const Header: FC<HeaderProps> = ({
         className="sidebar__button_toggle"
         variant="outline-secondary"
         onClick={() => toggleSidebar(true)}
+        title="About the App"
       >
-        <i aria-label="More Information">i</i>
+        <i>i</i>
       </Button>
     </header>
   );
