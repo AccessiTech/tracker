@@ -35,6 +35,7 @@ export const STEP = "step";
 export const COMMA = ",";
 export const COMMA_SPACE = ", ";
 export const ADD = "add";
+export const END = "end";
 
 // Display Strings
 export const HOME = "Home";
