@@ -18,8 +18,8 @@ export const App: FC = (): ReactElement => {
     <HashRouter>
       <Routes>
         <Route path="*" element={<h1>404</h1>} />
-        <Route path="/" element={<Home />} />
-        <Route path="/new" element={<Home />} />
+        <Route path="/" element={<Home setToast={setToast}/>} />
+        <Route path="/new" element={<Home setToast={setToast}/>} />
         <Route path="/log/">
           <Route path="" element={<h1>404</h1>} />
           <Route path=":id/">

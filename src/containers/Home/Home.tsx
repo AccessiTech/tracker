@@ -5,7 +5,7 @@ import Col from "react-bootstrap/Col";
 import "./Home.scss";
 import { Button, ButtonGroup, Dropdown, Form, Modal } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { removeLog, useGetLogsArray } from "../../store/Log";
+import { ADD_LOG_ACTION, removeLog, REMOVE_LOG_ACTION, useGetLogsArray } from "../../store/Log";
 import { v4 as uuidv4 } from "uuid";
 
 import { Sidebar} from "../../components/Sidebar";
@@ -23,6 +23,7 @@ import {
   TEXT,
   TEXT_DANGER,
 } from "../../strings";
+import { SetToast } from "../../components/Toaster";
 
 export const TRACKER_KEEPER = "Tracker Keeper";
 export const YOUR_LOGS = "Your Logs";
@@ -45,7 +46,11 @@ export const onAddLog = (id: string, name: string) => {
   store.dispatch(addLog({ log }));
 };
 
-export const Home: FC = (): ReactElement => {
+export interface HomeProps {
+  setToast: SetToast;
+}
+
+export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
   const isNewLogModalOpen = window.location.hash === "#/new";
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -121,6 +126,11 @@ export const Home: FC = (): ReactElement => {
                             onClick={(e) => {
                               e.preventDefault();
                               store.dispatch(removeLog({ logId: log.id }));
+                              setToast({
+                                show: true,
+                                context: REMOVE_LOG_ACTION,
+                                name: log.name,
+                              });
                             }}
                           >
                             {DELETE}
@@ -194,6 +204,11 @@ export const Home: FC = (): ReactElement => {
                     const newId = uuidv4();
                     onAddLog(newId, newLogName);
                     setNewLogId(newId);
+                    setToast({
+                      show: true,
+                      context: ADD_LOG_ACTION,
+                      name: newLogName,
+                    });
                   }}
                 >
                   {SAVE}
