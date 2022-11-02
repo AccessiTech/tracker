@@ -75,3 +75,5 @@ export const STEPS_LABEL = "Steps";
 export const CREATE_LABEL = "Create";
 export const UPDATE_LABEL = "Update";
 export const SIDEBAR_HEADER = "About the App";
+export const OOPS = "Oops!";
+export const LOG_NOT_FOUND = "Log not found";

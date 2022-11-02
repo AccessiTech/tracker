@@ -29,7 +29,9 @@ import {
   BOOLEAN,
   CANCEL,
   DATE,
+  LOG_NOT_FOUND,
   NUMBER,
+  OOPS,
   PRIMARY,
   RESET,
   SECONDARY,
@@ -46,8 +48,6 @@ export const LABEL = "label";
 
 export const ENTRY_HEADER = " Entry";
 export const ENTRY_LABEL = "Entry Label";
-export const OOPS = "Oops!";
-export const LOG_NOT_FOUND = "Log not found";
 export const NO_LOG_FIELDS = "This log doesn't have any fields yet";
 export const ENTRY_NOT_SAVED = "Entry not saved";
 export const ENTRY_NOT_UPDATED = "Entry not updated";

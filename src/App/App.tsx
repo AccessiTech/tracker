@@ -24,7 +24,7 @@ export const App: FC = (): ReactElement => {
         <Route path="/log/">
           <Route path="" element={<h1>404</h1>} />
           <Route path=":id/">
-            <Route path="" element={<Log />} />
+            <Route path="" element={<Log setToast={setToast} />} />
             <Route path="entry/" element={<LogEntry setToast={setToast} />} />
             <Route path="entry/:entry" element={<LogEntry setToast={setToast} />} />
             <Route path="edit/">
