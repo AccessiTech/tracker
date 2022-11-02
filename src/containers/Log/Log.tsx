@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Sidebar} from "../../components/Sidebar";
+import { Sidebar } from "../../components/Sidebar";
 import { Header } from "../../components/Header";
 
 import store from "../../store/store";
@@ -19,6 +19,7 @@ import {
   removeLogEntry,
   Log as LogType,
   LogEntry,
+  REMOVE_LOG_ENTRY_ACTION,
 } from "../../store/Log";
 import "./log.scss";
 import {
@@ -33,11 +34,15 @@ import {
   FALSE,
   HOME,
   HYPHEN,
+  LOG_NOT_FOUND,
+  OOPS,
   PRIMARY,
   SECONDARY,
   SELECT,
   TEXT,
+  WARNING,
 } from "../../strings";
+import { SetToast } from "../../components/Toaster";
 
 export const ENTRIES_HEADER = "Entries ";
 export const NO_ENTRIES = "No entries";
@@ -46,14 +51,31 @@ export const onDeleteEntry = (log: LogType, entryId: string) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId }));
 };
 
-export const Log: FC = (): ReactElement => {
+export interface LogProps {
+  setToast: SetToast;
+}
+
+export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
   const { id } = useParams() as { id: string };
   const [showSidebar, setShowSidebar] = React.useState(false);
   const log: LogType = useGetLog(id);
-  const { name, fields, labelOption } = log;
-  const entries: LogEntry[] = Object.values(log.entries || {});
+  const { name, fields, labelOption } = log || {};
+  const entries: LogEntry[] = log ? Object.values(log.entries || {}) : [];
   const hasEntries = entries.length > 0;
+
+  React.useEffect(() => {
+    if (!log) {
+      navigate("/");
+      setToast({
+        show: true,
+        name: OOPS,
+        context: LOG_NOT_FOUND,
+        status: WARNING,
+      });
+    }
+  }, [log, navigate]);
+
   const isLabelDate = labelOption === DATE;
   const isLabelText = labelOption === TEXT;
   return (
@@ -140,7 +162,14 @@ export const Log: FC = (): ReactElement => {
                           {EDIT_ENTRY}
                         </Dropdown.Item>
                         <Dropdown.Item
-                          onClick={() => onDeleteEntry(log, entry.id)}
+                          onClick={() => {
+                            onDeleteEntry(log, entry.id);
+                            setToast({
+                              show: true,
+                              context: REMOVE_LOG_ENTRY_ACTION,
+                              name: log.name,
+                            });
+                          }}
                         >
                           {DELETE_ENTRY}
                         </Dropdown.Item>
@@ -186,10 +215,7 @@ export const Log: FC = (): ReactElement => {
         </Col>
       </Row>
 
-      <Sidebar
-        showSidebar={showSidebar}
-        toggleSidebar={setShowSidebar}
-      />
+      <Sidebar showSidebar={showSidebar} toggleSidebar={setShowSidebar} />
     </Container>
   );
 };

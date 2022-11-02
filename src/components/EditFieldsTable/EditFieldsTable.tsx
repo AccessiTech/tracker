@@ -1,6 +1,6 @@
 import React, { FC, ReactElement } from "react";
-import { Dropdown } from "react-bootstrap";
-import { initialFieldStates, LogFields } from "../../store/Log";
+import { Dropdown } from "react-bootstrap"
+import { initialFieldStates, LogFields, REMOVE_LOG_FIELD_ACTION } from "../../store/Log";
 import {
   ACTIONS,
   DELETE,
@@ -14,6 +14,7 @@ import {
   TYPE_LABEL,
   TYPE_OPTION_LABEL,
 } from "../../strings";
+import { SetToast } from "../Toaster";
 
 export const YES = "Yes";
 export const NO = "No";
@@ -29,12 +30,14 @@ export interface EditFieldsTableProps {
   fields: LogFields[];
   onEditClick: EditFieldClickFunction;
   onDeleteClick: DeleteFieldClickFunction;
+  setToast: SetToast;
 }
 
 export const EditFieldsTable: FC<EditFieldsTableProps> = ({
   fields,
   onEditClick,
   onDeleteClick,
+  setToast,
 }): ReactElement => {
   return (
     <table className="table table-striped">
@@ -81,6 +84,11 @@ export const EditFieldsTable: FC<EditFieldsTableProps> = ({
                     onClick={(e) => {
                       e.preventDefault();
                       onDeleteClick(e, field.id);
+                      setToast({
+                        show: true,
+                        context: REMOVE_LOG_FIELD_ACTION,
+                        name: field.name,
+                      });
                     }}
                   >
                     {DELETE}
