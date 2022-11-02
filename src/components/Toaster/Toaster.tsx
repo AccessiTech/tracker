@@ -16,10 +16,11 @@ export const Toaster: FC<ToasterProps> = ({
   setToast,
 }): ReactElement => {
   const { show, context, name, status, content } = toast;
-  const hasContext = typeof context !== "undefined" && typeof toasts[context] !== "undefined";
-  const toastStatus: string =  (hasContext && toasts[context].status) || status || SUCCESS;
-  const toastBody =
-    hasContext  ? toasts[context].content : content || context;
+  const hasContext =
+    typeof context !== "undefined" && typeof toasts[context] !== "undefined";
+  const toastStatus: string =
+    (hasContext && toasts[context].status) || status || SUCCESS;
+  const toastBody = hasContext ? toasts[context].content : content || context;
 
   return (
     <ToastContainer>

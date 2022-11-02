@@ -154,8 +154,10 @@ export const LogEntry: FC<LogEntryProps> = ({
             setToast({
               show: true,
               name: log.name,
-              context: isNewEntry ? ADD_LOG_ENTRY_ACTION : UPDATE_LOG_ENTRY_ACTION,
-            })
+              context: isNewEntry
+                ? ADD_LOG_ENTRY_ACTION
+                : UPDATE_LOG_ENTRY_ACTION,
+            });
             setCancel(true);
           }}
         >
@@ -216,9 +218,11 @@ export const LogEntry: FC<LogEntryProps> = ({
                         setToast({
                           show: true,
                           name: log.name,
-                          context: isNewEntry ? ENTRY_NOT_SAVED : ENTRY_NOT_UPDATED,
+                          context: isNewEntry
+                            ? ENTRY_NOT_SAVED
+                            : ENTRY_NOT_UPDATED,
                           status: SECONDARY,
-                        })
+                        });
                       }}
                     >
                       {CANCEL}

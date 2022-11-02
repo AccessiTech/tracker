@@ -88,7 +88,7 @@ export interface EditFieldFormProps {
   fieldId: string | undefined;
   modalMode: string;
   resetModal: () => void;
-  setToast: SetToast
+  setToast: SetToast;
 }
 export interface EditFieldFormValues {
   [key: string]: any;
@@ -125,7 +125,7 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
           context: isNewField ? ADD_LOG_FIELD_ACTION : UPDATE_LOG_FIELD_ACTION,
           name: log.name,
         });
-        
+
         resetModal();
       }}
     >

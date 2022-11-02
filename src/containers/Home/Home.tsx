@@ -5,10 +5,15 @@ import Col from "react-bootstrap/Col";
 import "./Home.scss";
 import { Button, ButtonGroup, Dropdown, Form, Modal } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { ADD_LOG_ACTION, removeLog, REMOVE_LOG_ACTION, useGetLogsArray } from "../../store/Log";
+import {
+  ADD_LOG_ACTION,
+  removeLog,
+  REMOVE_LOG_ACTION,
+  useGetLogsArray,
+} from "../../store/Log";
 import { v4 as uuidv4 } from "uuid";
 
-import { Sidebar} from "../../components/Sidebar";
+import { Sidebar } from "../../components/Sidebar";
 import { Header } from "../../components/Header";
 
 import store from "../../store/store";
@@ -71,9 +76,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
     <Container>
       <Row className="header__row">
         <Col>
-         
-            <Header title={TRACKER_KEEPER} toggleSidebar={setShowSidebar} />
-
+          <Header title={TRACKER_KEEPER} toggleSidebar={setShowSidebar} />
         </Col>
       </Row>
       <Row>
@@ -219,10 +222,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
         </Modal.Footer>
       </Modal>
 
-      <Sidebar
-        showSidebar={showSidebar}
-        toggleSidebar={setShowSidebar}
-      />
+      <Sidebar showSidebar={showSidebar} toggleSidebar={setShowSidebar} />
     </Container>
   );
 };

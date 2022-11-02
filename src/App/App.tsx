@@ -15,31 +15,35 @@ export const App: FC = (): ReactElement => {
     name: EMPTY,
     status: SUCCESS,
   } as ToastType);
-  return (<>
-    <HashRouter>
-      <Routes>
-        <Route path="*" element={<h1>404</h1>} />
-        <Route path="/" element={<Home setToast={setToast}/>} />
-        <Route path="/new" element={<Home setToast={setToast}/>} />
-        <Route path="/log/">
-          <Route path="" element={<h1>404</h1>} />
-          <Route path=":id/">
-            <Route path="" element={<Log setToast={setToast} />} />
-            <Route path="entry/" element={<LogEntry setToast={setToast} />} />
-            <Route path="entry/:entry" element={<LogEntry setToast={setToast} />} />
-            <Route path="edit/">
-              <Route path="" element={<Edit setToast={setToast}/>} />
-              <Route path="field/:field/" element={<Edit setToast={setToast} />} />
+  return (
+    <>
+      <HashRouter>
+        <Routes>
+          <Route path="*" element={<h1>404</h1>} />
+          <Route path="/" element={<Home setToast={setToast} />} />
+          <Route path="/new" element={<Home setToast={setToast} />} />
+          <Route path="/log/">
+            <Route path="" element={<h1>404</h1>} />
+            <Route path=":id/">
+              <Route path="" element={<Log setToast={setToast} />} />
+              <Route path="entry/" element={<LogEntry setToast={setToast} />} />
+              <Route
+                path="entry/:entry"
+                element={<LogEntry setToast={setToast} />}
+              />
+              <Route path="edit/">
+                <Route path="" element={<Edit setToast={setToast} />} />
+                <Route
+                  path="field/:field/"
+                  element={<Edit setToast={setToast} />}
+                />
+              </Route>
             </Route>
           </Route>
-        </Route>
-      </Routes>
-    </HashRouter>
-    <Toaster
-      toast={toast}
-      setToast={setToast}
-    />
-  </>
+        </Routes>
+      </HashRouter>
+      <Toaster toast={toast} setToast={setToast} />
+    </>
   );
 };
 

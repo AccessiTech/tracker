@@ -171,7 +171,11 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
                 variant={DANGER}
                 type={SUBMIT}
                 onClick={(e) => {
-                  setToast({ show: true, context: REMOVE_LOG_ACTION, name: log.name });
+                  setToast({
+                    show: true,
+                    context: REMOVE_LOG_ACTION,
+                    name: log.name,
+                  });
                   onDeleteLog(e, log);
                   navigate("/");
                 }}
@@ -222,10 +226,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
         </Modal.Body>
       </Modal>
 
-      <Sidebar
-        showSidebar={showSidebar}
-        toggleSidebar={setShowSidebar}
-      />
+      <Sidebar showSidebar={showSidebar} toggleSidebar={setShowSidebar} />
     </>
   );
 };

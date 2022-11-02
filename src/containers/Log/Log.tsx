@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Sidebar} from "../../components/Sidebar";
+import { Sidebar } from "../../components/Sidebar";
 import { Header } from "../../components/Header";
 
 import store from "../../store/store";
@@ -75,7 +75,6 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
       });
     }
   }, [log, navigate]);
-
 
   const isLabelDate = labelOption === DATE;
   const isLabelText = labelOption === TEXT;
@@ -164,7 +163,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                         </Dropdown.Item>
                         <Dropdown.Item
                           onClick={() => {
-                            onDeleteEntry(log, entry.id)
+                            onDeleteEntry(log, entry.id);
                             setToast({
                               show: true,
                               context: REMOVE_LOG_ENTRY_ACTION,
@@ -216,10 +215,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
         </Col>
       </Row>
 
-      <Sidebar
-        showSidebar={showSidebar}
-        toggleSidebar={setShowSidebar}
-      />
+      <Sidebar showSidebar={showSidebar} toggleSidebar={setShowSidebar} />
     </Container>
   );
 };
