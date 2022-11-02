@@ -5,20 +5,22 @@ import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import "./logEntry.scss";
 import {
   addLogEntry,
+  ADD_LOG_ENTRY_ACTION,
   FieldValue,
   Log,
   LogEntry as LogEntryType,
   LogFields,
   removeLogEntry,
   updateLogEntry,
+  UPDATE_LOG_ENTRY_ACTION,
   useGetLog,
   useGetLogEntry,
 } from "../../store/Log";
 import { Formik } from "formik";
 import store from "../../store/store";
-import { Sidebar} from "../../components/Sidebar";
+import { Sidebar } from "../../components/Sidebar";
 import { Header } from "../../components/Header";
-import {FieldText} from "../../components/FieldText";
+import { FieldText } from "../../components/FieldText";
 import { FieldNumber } from "../../components/FieldNumber";
 import { FieldDate } from "../../components/FieldDate";
 import { FieldBoolean } from "../../components/FieldBoolean";
@@ -36,12 +38,19 @@ import {
   SUBMIT_STRING,
   TEXT,
   UNDEFINED,
+  WARNING,
 } from "../../strings";
+import { SetToast } from "../../components/Toaster";
 
 export const LABEL = "label";
 
 export const ENTRY_HEADER = " Entry";
 export const ENTRY_LABEL = "Entry Label";
+export const OOPS = "Oops!";
+export const LOG_NOT_FOUND = "Log not found";
+export const NO_LOG_FIELDS = "This log doesn't have any fields yet";
+export const ENTRY_NOT_SAVED = "Entry not saved";
+export const ENTRY_NOT_UPDATED = "Entry not updated";
 
 export const onLogEntrySubmit = (
   values: { [fieldId: string]: FieldValue; label: string },
@@ -71,7 +80,13 @@ export const onLogEntryDelete = (entry: LogEntryType, log: Log) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId: entry.id }));
 };
 
-export const LogEntry: FC = (): ReactElement | null => {
+export interface LogEntryProps {
+  setToast: SetToast;
+}
+
+export const LogEntry: FC<LogEntryProps> = ({
+  setToast,
+}): ReactElement | null => {
   const { id: logId, entry: entryId } = useParams() as {
     id: string;
     entry: string;
@@ -85,13 +100,25 @@ export const LogEntry: FC = (): ReactElement | null => {
     typeof entryId === UNDEFINED || typeof entry === UNDEFINED
   );
 
-  const { name, fields, labelOption } = log;
+  const { name, fields, labelOption } = log || {};
   const logFields: LogFields[] = Object.values(fields || {});
 
   React.useEffect(() => {
     if (!log) {
       navigate("/");
+      setToast({
+        show: true,
+        name: OOPS,
+        context: LOG_NOT_FOUND,
+        status: WARNING,
+      });
     } else if (!logFields.length) {
+      setToast({
+        show: true,
+        name: OOPS,
+        context: NO_LOG_FIELDS,
+        status: WARNING,
+      });
       navigate(`/log/${logId}/edit`);
     }
   }, [log, logId, navigate, logFields.length]);
@@ -124,6 +151,11 @@ export const LogEntry: FC = (): ReactElement | null => {
           initialValues={initialValues}
           onSubmit={(values) => {
             onLogEntrySubmit(values, log, entry);
+            setToast({
+              show: true,
+              name: log.name,
+              context: isNewEntry ? ADD_LOG_ENTRY_ACTION : UPDATE_LOG_ENTRY_ACTION,
+            })
             setCancel(true);
           }}
         >
@@ -179,7 +211,15 @@ export const LogEntry: FC = (): ReactElement | null => {
                     <Button
                       variant={SECONDARY}
                       type={RESET}
-                      onClick={() => setCancel(true)}
+                      onClick={() => {
+                        setCancel(true);
+                        setToast({
+                          show: true,
+                          name: log.name,
+                          context: isNewEntry ? ENTRY_NOT_SAVED : ENTRY_NOT_UPDATED,
+                          status: SECONDARY,
+                        })
+                      }}
                     >
                       {CANCEL}
                     </Button>
@@ -194,10 +234,7 @@ export const LogEntry: FC = (): ReactElement | null => {
             );
           }}
         </Formik>
-        <Sidebar
-          showSidebar={showSidebar}
-          toggleSidebar={setShowSidebar}
-        />
+        <Sidebar showSidebar={showSidebar} toggleSidebar={setShowSidebar} />
       </Container>
     </>
   );

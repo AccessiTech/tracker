@@ -9,9 +9,18 @@ import {
   UPDATE_LOG_ENTRY_ACTION,
   UPDATE_LOG_FIELD_ACTION,
 } from "../../store/Log";
-import { INFO, SUCCESS, WARNING } from "../../strings";
+import { SUCCESS, WARNING } from "../../strings";
 
-export type ToastTypes = "success" | "danger" | "warning" | "info";
+export type ToastTypes =
+  | "success"
+  | "danger"
+  | "warning"
+  | "info"
+  | "default"
+  | "primary"
+  | "secondary"
+  | "light"
+  | "dark";
 export interface ToastType {
   content?: string;
   context?: string;
@@ -30,7 +39,7 @@ export const toasts: Toasts = {
   },
   [UPDATE_LOG_ACTION]: {
     content: "Log Updated",
-    status: INFO,
+    status: SUCCESS,
   },
   [REMOVE_LOG_ACTION]: {
     content: "Log Deleted",
@@ -42,7 +51,7 @@ export const toasts: Toasts = {
   },
   [UPDATE_LOG_FIELD_ACTION]: {
     content: "Field Updated",
-    status: INFO,
+    status: SUCCESS,
   },
   [REMOVE_LOG_FIELD_ACTION]: {
     content: "Field Deleted",
@@ -54,7 +63,7 @@ export const toasts: Toasts = {
   },
   [UPDATE_LOG_ENTRY_ACTION]: {
     content: "Entry Updated",
-    status: INFO,
+    status: SUCCESS,
   },
   [REMOVE_LOG_ENTRY_ACTION]: {
     content: "Entry Deleted",

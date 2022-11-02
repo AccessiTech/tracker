@@ -5,7 +5,7 @@ import { Edit } from "../containers/Edit";
 import { Log } from "../containers/Log";
 import { LogEntry } from "../containers/LogEntry";
 import "./App.scss";
-import { EMPTY } from "../strings";
+import { EMPTY, SUCCESS } from "../strings";
 import { Toaster, ToastType } from "../components/Toaster";
 
 export const App: FC = (): ReactElement => {
@@ -13,6 +13,7 @@ export const App: FC = (): ReactElement => {
     show: false,
     context: EMPTY,
     name: EMPTY,
+    status: SUCCESS,
   } as ToastType);
   return (<>
     <HashRouter>
@@ -24,8 +25,8 @@ export const App: FC = (): ReactElement => {
           <Route path="" element={<h1>404</h1>} />
           <Route path=":id/">
             <Route path="" element={<Log />} />
-            <Route path="entry/" element={<LogEntry />} />
-            <Route path="entry/:entry" element={<LogEntry />} />
+            <Route path="entry/" element={<LogEntry setToast={setToast} />} />
+            <Route path="entry/:entry" element={<LogEntry setToast={setToast} />} />
             <Route path="edit/">
               <Route path="" element={<Edit setToast={setToast}/>} />
               <Route path="field/:field/" element={<Edit setToast={setToast} />} />
@@ -38,7 +39,6 @@ export const App: FC = (): ReactElement => {
       toast={toast}
       setToast={setToast}
     />
-
   </>
   );
 };
