@@ -1,0 +1,17 @@
+.toast-container {
+  top: 1rem;
+  right: 1rem;
+  position: fixed;
+
+  .toast {
+    overflow: hidden;
+
+    .toast-header {
+      justify-content: space-between;
+    }
+
+    .toast-body {
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+  }
+}

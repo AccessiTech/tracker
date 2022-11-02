@@ -2,6 +2,9 @@
 export const PRIMARY = "primary";
 export const SECONDARY = "secondary";
 export const DANGER = "danger";
+export const SUCCESS = "success";
+export const WARNING = "warning";
+export const INFO = "info";
 export const DARK = "dark";
 export const OUTLINE_PRIMARY = `outline-${PRIMARY}`;
 export const OUTLINE_SECONDARY = `outline-${SECONDARY}`;
@@ -72,3 +75,5 @@ export const STEPS_LABEL = "Steps";
 export const CREATE_LABEL = "Create";
 export const UPDATE_LABEL = "Update";
 export const SIDEBAR_HEADER = "About the App";
+export const OOPS = "Oops!";
+export const LOG_NOT_FOUND = "Log not found";

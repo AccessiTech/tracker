@@ -11,6 +11,8 @@ import {
   initialTextFieldState,
   Log,
   LogFields,
+  ADD_LOG_FIELD_ACTION,
+  UPDATE_LOG_FIELD_ACTION,
 } from "../../store/Log";
 import { EditFieldText } from "./EditFieldText";
 import { EditFieldNumber } from "./EditFieldNumber";
@@ -43,6 +45,7 @@ import {
   TYPE,
   UPDATE_LABEL,
 } from "../../strings";
+import { SetToast } from "../Toaster";
 
 export const NAME = "name";
 export const REQUIRED = "required";
@@ -85,6 +88,7 @@ export interface EditFieldFormProps {
   fieldId: string | undefined;
   modalMode: string;
   resetModal: () => void;
+  setToast: SetToast;
 }
 export interface EditFieldFormValues {
   [key: string]: any;
@@ -95,11 +99,12 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
   log,
   modalMode,
   resetModal,
+  setToast,
 }): ReactElement => {
   const fieldState: EditFieldFormValues = fieldId
     ? log.fields[fieldId]
     : { ...initialTextFieldState };
-
+  const isNewField = !fieldId;
   return (
     <Formik
       initialValues={{
@@ -115,6 +120,12 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
       })}
       onSubmit={(values: { [key: string]: string }) => {
         onHandleField(values, log, fieldState as LogFields);
+        setToast({
+          show: true,
+          context: isNewField ? ADD_LOG_FIELD_ACTION : UPDATE_LOG_FIELD_ACTION,
+          name: log.name,
+        });
+
         resetModal();
       }}
     >

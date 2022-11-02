@@ -10,6 +10,7 @@ import {
   removeLogField,
   Log,
   LogFields,
+  REMOVE_LOG_ACTION,
 } from "../../store/Log";
 import "./Edit.scss";
 import { LogNameForm } from "../../components/LogNameForm";
@@ -30,6 +31,7 @@ import {
   SUBMIT,
   VIEW_LOG,
 } from "../../strings";
+import { SetToast } from "../../components/Toaster";
 
 export const NEW = "new";
 export const EDIT = "edit";
@@ -62,7 +64,11 @@ export const onDeleteField = (log: Log, fieldId: string) => {
   store.dispatch(removeLogField({ logId: log.id, fieldId }));
 };
 
-export const Edit: FC = (): ReactElement => {
+export interface EditProps {
+  setToast: SetToast;
+}
+
+export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
   const { id, field: fid } = useParams() as { id: string; field: string };
 
@@ -135,6 +141,7 @@ export const Edit: FC = (): ReactElement => {
                     fieldId: string
                   ) => onDeleteField(log, fieldId)}
                   onEditClick={onEditField}
+                  setToast={setToast}
                 />
               ) : (
                 <p>{NO_FIELDS_YET}</p>
@@ -163,7 +170,15 @@ export const Edit: FC = (): ReactElement => {
               <Button
                 variant={DANGER}
                 type={SUBMIT}
-                onClick={(e) => (onDeleteLog(e, log), navigate("/"))}
+                onClick={(e) => {
+                  setToast({
+                    show: true,
+                    context: REMOVE_LOG_ACTION,
+                    name: log.name,
+                  });
+                  onDeleteLog(e, log);
+                  navigate("/");
+                }}
               >
                 {DELETE_LOG}
               </Button>
@@ -206,14 +221,12 @@ export const Edit: FC = (): ReactElement => {
             log={log}
             modalMode={modalMode}
             resetModal={resetModal}
+            setToast={setToast}
           />
         </Modal.Body>
       </Modal>
 
-      <Sidebar
-        showSidebar={showSidebar}
-        toggleSidebar={setShowSidebar}
-      />
+      <Sidebar showSidebar={showSidebar} toggleSidebar={setShowSidebar} />
     </>
   );
 };
