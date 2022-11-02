@@ -45,7 +45,7 @@ import {
   TYPE,
   UPDATE_LABEL,
 } from "../../strings";
-import { ToasterSetters } from "../Toaster";
+import { SetToast } from "../Toaster";
 
 export const NAME = "name";
 export const REQUIRED = "required";
@@ -83,11 +83,12 @@ export const onHandleField: HandleFieldsFunction = (values, log, field) => {
   }
 };
 
-export interface EditFieldFormProps extends ToasterSetters {
+export interface EditFieldFormProps {
   log: Log;
   fieldId: string | undefined;
   modalMode: string;
   resetModal: () => void;
+  setToast: SetToast
 }
 export interface EditFieldFormValues {
   [key: string]: any;
@@ -98,8 +99,7 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
   log,
   modalMode,
   resetModal,
-  setToastContext,
-  setShowToast,
+  setToast,
 }): ReactElement => {
   const fieldState: EditFieldFormValues = fieldId
     ? log.fields[fieldId]
@@ -120,8 +120,12 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
       })}
       onSubmit={(values: { [key: string]: string }) => {
         onHandleField(values, log, fieldState as LogFields);
-        setShowToast(true);
-        setToastContext(isNewField ? ADD_LOG_FIELD_ACTION : UPDATE_LOG_FIELD_ACTION);
+        setToast({
+          show: true,
+          context: isNewField ? ADD_LOG_FIELD_ACTION : UPDATE_LOG_FIELD_ACTION,
+          name: log.name,
+        });
+        
         resetModal();
       }}
     >

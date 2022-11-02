@@ -5,9 +5,16 @@ import { Edit } from "../containers/Edit";
 import { Log } from "../containers/Log";
 import { LogEntry } from "../containers/LogEntry";
 import "./App.scss";
+import { EMPTY } from "../strings";
+import { Toaster, ToastType } from "../components/Toaster";
 
 export const App: FC = (): ReactElement => {
-  return (
+  const [toast, setToast] = React.useState({
+    show: false,
+    context: EMPTY,
+    name: EMPTY,
+  } as ToastType);
+  return (<>
     <HashRouter>
       <Routes>
         <Route path="*" element={<h1>404</h1>} />
@@ -20,13 +27,19 @@ export const App: FC = (): ReactElement => {
             <Route path="entry/" element={<LogEntry />} />
             <Route path="entry/:entry" element={<LogEntry />} />
             <Route path="edit/">
-              <Route path="" element={<Edit />} />
-              <Route path="field/:field/" element={<Edit />} />
+              <Route path="" element={<Edit setToast={setToast}/>} />
+              <Route path="field/:field/" element={<Edit setToast={setToast} />} />
             </Route>
           </Route>
         </Route>
       </Routes>
     </HashRouter>
+    <Toaster
+      toast={toast}
+      setToast={setToast}
+    />
+
+  </>
   );
 };
 

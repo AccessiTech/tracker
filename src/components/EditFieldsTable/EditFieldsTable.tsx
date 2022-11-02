@@ -1,6 +1,5 @@
 import React, { FC, ReactElement } from "react";
 import { Dropdown } from "react-bootstrap"
-import { ToasterSetters } from "../Toaster";
 import { initialFieldStates, LogFields, REMOVE_LOG_FIELD_ACTION } from "../../store/Log";
 import {
   ACTIONS,
@@ -15,6 +14,7 @@ import {
   TYPE_LABEL,
   TYPE_OPTION_LABEL,
 } from "../../strings";
+import { SetToast } from "../Toaster";
 
 export const YES = "Yes";
 export const NO = "No";
@@ -26,18 +26,18 @@ interface DeleteFieldClickFunction {
   (e: React.MouseEvent<HTMLElement, MouseEvent>, fieldId: string): void;
 }
 
-export interface EditFieldsTableProps extends ToasterSetters {
+export interface EditFieldsTableProps {
   fields: LogFields[];
   onEditClick: EditFieldClickFunction;
   onDeleteClick: DeleteFieldClickFunction;
+  setToast: SetToast;
 }
 
 export const EditFieldsTable: FC<EditFieldsTableProps> = ({
   fields,
   onEditClick,
   onDeleteClick,
-  setShowToast,
-  setToastContext,
+  setToast,
 }): ReactElement => {
   return (
     <table className="table table-striped">
@@ -84,8 +84,11 @@ export const EditFieldsTable: FC<EditFieldsTableProps> = ({
                     onClick={(e) => {
                       e.preventDefault();
                       onDeleteClick(e, field.id);
-                      setShowToast(true);
-                      setToastContext(REMOVE_LOG_FIELD_ACTION);
+                      setToast({
+                        show: true,
+                        context: REMOVE_LOG_FIELD_ACTION,
+                        name: field.name,
+                      });
                     }}
                   >
                     {DELETE}

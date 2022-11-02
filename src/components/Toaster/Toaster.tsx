@@ -1,46 +1,39 @@
 import React, { FC, ReactElement } from "react";
 import { Toast, ToastContainer } from "react-bootstrap";
 import { EMPTY, SUCCESS } from "../../strings";
-import { toasts, ToastTypes } from "./helpers";
+import { ToastType, toasts } from "./helpers";
 import "./toaster.scss";
 
-export interface ToasterSetters {
-  setShowToast: (show: boolean) => void;
-  setToastContext: (context: string) => void;
-}
+export type SetToast = React.Dispatch<React.SetStateAction<ToastType>>;
 
-export interface ToasterProps extends ToasterSetters {
-  context: string;
-  status?: ToastTypes;
-  logName: string;
-  showToast: boolean;
+export interface ToasterProps extends ToastType {
+  toast: ToastType;
+  setToast: SetToast;
 }
 
 export const Toaster: FC<ToasterProps> = ({
-  context,
-  logName,
-  showToast,
-  status,
-  setShowToast,
-  setToastContext,
+  toast,
+  setToast,
 }): ReactElement => {
-  const toast = toasts[context] || {};
-  const toastStatus = status || toast.status || SUCCESS;
-  const toastBody = toast.content || context;
+  const { show, context, name, status, content } = toast;
+  const hasContext = typeof context !== "undefined" && typeof toasts[context] !== "undefined";
+  const toastStatus: string =  (hasContext && toasts[context].status) || status || SUCCESS;
+  const toastBody =
+    hasContext  ? toasts[context].content : content || context;
+
   return (
     <ToastContainer>
       <Toast
         bg={toastStatus}
-        show={showToast}
+        show={show}
         onClose={() => {
-          setShowToast(false);
-          setToastContext(EMPTY);
+          setToast({ show: false, context: EMPTY, name: EMPTY });
         }}
         autohide
         delay={3000}
       >
         <Toast.Header>
-          <strong className="mr-auto">{logName}</strong>
+          <strong className="mr-auto">{name}</strong>
           {/* <small>11 mins ago</small> */}
         </Toast.Header>
         <Toast.Body>{toastBody}</Toast.Body>

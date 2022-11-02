@@ -12,15 +12,20 @@ import {
 import { INFO, SUCCESS, WARNING } from "../../strings";
 
 export type ToastTypes = "success" | "danger" | "warning" | "info";
+export interface ToastType {
+  content?: string;
+  context?: string;
+  status?: ToastTypes;
+  name?: string;
+  show?: boolean;
+}
+
 export interface Toasts {
-  [context: string]: {
-    content: string;
-    status: ToastTypes;
-  };
+  [context: string]: ToastType;
 }
 export const toasts: Toasts = {
   [ADD_LOG_ACTION]: {
-    content: "Creating Log...",
+    content: "Log Created!",
     status: SUCCESS,
   },
   [UPDATE_LOG_ACTION]: {
@@ -28,7 +33,7 @@ export const toasts: Toasts = {
     status: INFO,
   },
   [REMOVE_LOG_ACTION]: {
-    content: "Deleting Log...",
+    content: "Log Deleted",
     status: WARNING,
   },
   [ADD_LOG_FIELD_ACTION]: {

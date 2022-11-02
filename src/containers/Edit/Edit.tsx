@@ -24,7 +24,6 @@ import {
   ADD_ENTRY,
   DANGER,
   DARK,
-  EMPTY,
   HOME,
   MODAL,
   PRIMARY,
@@ -32,7 +31,7 @@ import {
   SUBMIT,
   VIEW_LOG,
 } from "../../strings";
-import { Toaster } from "../../components/Toaster";
+import { SetToast } from "../../components/Toaster";
 
 export const NEW = "new";
 export const EDIT = "edit";
@@ -65,7 +64,11 @@ export const onDeleteField = (log: Log, fieldId: string) => {
   store.dispatch(removeLogField({ logId: log.id, fieldId }));
 };
 
-export const Edit: FC = (): ReactElement => {
+export interface EditProps {
+  setToast: SetToast;
+}
+
+export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
   const { id, field: fid } = useParams() as { id: string; field: string };
 
@@ -80,8 +83,6 @@ export const Edit: FC = (): ReactElement => {
     fid && fid !== NEW ? EDIT : ADD
   ); // "add" or "edit"
   const [fieldId, setFieldId] = React.useState(fid && fid !== "new" ? fid : "");
-  const [showToast, setShowToast] = React.useState(false);
-  const [toastContext, setToastContext] = React.useState(EMPTY);
 
   const resetModal = () => {
     setShowModal(false);
@@ -140,8 +141,7 @@ export const Edit: FC = (): ReactElement => {
                     fieldId: string
                   ) => onDeleteField(log, fieldId)}
                   onEditClick={onEditField}
-                  setShowToast={setShowToast}
-                  setToastContext={setToastContext}
+                  setToast={setToast}
                 />
               ) : (
                 <p>{NO_FIELDS_YET}</p>
@@ -171,12 +171,9 @@ export const Edit: FC = (): ReactElement => {
                 variant={DANGER}
                 type={SUBMIT}
                 onClick={(e) => {
-                  setShowToast(true);
-                  setToastContext(REMOVE_LOG_ACTION);
-                  setTimeout(() => {
-                    onDeleteLog(e, log);
-                    navigate("/");
-                  }, 3000);
+                  setToast({ show: true, context: REMOVE_LOG_ACTION, name: log.name });
+                  onDeleteLog(e, log);
+                  navigate("/");
                 }}
               >
                 {DELETE_LOG}
@@ -220,8 +217,7 @@ export const Edit: FC = (): ReactElement => {
             log={log}
             modalMode={modalMode}
             resetModal={resetModal}
-            setToastContext={setToastContext}
-            setShowToast={setShowToast}
+            setToast={setToast}
           />
         </Modal.Body>
       </Modal>
@@ -229,14 +225,6 @@ export const Edit: FC = (): ReactElement => {
       <Sidebar
         showSidebar={showSidebar}
         toggleSidebar={setShowSidebar}
-      />
-
-      <Toaster
-        context={toastContext}
-        logName={log.name}
-        showToast={showToast}
-        setShowToast={setShowToast}
-        setToastContext={setToastContext}
       />
     </>
   );
