@@ -42,6 +42,9 @@ export const Sidebar: FC<SidebarProps> = ({
         <p>{SIDEBAR_DATA_BODY_1}</p>
         <p>{SIDEBAR_DATA_BODY_2}</p>
       </Offcanvas.Body>
+      <p className="sidebar__p_version text-muted">
+        Version: {process.env.REACT_APP_VERSION}
+      </p>
     </Offcanvas>
   );
 };
