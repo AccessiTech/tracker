@@ -7,10 +7,15 @@ header.header {
     border-radius: 50%;
     padding-right: 6px;
     padding-left: 6px;
+    border-width: 2px;
+    opacity: 0.67;
+    margin-top: .5rem;
 
     i {
       display: inline-block;
       width: 1.5rem;
+      font-style: normal;
+      font-weight: bold;
     }
   }
 }
