@@ -29,6 +29,8 @@ export interface Log extends CrudState {
   labelOption?: "date" | "text" | string;
   fields: { [fieldId: string]: LogFields };
   entries: { [entryId: string]: LogEntry };
+  sort?: string;
+  order?: "asc" | "desc";
 }
 export const initialLogState: Log = {
   id: "",
