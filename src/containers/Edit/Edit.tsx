@@ -32,6 +32,7 @@ import {
   VIEW_LOG,
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
+import { EditSortForm } from "../../components/EditSortForm";
 
 export const NEW = "new";
 export const EDIT = "edit";
@@ -166,6 +167,8 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
               <LogNameForm onSubmit={onUpdateLog} log={log} />
               <br />
               <EditLabelForm log={log} onSubmit={onUpdateLog} />
+              <br />
+              <EditSortForm log={log} onSubmit={onUpdateLog} />
               <br />
               <Button
                 variant={DANGER}

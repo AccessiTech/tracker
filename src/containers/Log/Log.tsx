@@ -26,6 +26,7 @@ import {
   ACTIONS,
   ADD_ENTRY,
   BOOLEAN,
+  CREATED_AT,
   DARK,
   DATE,
   DELETE_ENTRY,
@@ -39,6 +40,8 @@ import {
   PRIMARY,
   SECONDARY,
   SELECT,
+  SORT_ASC,
+  SORT_DESC,
   TEXT,
   WARNING,
 } from "../../strings";
@@ -58,10 +61,13 @@ export interface LogProps {
 export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
   const { id } = useParams() as { id: string };
-  const [showSidebar, setShowSidebar] = React.useState(false);
   const log: LogType = useGetLog(id);
-  const { name, fields, labelOption } = log || {};
   const entries: LogEntry[] = log ? Object.values(log.entries || {}) : [];
+
+  const { name, fields, labelOption, sort, order } = log || {};
+  const [showSidebar, setShowSidebar] = React.useState(false);
+  const [sortBy, setSortBy] = React.useState(sort || CREATED_AT);
+  const [sortOrder, setSortOrder] = React.useState(order || SORT_DESC);
   const hasEntries = entries.length > 0;
 
   React.useEffect(() => {
@@ -87,20 +93,72 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
       </Row>
       <hr />
       <Row>
-        <Col className="log__entries">
+        <Col className="log__entries_header">
           <h4>
             {ENTRIES_HEADER}
             {`(${entries.length})`}
           </h4>
+          {/* update the sortBy and sortOrder state */}
+          <DropdownButton
+            id="dropdown-basic-button"
+            title={"Sort by"}
+            variant={SECONDARY}
+            className="log__actions"
+          >
+            <Dropdown.Item
+              onClick={() => {
+                setSortBy(CREATED_AT);
+              }}
+                className={`text-${CREATED_AT === sortBy ? PRIMARY : SECONDARY}`}
+
+            >
+              {"Date created"}
+            </Dropdown.Item>
+            {Object.values(fields).map((field) => (
+              <Dropdown.Item
+                key={`sort-by-${field.id}`}
+                onClick={() => {
+                  setSortBy(field.id);
+                }}
+                className={`text-${field.id === sortBy ? PRIMARY : SECONDARY}`}
+              >
+                {field.name}
+              </Dropdown.Item>
+            ))}
+            <Dropdown.Divider />
+            <Dropdown.Item
+              onClick={() => {
+                setSortOrder(sortOrder === SORT_ASC ? SORT_DESC : SORT_ASC);
+              }}
+              className={`text-${sortOrder === SORT_ASC ? PRIMARY : SECONDARY}`}
+            >
+              {"Reversed"}
+            </Dropdown.Item>
+          </DropdownButton>
+        </Col>
+      </Row>
+      <Row>
+        <Col className="log__entries">
           {hasEntries ? (
             entries
               .filter((entry: LogEntry) => entry && entry.values)
               .sort((a: LogEntry, b: LogEntry) => {
-                // Sort by date created
-                return (
-                  new Date(b.createdAt).getTime() -
-                  new Date(a.createdAt).getTime()
-                );
+                const valueA = sortBy === CREATED_AT ? a[sortBy] : a.values[sortBy];
+                const valueB = sortBy === CREATED_AT ? b[sortBy] : b.values[sortBy];
+                if (sortBy === CREATED_AT) {
+                  return sortOrder === SORT_ASC
+                  ? new Date(valueB as string).getTime() - new Date(valueA as string).getTime()
+                    : new Date(valueA as string).getTime() - new Date(valueB as string).getTime();
+                }
+                if (typeof valueA === "string" && typeof valueB === "string") {
+                  return sortOrder === SORT_ASC
+                    ? valueA.localeCompare(valueB)
+                    : valueB.localeCompare(valueA);
+                }
+                if ((valueA as any) < (valueB as any)) {
+                  return sortOrder === SORT_ASC ? -1 : 1;
+                }
+                return 0;
               })
               .map((entry: LogEntry) => {
                 const labelText = isLabelDate
