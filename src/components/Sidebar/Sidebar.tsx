@@ -2,12 +2,15 @@ import React from "react";
 import { FC, ReactElement } from "react";
 import { Offcanvas } from "react-bootstrap";
 import { END, SIDEBAR_HEADER } from "../../strings";
+import "./sidebar.scss";
 
-
-export const SIDEBAR_BODY = "This is a simple app to help you keep track of your logs. Highly customizable logs allow you to track anything you want!";
+export const SIDEBAR_BODY =
+  "This is a simple app to help you keep track of your logs. Highly customizable logs allow you to track anything you want!";
 export const SIDEBAR_DATA_HEADER = "Data Usage";
-export const SIDEBAR_DATA_BODY_1 = "This app uses local storage to store your logs, no data is sent to a server. Your data is never sold to anyone, EVER."
-export const SIDEBAR_DATA_BODY_2 = "If you want to delete your personal data, just delete the Log / Entry. To completely clear the App data, clear your browser's local storage via the browser inspector tools.";
+export const SIDEBAR_DATA_BODY_1 =
+  "This app uses local storage to store your logs, no data is sent to a server. Your data is never sold to anyone, EVER.";
+export const SIDEBAR_DATA_BODY_2 =
+  "If you want to delete your personal data, just delete the Log / Entry. To completely clear the App data, clear your browser's local storage via the browser inspector tools.";
 
 /**
  * Sidebar Component
@@ -42,6 +45,9 @@ export const Sidebar: FC<SidebarProps> = ({
         <p>{SIDEBAR_DATA_BODY_1}</p>
         <p>{SIDEBAR_DATA_BODY_2}</p>
       </Offcanvas.Body>
+      <p className="sidebar__p_version text-muted">
+        Version: {process.env.REACT_APP_VERSION}
+      </p>
     </Offcanvas>
   );
 };

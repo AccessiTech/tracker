@@ -1,6 +1,7 @@
 import React from "react";
 import { FC, ReactElement } from "react";
 import { Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { OUTLINE_SECONDARY, SIDEBAR_HEADER } from "../../strings";
 import { ToggleSidebar } from "../Sidebar";
 import "./header.scss";
@@ -21,8 +22,23 @@ export const Header: FC<HeaderProps> = ({
   title,
   toggleSidebar,
 }): ReactElement => {
+  const navigate = useNavigate();
   return (
     <header className="header">
+      <a
+        href="/"
+        className="header__a_logo"
+        onClick={(e) => {
+          e.preventDefault();
+          navigate("/");
+        }}
+      >
+        <img
+          src={process.env.PUBLIC_URL + `/black_logo192.png`}
+          alt="Logo"
+          className="header__img"
+        />
+      </a>
       <h1>{title}</h1>
       <Button
         className="sidebar__button_toggle"
