@@ -1,5 +1,5 @@
 @import "~bootstrap/scss/bootstrap.scss";
-
+@import "../variables.scss";
 a {
   text-decoration: none;
   &:hover {
@@ -24,5 +24,6 @@ h1 {
 .form__button_row {
   button {
     width: 100%;
+    margin-bottom: $spacer;
   }
 }
