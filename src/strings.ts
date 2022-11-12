@@ -43,6 +43,11 @@ export const COMMA = ",";
 export const COMMA_SPACE = ", ";
 export const ADD = "add";
 export const END = "end";
+export const CREATED_AT = "createdAt";
+export const SORT_DESC = "desc";
+export const SORT_ASC = "asc";
+export const SORT = "sort";
+export const ORDER = "order";
 
 // Display Strings
 export const HOME = "Home";
