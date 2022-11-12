@@ -109,8 +109,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
               onClick={() => {
                 setSortBy(CREATED_AT);
               }}
-                className={`text-${CREATED_AT === sortBy ? PRIMARY : SECONDARY}`}
-
+              className={`text-${CREATED_AT === sortBy ? PRIMARY : SECONDARY}`}
             >
               {"Date created"}
             </Dropdown.Item>
@@ -143,20 +142,32 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
             entries
               .filter((entry: LogEntry) => entry && entry.values)
               .sort((a: LogEntry, b: LogEntry) => {
-                const valueA = sortBy === CREATED_AT ? a[sortBy] : a.values[sortBy];
-                const valueB = sortBy === CREATED_AT ? b[sortBy] : b.values[sortBy];
+                const valueA =
+                  sortBy === CREATED_AT ? a[sortBy] : a.values[sortBy];
+                const valueB =
+                  sortBy === CREATED_AT ? b[sortBy] : b.values[sortBy];
                 if (sortBy === CREATED_AT) {
-                  return sortOrder === SORT_ASC
-                  ? new Date(valueB as string).getTime() - new Date(valueA as string).getTime()
-                    : new Date(valueA as string).getTime() - new Date(valueB as string).getTime();
+                  const createdAtOrder =
+                    sortOrder === SORT_ASC
+                      ? new Date(valueB as string).getTime() -
+                        new Date(valueA as string).getTime()
+                      : new Date(valueA as string).getTime() -
+                        new Date(valueB as string).getTime();
+                  return createdAtOrder;
                 }
                 if (typeof valueA === "string" && typeof valueB === "string") {
-                  return sortOrder === SORT_ASC
-                    ? valueA.localeCompare(valueB)
-                    : valueB.localeCompare(valueA);
+                  const stringOrder =
+                    sortOrder === SORT_ASC
+                      ? valueA.localeCompare(valueB)
+                      : valueB.localeCompare(valueA);
+                  return stringOrder;
                 }
                 if ((valueA as any) < (valueB as any)) {
-                  return sortOrder === SORT_ASC ? -1 : 1;
+                  const genericOrder = sortOrder === SORT_ASC ? -1 : 1;
+                  return genericOrder;
+                } else if ((valueA as any) > (valueB as any)) {
+                  const genericOrder = sortOrder === SORT_ASC ? 1 : -1;
+                  return genericOrder;
                 }
                 return 0;
               })
