@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Sidebar } from "../../components/Sidebar";
 import { Header } from "../../components/Header";
+import { PortDataModal } from "../../components/PortDataModal";
 
 import store from "../../store/store";
 import { addLog } from "../../store/Log";
@@ -60,6 +61,9 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
   const isNewLogModalOpen = window.location.hash === "#/new";
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [showModal, setShowModal] = React.useState(isNewLogModalOpen);
+  const [showExportModal, setShowExportModal] = React.useState(false);
+  const [exportID, setExportID] = React.useState("");
+  
   const [newLogId, setNewLogId] = React.useState(EMPTY);
   const [newLogName, setNewLogName] = React.useState(EMPTY);
   const logs = useGetLogsArray();
@@ -125,6 +129,14 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                             {EDIT}
                           </Dropdown.Item>
                           <Dropdown.Item
+                            onClick={() => {
+                              setExportID(log.id);
+                              setShowExportModal(true);
+                            }}
+                          >
+                            {"Export CSV"}
+                          </Dropdown.Item>
+                          <Dropdown.Item
                             className={TEXT_DANGER}
                             onClick={(e) => {
                               e.preventDefault();
@@ -159,6 +171,14 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
           </Button>
         </Col>
       </Row>
+
+      <PortDataModal
+        logID={exportID}
+        onHide={() => {
+          setShowExportModal(false);
+        }}
+        show={showExportModal}
+      />
 
       <Modal
         id="addLogModal"
