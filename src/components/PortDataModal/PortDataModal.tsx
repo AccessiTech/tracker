@@ -14,11 +14,14 @@ export interface PortDataModalProps {
 export const LOG_DATA = "Log Data";
 export const DOWNLOAD_CSV = "Download CSV";
 export const GENERATING_CSV = "Generating CSV...";
+export const INCLUDE_ENTRY_IDS = "Include Entry IDs (Recommended)";
+export const INCLUDE_CREATED_AT = "Include Created At";
+export const INCLUDE_UPDATED_AT = "Include Updated At";
 
 export const PortDataModal : FC<PortDataModalProps> = ({ show, logID, onHide }): ReactElement => {
   const [exportCSV, setExportCSV] = React.useState("");
-  const [includeID, setIncludeID] = React.useState(false);
-  const [includeCreatedAt, setIncludeCreatedAt] = React.useState(false);
+  const [includeID, setIncludeID] = React.useState(true);
+  const [includeCreatedAt, setIncludeCreatedAt] = React.useState(true);
   const [includeUpdatedAt, setIncludeUpdatedAt] = React.useState(false);
   const log:Log = useGetLog(logID);
 
@@ -52,7 +55,7 @@ export const PortDataModal : FC<PortDataModalProps> = ({ show, logID, onHide }):
             <Form.Group controlId="includeIDCheckbox">
               <Form.Check
                 type="checkbox"
-                label="Include Field ID"
+                label={INCLUDE_ENTRY_IDS}
                 checked={includeID}
                 onChange={(e) => {
                   setExportCSV("");
@@ -63,7 +66,7 @@ export const PortDataModal : FC<PortDataModalProps> = ({ show, logID, onHide }):
               <Form.Group controlId="includeCreatedAtCheckbox">
               <Form.Check
                 type="checkbox"
-                label="Include Created At"
+                label={INCLUDE_CREATED_AT}
                 checked={includeCreatedAt}
                 onChange={(e) => {
                   setExportCSV("");
@@ -74,7 +77,7 @@ export const PortDataModal : FC<PortDataModalProps> = ({ show, logID, onHide }):
               <Form.Group controlId="includeUpdatedAtCheckbox">
               <Form.Check
                 type="checkbox"
-                label="Include Updated At"
+                label={INCLUDE_UPDATED_AT}
                 checked={includeUpdatedAt}
                 onChange={(e) => {
                   setExportCSV("");
