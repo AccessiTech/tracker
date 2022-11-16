@@ -22,6 +22,7 @@ export interface logEntriesToCSVOptions {
   includeID?: boolean;
   includeCreatedAt?: boolean;
   includeUpdatedAt?: boolean;
+  useIdsAsHeaders?: boolean;
 }
 
 /**
@@ -36,9 +37,10 @@ export const logEntriesToCSV = (
     includeID: false,
     includeCreatedAt: false,
     includeUpdatedAt: false,
+    useIdsAsHeaders: false,
   }
 ) => {
-  const { includeID, includeCreatedAt, includeUpdatedAt } = options;
+  const { includeID, includeCreatedAt, includeUpdatedAt, useIdsAsHeaders } = options;
   let csv = "";
   if (includeID) csv += "ID,";
   if (includeCreatedAt) csv += "Created At,";
@@ -46,7 +48,7 @@ export const logEntriesToCSV = (
 
   const fields = Object.values(log.fields);
   for (const field of fields) {
-    csv += field.name + ",";
+    csv += (useIdsAsHeaders ? field.id : field.name) + ",";
   }
   csv = csv.slice(0, -1);
   csv += "\r\n";
@@ -57,6 +59,43 @@ export const logEntriesToCSV = (
     if (includeUpdatedAt) csv += (entry.updatedAt || "") + ",";
     for (const field of fields) {
       csv += (entry as any).values[field.id] + ",";
+    }
+    csv = csv.slice(0, -1);
+    csv += "\r\n";
+  }
+  return csv;
+};
+
+export const commaReplacer = (key: string, value: any) => {
+  if (typeof value === "string") {
+    return value.replace(/,/g, ";");
+  }
+  return value;
+};
+
+export const logToMetaCSV = (log: Log) => {
+  // let csv = "ID,Name,Type,Field Options\r\n";
+  const headers = [
+    "id",
+    "name",
+    "type",
+    "required",
+    "option",
+    "typeOptions",
+    "typeOptionStrings",
+    "defaultValue",
+    "min",
+    "max",
+    "step",
+    "unit",
+    "options",
+  ];
+  let csv = headers.join(",") + "\r\n";
+  const fields = Object.values(log.fields);
+  for (const field of fields) {
+    for (const key of headers) {
+      const value = JSON.stringify((field as any)[key]) || "";
+      csv += value.replace(/,/g, ";") + ",";
     }
     csv = csv.slice(0, -1);
     csv += "\r\n";

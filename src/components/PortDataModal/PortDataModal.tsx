@@ -1,8 +1,8 @@
 import React, { FC, ReactElement, useEffect } from "react";
 import { Button, Form, Modal, Tab, Tabs } from "react-bootstrap";
 import { Log, useGetLog } from "../../store/Log";
-import { PRIMARY } from "../../strings";
-import { logEntriesToCSV } from "../../utils";
+import { PRIMARY, SECONDARY } from "../../strings";
+import { logEntriesToCSV, logToMetaCSV } from "../../utils";
 
 export interface PortDataModalProps {
   logID: string;
@@ -10,13 +10,25 @@ export interface PortDataModalProps {
   show: boolean;
 }
 
-export const EXPORT_DATA = "Export Data";
+export const EXPORT_DATA = "Export Log to CSV";
 export const IMPORT_DATA = "Import Data";
-export const DOWNLOAD_CSV = "Download CSV";
+export const DOWNLOAD_CSV = "Download Entries";
+export const DOWNLOAD_META = "Download Fields";
 export const GENERATING_CSV = "Generating CSV...";
 export const INCLUDE_ENTRY_IDS = "Include Entry IDs (Recommended)";
 export const INCLUDE_CREATED_AT = "Include Created At";
 export const INCLUDE_UPDATED_AT = "Include Updated At";
+export const USE_IDS_AS_HEADERS = "Use IDs as Headers";
+
+export const downloadCVS = (csv: string, filename: string = "log") => {
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${filename}.csv`);
+  link.click();
+};
+
 
 export const PortDataModal: FC<PortDataModalProps> = ({
   show,
@@ -24,9 +36,11 @@ export const PortDataModal: FC<PortDataModalProps> = ({
   onHide,
 }): ReactElement => {
   const [exportCSV, setExportCSV] = React.useState("");
+  const [exportMetaCSV, setExportMetaCSV] = React.useState("");
   const [includeID, setIncludeID] = React.useState(true);
   const [includeCreatedAt, setIncludeCreatedAt] = React.useState(true);
   const [includeUpdatedAt, setIncludeUpdatedAt] = React.useState(false);
+  const [useIdsAsHeaders, setUseIdsAsHeaders] = React.useState(false);
   const log: Log = useGetLog(logID);
 
   useEffect(() => {
@@ -35,13 +49,15 @@ export const PortDataModal: FC<PortDataModalProps> = ({
         includeID,
         includeCreatedAt,
         includeUpdatedAt,
+        useIdsAsHeaders,
       });
+      const meta = logToMetaCSV(log);
       setExportCSV(csv);
+      setExportMetaCSV(meta);
     } else {
-      setExportCSV("");
       onHide();
     }
-  }, [log, includeID, includeCreatedAt, includeUpdatedAt]);
+  }, [log, includeID, includeCreatedAt, includeUpdatedAt, useIdsAsHeaders]);
 
   return (
     <Modal id="port-data-modal" show={show} onHide={onHide}>
@@ -86,20 +102,34 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                     }}
                   />
                 </Form.Group>
+                <Form.Group controlId="useIdsAsHeadersCheckbox">
+                  <Form.Check
+
+                    type="checkbox"
+                    label={USE_IDS_AS_HEADERS}
+                    checked={useIdsAsHeaders}
+                    onChange={(e) => {
+                      setExportCSV("");
+                      setUseIdsAsHeaders(e.target.checked);
+                    }}
+                  />
+                </Form.Group>
               </Form>
             )) || <p>{GENERATING_CSV}</p>}
           </Modal.Body>
           <Modal.Footer>
             <Button
+              variant={SECONDARY}
+              onClick={(e) => {
+                e.preventDefault();
+                downloadCVS(exportMetaCSV, log.name + "-fields");
+              }}
+            >{DOWNLOAD_META}</Button>
+            <Button
               variant={PRIMARY}
               onClick={(e) => {
                 e.preventDefault();
-                const blob = new Blob([exportCSV], { type: "text/csv" });
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.setAttribute("href", url);
-                link.setAttribute("download", `${log.name}.csv`);
-                link.click();
+                downloadCVS(exportCSV, log.name + "-entries");
               }}
             >
               {DOWNLOAD_CSV}
