@@ -22,6 +22,7 @@ import { addLog } from "../../store/Log";
 import {
   ADD_ENTRY,
   CANCEL,
+  DATA,
   EMPTY,
   PRIMARY,
   SAVE,
@@ -134,7 +135,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                               setShowExportModal(true);
                             }}
                           >
-                            {"Export CSV"}
+                            {DATA}
                           </Dropdown.Item>
                           <Dropdown.Item
                             className={TEXT_DANGER}
