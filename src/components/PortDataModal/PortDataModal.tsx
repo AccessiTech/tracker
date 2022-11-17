@@ -30,6 +30,19 @@ export const downloadCVS = (csv: string, filename: string = "log") => {
   link.click();
 };
 
+export const uploadCSV = (csv: string): { [key: string]: any } => {
+  const lines = csv.split("\r\n");
+  const headers = lines[0].split(",");
+  const entries = lines.slice(1).map((line) => {
+    const values = line.split(",");
+    const entry: any = {};
+    headers.forEach((header, index) => {
+      entry[header] = (values[index] || "").trim();
+    });
+    return entry;
+  });
+  return entries;
+};
 
 export const PortDataModal: FC<PortDataModalProps> = ({
   show,
@@ -42,6 +55,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
   const [includeCreatedAt, setIncludeCreatedAt] = React.useState(true);
   const [includeUpdatedAt, setIncludeUpdatedAt] = React.useState(false);
   const [useIdsAsHeaders, setUseIdsAsHeaders] = React.useState(false);
+  const [newEntries, setNewEntries] = React.useState([]);
   const log: Log = useGetLog(logID);
 
   useEffect(() => {
@@ -105,7 +119,6 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                 </Form.Group>
                 <Form.Group controlId="useIdsAsHeadersCheckbox">
                   <Form.Check
-
                     type="checkbox"
                     label={USE_IDS_AS_HEADERS}
                     checked={useIdsAsHeaders}
@@ -125,7 +138,9 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                 e.preventDefault();
                 downloadCVS(exportMetaCSV, log.name + "-fields");
               }}
-            >{DOWNLOAD_META}</Button>
+            >
+              {DOWNLOAD_META}
+            </Button>
             <Button
               variant={PRIMARY}
               onClick={(e) => {
@@ -151,35 +166,64 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                 const errors: any = {};
                 if (!values.file) {
                   errors.file = "Required";
+                  return errors;
                 }
                 if (values.file && !values.file.length) {
                   errors.file = "CSV is empty";
+                } else {
+                  const fieldIds = Object.keys(log.fields);
+                  const potentialEntries = uploadCSV(values.file);
+                  const matchingIds = [];
+
+                  for (const key of Object.keys(potentialEntries[0])) {
+                    if (fieldIds.includes(key)) {
+                      matchingIds.push(key);
+                    }
+                  }
+
+                  if (!matchingIds.length) {
+                    errors.file = "No matching fields found";
+                    return errors;
+                  }
+
+                  const entryIds = Object.keys(log.entries);
+                  const newEntries = potentialEntries.filter((entry: any) => {
+                    return entry.ID && !entryIds.includes(entry.ID);
+                  });
+
+                  if (!newEntries.length) {
+                    errors.file = "No new entries found";
+                    return errors;
+                  } else {
+                    setNewEntries(newEntries);
+                  }
                 }
                 return errors;
               }}
-            >{({
-              errors,
-              touched,
-              setFieldValue,
-              handleBlur,
-              handleSubmit,
-            }) => (
-              <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="formFile" className="mb-3">
-                  <Form.Label>Upload Entries to Log</Form.Label>
+            >
+              {({
+                errors,
+                touched,
+                setFieldValue,
+                handleBlur,
+                handleSubmit,
+              }) => (
+                <Form onSubmit={handleSubmit}>
+                  <Form.Group controlId="formFile" className="mb-3">
+                    <Form.Label>Upload Entries to Log</Form.Label>
 
                     <Form.Control
                       type="file"
                       name="file"
                       accept=".csv"
-                      onChange={(e:any) => {
+                      onChange={(e: any) => {
                         const file = e.target.files[0];
                         if (file) {
                           const reader = new FileReader();
                           reader.onloadend = () => {
                             const result = reader.result;
                             setFieldValue("file", result);
-                          }
+                          };
                           reader.readAsText(file);
                         } else {
                           setFieldValue("file", "");
@@ -188,17 +232,29 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                       onBlur={handleBlur}
                     />
 
-                {errors.file && touched.file ? (
-                  <Form.Text className="text-danger">{errors.file}</Form.Text>
-                  ) : (
-                    <Form.Text className="text-muted">{"Accepts .csv files"}</Form.Text>
-                  )}
-                </Form.Group>
-                {/* <Button variant={PRIMARY} type="submit">
-                  Submit
-                </Button> */}
-              </Form>
-            )}
+                    {errors.file && touched.file ? (
+                      <Form.Text className="text-danger">
+                        {errors.file}
+                      </Form.Text>
+                    ) : touched.file && !errors.file ? (
+                      <Form.Text className="text-success">
+                        CSV is valid and compatible!
+                      </Form.Text>
+                    ) : (
+                      <Form.Text className="text-muted">
+                        {"Accepts .csv files"}
+                      </Form.Text>
+                    )}
+                  </Form.Group>
+                  <Button
+                    variant={PRIMARY}
+                    type="submit"
+                    disabled={Object.keys(errors).length > 0 && touched.file}
+                  >
+                    {`Import Entries (${newEntries.length})`}
+                  </Button>
+                </Form>
+              )}
             </Formik>
           </Modal.Body>
         </Tab>
