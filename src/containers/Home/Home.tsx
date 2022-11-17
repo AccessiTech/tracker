@@ -179,6 +179,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
           setShowExportModal(false);
         }}
         show={showExportModal}
+        setToast={setToast}
       />
 
       <Modal

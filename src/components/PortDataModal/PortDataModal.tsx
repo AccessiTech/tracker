@@ -4,10 +4,12 @@ import { Button, Form, Modal, Tab, Tabs } from "react-bootstrap";
 import { Log, useGetLog } from "../../store/Log";
 import { PRIMARY, SECONDARY } from "../../strings";
 import { logEntriesToCSV, logToMetaCSV } from "../../utils";
+import { SetToast } from "../Toaster";
 
 export interface PortDataModalProps {
   logID: string;
   onHide: () => void;
+  setToast: SetToast;
   show: boolean;
 }
 
