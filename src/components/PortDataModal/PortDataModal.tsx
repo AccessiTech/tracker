@@ -159,8 +159,8 @@ export const PortDataModal: FC<PortDataModalProps> = ({
           <Modal.Body>
             <Formik
               initialValues={{ file: "" }}
-              onSubmit={(values) => {
-                console.log(values);
+              onSubmit={() => {
+                console.log(newEntries);
               }}
               validate={(values) => {
                 const errors: any = {};
@@ -217,6 +217,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                       name="file"
                       accept=".csv"
                       onChange={(e: any) => {
+                        if (newEntries.length) setNewEntries([]);
                         const file = e.target.files[0];
                         if (file) {
                           const reader = new FileReader();
