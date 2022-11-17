@@ -1,3 +1,4 @@
+import { Formik } from "formik";
 import React, { FC, ReactElement, useEffect } from "react";
 import { Button, Form, Modal, Tab, Tabs } from "react-bootstrap";
 import { Log, useGetLog } from "../../store/Log";
@@ -141,7 +142,64 @@ export const PortDataModal: FC<PortDataModalProps> = ({
             <Modal.Title>{IMPORT_DATA}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>Coming soon!</p>
+            <Formik
+              initialValues={{ file: "" }}
+              onSubmit={(values) => {
+                console.log(values);
+              }}
+              validate={(values) => {
+                const errors: any = {};
+                if (!values.file) {
+                  errors.file = "Required";
+                }
+                if (values.file && !values.file.length) {
+                  errors.file = "CSV is empty";
+                }
+                return errors;
+              }}
+            >{({
+              errors,
+              touched,
+              setFieldValue,
+              handleBlur,
+              handleSubmit,
+            }) => (
+              <Form onSubmit={handleSubmit}>
+                <Form.Group controlId="formFile" className="mb-3">
+                  <Form.Label>Upload Entries to Log</Form.Label>
+
+                    <Form.Control
+                      type="file"
+                      name="file"
+                      accept=".csv"
+                      onChange={(e:any) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            const result = reader.result;
+                            setFieldValue("file", result);
+                          }
+                          reader.readAsText(file);
+                        } else {
+                          setFieldValue("file", "");
+                        }
+                      }}
+                      onBlur={handleBlur}
+                    />
+
+                {errors.file && touched.file ? (
+                  <Form.Text className="text-danger">{errors.file}</Form.Text>
+                  ) : (
+                    <Form.Text className="text-muted">{"Accepts .csv files"}</Form.Text>
+                  )}
+                </Form.Group>
+                {/* <Button variant={PRIMARY} type="submit">
+                  Submit
+                </Button> */}
+              </Form>
+            )}
+            </Formik>
           </Modal.Body>
         </Tab>
       </Tabs>
