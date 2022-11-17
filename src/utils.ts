@@ -54,6 +54,7 @@ export const logEntriesToCSV = (
   csv += "\r\n";
   const entries: any[] = Object.values(log.entries);
   for (const entry of entries) {
+    if (!entry || !entry.value) continue;
     if (includeID) csv += entry.id + ",";
     if (includeCreatedAt) csv += entry.createdAt + ",";
     if (includeUpdatedAt) csv += (entry.updatedAt || "") + ",";
@@ -74,15 +75,12 @@ export const commaReplacer = (key: string, value: any) => {
 };
 
 export const logToMetaCSV = (log: Log) => {
-  // let csv = "ID,Name,Type,Field Options\r\n";
   const headers = [
     "id",
     "name",
     "type",
     "required",
     "option",
-    "typeOptions",
-    "typeOptionStrings",
     "defaultValue",
     "min",
     "max",
