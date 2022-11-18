@@ -74,6 +74,6 @@ export type {
   TimeLogField,
   LogEntry,
   LogFields,
-  LogEntryStates,
+  LogFieldStates,
   EntryValues,
 } from "./initialStates";

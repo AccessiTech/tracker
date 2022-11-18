@@ -40,7 +40,8 @@ export const logEntriesToCSV = (
     useIdsAsHeaders: false,
   }
 ) => {
-  const { includeID, includeCreatedAt, includeUpdatedAt, useIdsAsHeaders } = options;
+  const { includeID, includeCreatedAt, includeUpdatedAt, useIdsAsHeaders } =
+    options;
   let csv = "";
   if (includeID) csv += "ID,";
   if (includeCreatedAt) csv += "Created At,";
@@ -67,29 +68,6 @@ export const logEntriesToCSV = (
   return csv;
 };
 
-export const parseEntriesCSV = (csv: string): { [key: string]: any }[] => {
-  const lines = csv.split("\r\n");
-  const headers = lines[0].split(",");
-  const entries = lines.slice(1).map((line) => {
-    const values = line.split(",");
-    const entry: any = {};
-    headers.forEach((header, index) => {
-      entry[header] = (values[index] || "").trim();
-    });
-    return entry;
-  });
-  return entries;
-};
-
-
-
-export const commaReplacer = (key: string, value: any) => {
-  if (typeof value === "string") {
-    return value.replace(/,/g, ";");
-  }
-  return value;
-};
-
 export const logToMetaCSV = (log: Log) => {
   const headers = [
     "id",
@@ -108,11 +86,40 @@ export const logToMetaCSV = (log: Log) => {
   const fields = Object.values(log.fields);
   for (const field of fields) {
     for (const key of headers) {
-      const value = JSON.stringify((field as any)[key]) || "";
+      const value = String((field as any)[key]) || "";
       csv += value.replace(/,/g, ";") + ",";
     }
     csv = csv.slice(0, -1);
     csv += "\r\n";
   }
   return csv;
+};
+
+
+export const parseCSV = (csv: string): { [key: string]: any }[] => {
+  const lines = csv.split("\r\n");
+  const headers = lines[0].split(",");
+  const entries = lines
+    .slice(1)
+    .map((line) => {
+      const values = line.split(",");
+      const entry: any = {};
+      headers.forEach((header, index) => {
+        entry[header] = (values[index] || "").trim();
+        if (entry[header].toLowerCase() === "true") {
+          entry[header] = true;
+        } else if (entry[header].toLowerCase() === "false") {
+          entry[header] = false;
+        } else if (entry[header].toLowerCase() === "null") {
+          entry[header] = null;
+        } else if (entry[header].toLowerCase() === "undefined") {
+          entry[header] = undefined;
+        } else if (!Number.isNaN(Number(entry[header]))) {
+          entry[header] = Number(entry[header]);
+        }
+      });
+      return entry;
+    })
+    .filter((entry) => entry.type || entry.ID);
+  return entries;
 };

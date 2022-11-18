@@ -307,10 +307,10 @@ export type LogFields =
   | SelectLogField
   | DateLogField
   | TimeLogField;
-export interface LogEntryStates {
+export interface LogFieldStates {
   [type: string]: LogFields;
 }
-export const initialFieldStates: LogEntryStates = {
+export const initialFieldStates: LogFieldStates = {
   text: initialTextFieldState,
   number: initialNumberFieldState,
   range: initialRangeFieldState,

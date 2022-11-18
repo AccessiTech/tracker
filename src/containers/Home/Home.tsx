@@ -6,7 +6,12 @@ import "./Home.scss";
 import { Button, ButtonGroup, Dropdown, Form, Modal } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  addLogEntry,
+  addLogField,
   ADD_LOG_ACTION,
+  initialFieldStates,
+  LogEntry,
+  LogField,
   removeLog,
   REMOVE_LOG_ACTION,
   useGetLogsArray,
@@ -22,15 +27,20 @@ import { addLog } from "../../store/Log";
 import {
   ADD_ENTRY,
   CANCEL,
+  CHECKBOX,
+  CREATED_AT,
   DATA,
   EMPTY,
+  ID,
   PRIMARY,
   SAVE,
   SECONDARY,
   TEXT,
   TEXT_DANGER,
+  UPDATED_AT,
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
+import { parseCSV } from "../../utils";
 
 export const TRACKER_KEEPER = "Tracker Keeper";
 export const YOUR_LOGS = "Your Logs";
@@ -42,6 +52,9 @@ export const EDIT = "Edit";
 export const DELETE = "Delete";
 export const NO_LOGS_YET = "No logs yet.";
 export const CREATE_NEW_LOG = "Create a new log...";
+export const RESTORE_LOG = "Restore log from CSV";
+export const LOG_ENTRIES = "Log Entries";
+export const LOG_FIELDS = "Log Fields";
 
 export const onAddLog = (id: string, name: string) => {
   const log = {
@@ -64,7 +77,9 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
   const [showModal, setShowModal] = React.useState(isNewLogModalOpen);
   const [showExportModal, setShowExportModal] = React.useState(false);
   const [exportID, setExportID] = React.useState("");
-  
+  const [restoreLog, setRestoreLog] = React.useState(false);
+  const [restoredFields, setRestoredFields] = React.useState([]);
+  const [restoredEntries, setRestoredEntries] = React.useState([]);
   const [newLogId, setNewLogId] = React.useState(EMPTY);
   const [newLogName, setNewLogName] = React.useState(EMPTY);
   const logs = useGetLogsArray();
@@ -187,6 +202,9 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
         show={showModal}
         onHide={() => {
           setShowModal(false);
+          setRestoreLog(false);
+          setRestoredFields([]);
+          setRestoredEntries([]);
           setNewLogName(EMPTY);
           navigate("/");
         }}
@@ -202,8 +220,92 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                 type={TEXT}
                 placeholder={LOG_NAME_PLACEHOLDER}
                 onChange={(e) => setNewLogName(e.target.value)}
+                required
               />
             </Form.Group>
+            <Form.Group controlId="restoreLog">
+              <Form.Check
+                type={CHECKBOX}
+                label={RESTORE_LOG}
+                onChange={(e) => setRestoreLog(e.target.checked)}
+              />
+            </Form.Group>
+            {restoreLog && (
+              <>
+                <Form.Group controlId="formFieldData">
+                  <Form.Label>{LOG_FIELDS}</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept=".csv"
+                    required
+                    onChange={(e) => {
+                      const file = (e.target as any).files[0];
+                      setRestoredFields([]);
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          const result = reader.result;
+                          const fields = parseCSV(result as string).map(
+                            (field) => {
+                              const newField = {
+                                ...initialFieldStates[field.type],
+                                ...field,
+                              };
+                              return newField;
+                            }
+                          );
+                          setRestoredFields(fields as []);
+                        };
+                        reader.readAsText(file);
+                      }
+                    }}
+                  />
+                </Form.Group>
+                <Form.Group controlId="formEntryData">
+                  <Form.Label>{LOG_ENTRIES}</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept=".csv"
+                    required
+                    onChange={(e) => {
+                      const file = (e.target as any).files[0];
+                      setRestoredEntries([]);
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          const result = reader.result;
+                          const entries = parseCSV(result as string).map(
+                            (entry) => {
+                              const newEntry = {
+                                id: entry.ID,
+                                createdAt: entry.createdAt,
+                                updatedAt: entry.updatedAt,
+                                values: {
+                                  label: entry.label,
+                                },
+                              } as LogEntry;
+                              Object.keys(entry).forEach((key) => {
+                                if (
+                                  key !== ID &&
+                                  key !== CREATED_AT &&
+                                  key !== UPDATED_AT
+                                ) {
+                                  newEntry.values[key] = entry[key];
+                                }
+                              });
+                              return newEntry;
+                            }
+                          );
+
+                          setRestoredEntries(entries as []);
+                        };
+                        reader.readAsText(file);
+                      }
+                    }}
+                  />
+                </Form.Group>
+              </>
+            )}
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -215,6 +317,9 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                   onClick={() => {
                     setShowModal(false);
                     setNewLogName(EMPTY);
+                    setRestoreLog(false);
+                    setRestoredFields([]);
+                    setRestoredEntries([]);
                     navigate("/");
                   }}
                 >
@@ -224,11 +329,40 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
               <Col>
                 <Button
                   variant={PRIMARY}
-                  disabled={newLogName.trim() === EMPTY}
+                  disabled={
+                    newLogName.trim() === EMPTY ||
+                    (restoreLog &&
+                      (!restoredFields.length || !restoredEntries.length))
+                  }
                   onClick={() => {
                     const newId = uuidv4();
                     onAddLog(newId, newLogName);
                     setNewLogId(newId);
+                    if (restoreLog) {
+                      Object.values(restoredFields).forEach(
+                        (field: LogField) => {
+                          store.dispatch(
+                            addLogField({
+                              logId: newId,
+                              fieldId: field.id,
+                              field,
+                            })
+                          );
+                        }
+                      );
+
+                      Object.values(restoredEntries).forEach(
+                        (entry: LogEntry) => {
+                          store.dispatch(
+                            addLogEntry({
+                              logId: newId,
+                              entry,
+                            })
+                          );
+                        }
+                      );
+                    }
+
                     setToast({
                       show: true,
                       context: ADD_LOG_ACTION,

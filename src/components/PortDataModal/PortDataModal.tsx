@@ -15,7 +15,7 @@ import {
   TEXT_SUCCESS,
   UPDATED_AT,
 } from "../../strings";
-import { logEntriesToCSV, logToMetaCSV, parseEntriesCSV } from "../../utils";
+import { logEntriesToCSV, logToMetaCSV, parseCSV } from "../../utils";
 import { SetToast } from "../Toaster";
 
 export interface PortDataModalProps {
@@ -199,7 +199,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                   errors.file = CSV_EMPTY;
                 } else {
                   const fieldIds = Object.keys(log.fields);
-                  const potentialEntries = parseEntriesCSV(values.file);
+                  const potentialEntries = parseCSV(values.file);
                   const matchingIds = [];
 
                   for (const key of Object.keys(potentialEntries[0])) {
