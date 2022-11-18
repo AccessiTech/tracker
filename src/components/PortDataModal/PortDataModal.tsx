@@ -3,8 +3,19 @@ import React, { FC, ReactElement } from "react";
 import { Button, Form, Modal, Tab, Tabs } from "react-bootstrap";
 import { addLogEntry, Log, LogEntry, useGetLog } from "../../store/Log";
 import store from "../../store/store";
-import { PRIMARY, SECONDARY } from "../../strings";
-import { logEntriesToCSV, logToMetaCSV } from "../../utils";
+import {
+  CHECKBOX,
+  CREATED_AT,
+  ID,
+  PRIMARY,
+  SECONDARY,
+  SUBMIT,
+  TEXT_DANGER,
+  TEXT_MUTED,
+  TEXT_SUCCESS,
+  UPDATED_AT,
+} from "../../strings";
+import { logEntriesToCSV, logToMetaCSV, parseEntriesCSV } from "../../utils";
 import { SetToast } from "../Toaster";
 
 export interface PortDataModalProps {
@@ -23,6 +34,17 @@ export const INCLUDE_ENTRY_IDS = "Include Entry IDs (Recommended)";
 export const INCLUDE_CREATED_AT = "Include Created At";
 export const INCLUDE_UPDATED_AT = "Include Updated At";
 export const USE_IDS_AS_HEADERS = "Use IDs as Headers";
+export const IMPORT = "Import";
+export const EXPORT = "Export";
+export const CSV_REQUIRED = "CSV is Required";
+export const CSV_EMPTY = "CSV is Empty";
+export const CSV_VALID = "CSV is valid and compatible!";
+export const NO_MATCHING_FIELDS = "No matching fields found";
+export const NO_NEW_ENTRIES = "No new entries found";
+export const UPLOAD_ENTRIES = "Upload Entries to Log";
+export const ACCEPTS_CSV = "Accepts CSV files only";
+export const OVERWRITE_EXISTING = "Overwrite existing entries";
+export const FORCE_IMPORT = "Force import (ignore errors)";
 
 export const downloadCVS = (csv: string, filename: string = "log") => {
   const blob = new Blob([csv], { type: "text/csv" });
@@ -31,20 +53,6 @@ export const downloadCVS = (csv: string, filename: string = "log") => {
   link.setAttribute("href", url);
   link.setAttribute("download", `${filename}.csv`);
   link.click();
-};
-
-export const uploadCSV = (csv: string): { [key: string]: any }[] => {
-  const lines = csv.split("\r\n");
-  const headers = lines[0].split(",");
-  const entries = lines.slice(1).map((line) => {
-    const values = line.split(",");
-    const entry: any = {};
-    headers.forEach((header, index) => {
-      entry[header] = (values[index] || "").trim();
-    });
-    return entry;
-  });
-  return entries;
 };
 
 export const PortDataModal: FC<PortDataModalProps> = ({
@@ -65,7 +73,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
   return (
     <Modal id="port-data-modal" show={show} onHide={onHide}>
       <Tabs fill defaultActiveKey="export" id="port-data-tabs">
-        <Tab eventKey="export" title="Export">
+        <Tab eventKey="export" title={EXPORT}>
           <Modal.Header closeButton>
             <Modal.Title>{EXPORT_DATA}</Modal.Title>
           </Modal.Header>
@@ -73,7 +81,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
             <Form>
               <Form.Group controlId="includeIDCheckbox">
                 <Form.Check
-                  type="checkbox"
+                  type={CHECKBOX}
                   label={INCLUDE_ENTRY_IDS}
                   checked={includeID}
                   onChange={(e) => {
@@ -83,7 +91,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
               </Form.Group>
               <Form.Group controlId="includeCreatedAtCheckbox">
                 <Form.Check
-                  type="checkbox"
+                  type={CHECKBOX}
                   label={INCLUDE_CREATED_AT}
                   checked={includeCreatedAt}
                   onChange={(e) => {
@@ -93,7 +101,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
               </Form.Group>
               <Form.Group controlId="includeUpdatedAtCheckbox">
                 <Form.Check
-                  type="checkbox"
+                  type={CHECKBOX}
                   label={INCLUDE_UPDATED_AT}
                   checked={includeUpdatedAt}
                   onChange={(e) => {
@@ -103,7 +111,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
               </Form.Group>
               <Form.Group controlId="useIdsAsHeadersCheckbox">
                 <Form.Check
-                  type="checkbox"
+                  type={CHECKBOX}
                   label={USE_IDS_AS_HEADERS}
                   checked={useIdsAsHeaders}
                   onChange={(e) => {
@@ -141,7 +149,8 @@ export const PortDataModal: FC<PortDataModalProps> = ({
             </Button>
           </Modal.Footer>
         </Tab>
-        <Tab eventKey="import" title="Import">
+
+        <Tab eventKey="import" title={IMPORT}>
           <Modal.Header closeButton>
             <Modal.Title>{IMPORT_DATA}</Modal.Title>
           </Modal.Header>
@@ -160,9 +169,9 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                   } as LogEntry;
                   Object.keys(entry).forEach((key) => {
                     if (
-                      key !== "ID" &&
-                      key !== "createdAt" &&
-                      key !== "updatedAt"
+                      key !== ID &&
+                      key !== CREATED_AT &&
+                      key !== UPDATED_AT
                     ) {
                       newEntry.values[key] = entry[key];
                     }
@@ -183,14 +192,14 @@ export const PortDataModal: FC<PortDataModalProps> = ({
               validate={(values) => {
                 const errors: any = {};
                 if (!values.file) {
-                  errors.file = "Required";
+                  errors.file = CSV_REQUIRED;
                   return errors;
                 }
                 if (values.file && !values.file.length) {
-                  errors.file = "CSV is empty";
+                  errors.file = CSV_EMPTY;
                 } else {
                   const fieldIds = Object.keys(log.fields);
-                  const potentialEntries = uploadCSV(values.file);
+                  const potentialEntries = parseEntriesCSV(values.file);
                   const matchingIds = [];
 
                   for (const key of Object.keys(potentialEntries[0])) {
@@ -200,7 +209,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                   }
 
                   if (!values.force && !matchingIds.length) {
-                    errors.file = "No matching fields found";
+                    errors.file = NO_MATCHING_FIELDS;
                     return errors;
                   }
 
@@ -215,7 +224,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                         });
 
                   if (!newEntries.length) {
-                    errors.file = "No new entries found";
+                    errors.file = NO_NEW_ENTRIES;
                     return errors;
                   } else {
                     setNewEntries(newEntries);
@@ -233,8 +242,8 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                 handleSubmit,
               }) => (
                 <Form onSubmit={handleSubmit}>
-                  <Form.Group controlId="formFile" className="mb-3">
-                    <Form.Label>Upload Entries to Log</Form.Label>
+                  <Form.Group controlId="formFile">
+                    <Form.Label>{UPLOAD_ENTRIES}</Form.Label>
 
                     <Form.Control
                       type="file"
@@ -258,24 +267,24 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                     />
 
                     {errors.file && touched.file ? (
-                      <Form.Text className="text-danger">
+                      <Form.Text className={TEXT_DANGER}>
                         {errors.file}
                       </Form.Text>
                     ) : touched.file && !errors.file ? (
-                      <Form.Text className="text-success">
-                        CSV is valid and compatible!
+                      <Form.Text className={TEXT_SUCCESS}>
+                        {CSV_VALID}
                       </Form.Text>
                     ) : (
-                      <Form.Text className="text-muted">
-                        {"Accepts .csv files"}
+                      <Form.Text className={TEXT_MUTED}>
+                        {ACCEPTS_CSV}
                       </Form.Text>
                     )}
                   </Form.Group>
 
                   <Form.Group controlId="overwriteCheckbox">
                     <Form.Check
-                      type="checkbox"
-                      label="Overwrite existing entries"
+                      type={CHECKBOX}
+                      label={OVERWRITE_EXISTING}
                       name="overwrite"
                       checked={values.overwrite}
                       onChange={() => {
@@ -289,8 +298,8 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                   </Form.Group>
                   <Form.Group controlId="forceCheckbox">
                     <Form.Check
-                      type="checkbox"
-                      label="Force import (ignore errors)"
+                      type={CHECKBOX}
+                      label={FORCE_IMPORT}
                       name="force"
                       checked={values.force}
                       onChange={() => {
@@ -306,7 +315,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
 
                   <Button
                     variant={PRIMARY}
-                    type="submit"
+                    type={SUBMIT}
                     disabled={Object.keys(errors).length > 0 && touched.file}
                   >
                     {`Import Entries (${newEntries.length})`}

@@ -67,6 +67,22 @@ export const logEntriesToCSV = (
   return csv;
 };
 
+export const parseEntriesCSV = (csv: string): { [key: string]: any }[] => {
+  const lines = csv.split("\r\n");
+  const headers = lines[0].split(",");
+  const entries = lines.slice(1).map((line) => {
+    const values = line.split(",");
+    const entry: any = {};
+    headers.forEach((header, index) => {
+      entry[header] = (values[index] || "").trim();
+    });
+    return entry;
+  });
+  return entries;
+};
+
+
+
 export const commaReplacer = (key: string, value: any) => {
   if (typeof value === "string") {
     return value.replace(/,/g, ";");
