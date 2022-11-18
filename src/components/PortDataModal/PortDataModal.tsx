@@ -33,7 +33,7 @@ export const downloadCVS = (csv: string, filename: string = "log") => {
   link.click();
 };
 
-export const uploadCSV = (csv: string): { [key: string]: any } => {
+export const uploadCSV = (csv: string): { [key: string]: any }[] => {
   const lines = csv.split("\r\n");
   const headers = lines[0].split(",");
   const entries = lines.slice(1).map((line) => {
@@ -57,7 +57,9 @@ export const PortDataModal: FC<PortDataModalProps> = ({
   const [includeCreatedAt, setIncludeCreatedAt] = React.useState(true);
   const [includeUpdatedAt, setIncludeUpdatedAt] = React.useState(false);
   const [useIdsAsHeaders, setUseIdsAsHeaders] = React.useState(false);
-  const [newEntries, setNewEntries] = React.useState([]);
+  const [newEntries, setNewEntries] = React.useState(
+    [] as { [key: string]: any }[]
+  );
   const log: Log = useGetLog(logID);
 
   return (
@@ -145,7 +147,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
           </Modal.Header>
           <Modal.Body>
             <Formik
-              initialValues={{ file: "" }}
+              initialValues={{ file: "", overwrite: false, force: false }}
               onSubmit={() => {
                 newEntries.forEach((entry: any) => {
                   const newEntry = {
@@ -197,15 +199,20 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                     }
                   }
 
-                  if (!matchingIds.length) {
+                  if (!values.force && !matchingIds.length) {
                     errors.file = "No matching fields found";
                     return errors;
                   }
 
                   const entryIds = Object.keys(log.entries);
-                  const newEntries = potentialEntries.filter((entry: any) => {
-                    return entry.ID && !entryIds.includes(entry.ID);
-                  });
+                  const newEntries =
+                    values.overwrite || values.force
+                      ? potentialEntries.filter((entry: any) => {
+                          return entry.ID;
+                        })
+                      : potentialEntries.filter((entry: any) => {
+                          return entry.ID && !entryIds.includes(entry.ID);
+                        });
 
                   if (!newEntries.length) {
                     errors.file = "No new entries found";
@@ -220,6 +227,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
               {({
                 errors,
                 touched,
+                values,
                 setFieldValue,
                 handleBlur,
                 handleSubmit,
@@ -233,7 +241,7 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                       name="file"
                       accept=".csv"
                       onChange={(e: any) => {
-                        if (newEntries.length) setNewEntries([]);
+                        setNewEntries([]);
                         const file = e.target.files[0];
                         if (file) {
                           const reader = new FileReader();
@@ -263,6 +271,39 @@ export const PortDataModal: FC<PortDataModalProps> = ({
                       </Form.Text>
                     )}
                   </Form.Group>
+
+                  <Form.Group controlId="overwriteCheckbox">
+                    <Form.Check
+                      type="checkbox"
+                      label="Overwrite existing entries"
+                      name="overwrite"
+                      checked={values.overwrite}
+                      onChange={() => {
+                        setNewEntries([]);
+                        if (values.overwrite && values.force) {
+                          setFieldValue("force", !values.overwrite);
+                        }
+                        setFieldValue("overwrite", !values.overwrite);
+                      }}
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="forceCheckbox">
+                    <Form.Check
+                      type="checkbox"
+                      label="Force import (ignore errors)"
+                      name="force"
+                      checked={values.force}
+                      onChange={() => {
+                        setNewEntries([]);
+                        if (!values.overwrite) {
+                          setFieldValue("overwrite", !values.force);
+                        }
+                        setFieldValue("force", !values.force);
+                      }}
+                    />
+                  </Form.Group>
+                  <br />
+
                   <Button
                     variant={PRIMARY}
                     type="submit"
