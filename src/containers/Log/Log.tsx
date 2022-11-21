@@ -47,12 +47,26 @@ import {
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
 
+// Display strings
 export const ENTRIES_HEADER = "Entries ";
 export const NO_ENTRIES = "No entries";
+export const SORT_BY = "Sort by";
+export const DATE_CREATED = "Date Created";
+export const REVERSED = "Reversed";
 
+/**
+ * Delete Entry Callback
+ * @param {LogType} entry - entry to delete
+ * @param {string} logId - id of log to delete entry from
+ */
 export const onDeleteEntry = (log: LogType, entryId: string) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId }));
 };
+
+/**
+ * Log Page
+ * @param {LogProps} logProps - props
+ */
 
 export interface LogProps {
   setToast: SetToast;
@@ -60,16 +74,26 @@ export interface LogProps {
 
 export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
+
+  // Get log from store
   const { id } = useParams() as { id: string };
   const log: LogType = useGetLog(id);
-  const entries: LogEntry[] = log ? Object.values(log.entries || {}) : [];
-
   const { name, fields, labelOption, sort, order } = log || {};
-  const [showSidebar, setShowSidebar] = React.useState(false);
+
+  // Set and sidebar states
   const [sortBy, setSortBy] = React.useState(sort || CREATED_AT);
   const [sortOrder, setSortOrder] = React.useState(order || SORT_DESC);
+  const [showSidebar, setShowSidebar] = React.useState(false);
+
+  // Define entries
+  const entries: LogEntry[] = log
+    ? Object.values(log.entries || {}).filter(
+        (entry: LogEntry) => entry && entry.values
+      )
+    : [];
   const hasEntries = entries.length > 0;
 
+  // Navigate to home if log not found
   React.useEffect(() => {
     if (!log) {
       navigate("/");
@@ -84,6 +108,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
 
   const isLabelDate = labelOption === DATE;
   const isLabelText = labelOption === TEXT;
+
   return (
     <Container className="log__container">
       <Row>
@@ -92,16 +117,16 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
         </Col>
       </Row>
       <hr />
+
       <Row>
         <Col className="log__entries_header">
           <h4>
             {ENTRIES_HEADER}
             {`(${entries.length})`}
           </h4>
-          {/* update the sortBy and sortOrder state */}
           <DropdownButton
             id="dropdown-basic-button"
-            title={"Sort by"}
+            title={SORT_BY}
             variant={SECONDARY}
             className="log__actions"
           >
@@ -111,7 +136,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
               }}
               className={`text-${CREATED_AT === sortBy ? PRIMARY : SECONDARY}`}
             >
-              {"Date created"}
+              {DATE_CREATED}
             </Dropdown.Item>
             {Object.values(fields).map((field) => (
               <Dropdown.Item
@@ -131,16 +156,17 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
               }}
               className={`text-${sortOrder === SORT_ASC ? PRIMARY : SECONDARY}`}
             >
-              {"Reversed"}
+              {REVERSED}
             </Dropdown.Item>
           </DropdownButton>
         </Col>
       </Row>
+
       <Row>
         <Col className="log__entries">
           {hasEntries ? (
             entries
-              .filter((entry: LogEntry) => entry && entry.values)
+              // todo: extract sort logic to helpers
               .sort((a: LogEntry, b: LogEntry) => {
                 const valueA =
                   sortBy === CREATED_AT ? a[sortBy] : a.values[sortBy];
@@ -171,6 +197,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                 }
                 return 0;
               })
+              // todo: extract card to component
               .map((entry: LogEntry) => {
                 const labelText = isLabelDate
                   ? new Date(entry.createdAt as string).toLocaleString()
@@ -199,7 +226,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                             case SELECT:
                               value = Array.isArray(entry.values[fieldId])
                                 ? ((entry.values[fieldId] as []) || []).join(
-                                    ", "
+                                    ", " // todo: make this dynamic
                                   )
                                 : entry.values[fieldId];
                               break;
@@ -253,6 +280,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
         </Col>
       </Row>
       <hr />
+      {/* todo: extract to component */}
       <Row className="form__button_row">
         <Col>
           <Button

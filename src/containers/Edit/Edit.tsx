@@ -24,8 +24,11 @@ import {
   ADD_ENTRY,
   DANGER,
   DARK,
+  EDIT,
+  EMPTY,
   HOME,
   MODAL,
+  NEW,
   PRIMARY,
   SECONDARY,
   SUBMIT,
@@ -33,9 +36,6 @@ import {
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
 import { EditSortForm } from "../../components/EditSortForm";
-
-export const NEW = "new";
-export const EDIT = "edit";
 
 export const EDIT_HEADER = "Edit: ";
 export const LOG_FIELDS = "Log Fields";
@@ -45,6 +45,11 @@ export const LOG_SETTINGS = "Log Settings";
 export const DELETE_LOG = "Delete Log";
 export const FIELD_SETTINGS = "Field Settings";
 
+/**
+ * Edit log callback
+ * @param {Log} log - log to edit
+ * @param {any} values - values to update
+ */
 export const onUpdateLog = (log: Log, values: any): void => {
   const updatedLog: Log = {
     ...log,
@@ -53,17 +58,31 @@ export const onUpdateLog = (log: Log, values: any): void => {
   store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
 };
 
+/**
+ * Delete log callback
+
+ * @param {Log} log - log to delete
+ */
 export const onDeleteLog = (
-  e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   log: Log
 ) => {
-  e.preventDefault();
   store.dispatch(removeLog({ logId: log.id }));
 };
 
+/**
+ * Delete log field callback
+ * @param {Log} log - log to delete field from
+ * @param {string} fieldId - id of field to delete
+ */
 export const onDeleteField = (log: Log, fieldId: string) => {
   store.dispatch(removeLogField({ logId: log.id, fieldId }));
 };
+
+/**
+ * Edit log page
+ * @param {EditProps} editProps - props
+ * @returns {ReactElement} - edit page
+ */
 
 export interface EditProps {
   setToast: SetToast;
@@ -71,25 +90,34 @@ export interface EditProps {
 
 export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
+
+  // Get Log and Field ids from URL
   const { id, field: fid } = useParams() as { id: string; field: string };
 
+  // Get log from store
   const log: Log = useGetLog(id as string);
 
+  // If log is not found, redirect to home
   if (!log || id !== log.id || !log.fields) {
     navigate("/");
   }
+
+  // Modal and Sidebar states
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [showModal, setShowModal] = React.useState(fid ? true : false);
   const [modalMode, setModalMode] = React.useState(
     fid && fid !== NEW ? EDIT : ADD
   ); // "add" or "edit"
-  const [fieldId, setFieldId] = React.useState(fid && fid !== "new" ? fid : "");
 
+  // Current field state
+  const [fieldId, setFieldId] = React.useState(fid && fid !== NEW ? fid : EMPTY);
+
+  // Reset modal to inital state
   const resetModal = () => {
     setShowModal(false);
     navigate(`/log/${id}/edit`);
     setModalMode(ADD);
-    setFieldId("");
+    setFieldId(EMPTY);
   };
 
   const onEditField = (
@@ -106,7 +134,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
     navigate(`/log/${log.id}/edit/field/new`);
     setShowModal(true);
     setModalMode(ADD);
-    setFieldId("");
+    setFieldId(EMPTY);
   };
 
   const fields: LogFields[] = Object.values(log.fields);
@@ -129,6 +157,8 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
           className="accordion__log_settings"
           defaultActiveKey={["0"]}
         >
+
+          {/* LOG FIELDS TABLE */}
           <Accordion.Item eventKey="0">
             <Accordion.Header>
               <h2>{LOG_FIELDS}</h2>
@@ -152,13 +182,14 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
                 onClick={onAddField}
                 data-toggle={MODAL}
                 data-target="#addFieldModal"
-                style={{ marginBottom: "1rem" }}
+                style={{ marginBottom: "1rem" }} // todo: move to scss
               >
                 {ADD_NEW_FIELD}
               </Button>
             </Accordion.Body>
           </Accordion.Item>
 
+          {/* LOG SETTINGS */}
           <Accordion.Item eventKey="1">
             <Accordion.Header>
               <h2>{LOG_SETTINGS}</h2>
@@ -174,12 +205,13 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
                 variant={DANGER}
                 type={SUBMIT}
                 onClick={(e) => {
+                  e.preventDefault();
                   setToast({
                     show: true,
                     context: REMOVE_LOG_ACTION,
                     name: log.name,
                   });
-                  onDeleteLog(e, log);
+                  onDeleteLog(log);
                   navigate("/");
                 }}
               >
@@ -214,6 +246,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
         </Row>
       </Container>
 
+      {/* Add Field Modal */}
       <Modal id="addFieldModal" show={showModal} onHide={resetModal}>
         <Modal.Header closeButton>
           <Modal.Title>{FIELD_SETTINGS}</Modal.Title>

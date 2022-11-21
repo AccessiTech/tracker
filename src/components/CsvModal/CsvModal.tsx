@@ -6,6 +6,7 @@ import store from "../../store/store";
 import {
   CHECKBOX,
   CREATED_AT,
+  DOT_CSV,
   EMPTY,
   EXPORT,
   FILE,
@@ -50,7 +51,6 @@ export const OVERWRITE_EXISTING = "Overwrite existing entries";
 export const FORCE_IMPORT = "Force import (ignore errors)";
 
 // magic strings
-export const DOT_CSV = ".csv";
 export const OVERWRITE = "overwrite";
 export const FORCE = "force";
 

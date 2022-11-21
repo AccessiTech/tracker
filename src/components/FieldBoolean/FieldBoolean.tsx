@@ -9,7 +9,6 @@ import {
   SWITCH,
   TEXT_DANGER,
   TEXT_MUTED,
-  UNDEFINED,
 } from "../../strings";
 
 export interface FieldBooleanProps
@@ -23,7 +22,7 @@ export const FieldBoolean: FC<FieldBooleanProps> = (props): ReactElement => {
 
   const fieldLabel = `${name}${required ? ASTERISK : EMPTY}`;
   const defaultValueString = `${DEFAULT}${
-    typeof defaultValue === UNDEFINED ? false : defaultValue
+    typeof defaultValue === "undefined" ? false : defaultValue
   }`;
 
   return (

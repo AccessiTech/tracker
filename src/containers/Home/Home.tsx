@@ -30,7 +30,9 @@ import {
   CHECKBOX,
   CREATED_AT,
   CSV,
+  DOT_CSV,
   EMPTY,
+  FILE,
   ID,
   PRIMARY,
   SAVE,
@@ -104,6 +106,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
           <hr />
           <h2>{YOUR_LOGS}</h2>
 
+          {/* todo: convert to cards */}
           <table className="table table-striped">
             <thead>
               <tr>
@@ -115,6 +118,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
               {logs &&
                 logs.length > 0 &&
                 logs.map((log) => (
+                  // todo: extract to component
                   <tr key={log.id}>
                     <td>
                       <Link to={`/log/${log.id}`}>{log.name}</Link>
@@ -197,6 +201,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
         setToast={setToast}
       />
 
+      {/* todo: extract to component */}
       <Modal
         id="addLogModal"
         show={showModal}
@@ -235,8 +240,8 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                 <Form.Group controlId="formFieldData">
                   <Form.Label>{LOG_FIELDS}</Form.Label>
                   <Form.Control
-                    type="file"
-                    accept=".csv"
+                    type={FILE}
+                    accept={DOT_CSV}
                     required
                     onChange={(e) => {
                       const file = (e.target as any).files[0];
@@ -264,8 +269,8 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                 <Form.Group controlId="formEntryData">
                   <Form.Label>{LOG_ENTRIES}</Form.Label>
                   <Form.Control
-                    type="file"
-                    accept=".csv"
+                    type={FILE}
+                    accept={DOT_CSV}
                     required
                     onChange={(e) => {
                       const file = (e.target as any).files[0];

@@ -39,19 +39,27 @@ import {
   SUBMIT,
   SUBMIT_STRING,
   TEXT,
-  UNDEFINED,
   WARNING,
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
 
+// Magic strings
 export const LABEL = "label";
 
+// Display strings
 export const ENTRY_HEADER = " Entry";
 export const ENTRY_LABEL = "Entry Label";
 export const NO_LOG_FIELDS = "This log doesn't have any fields yet";
 export const ENTRY_NOT_SAVED = "Entry not saved";
 export const ENTRY_NOT_UPDATED = "Entry not updated";
 
+
+/**
+ * Log Entry Submission Callback
+ * @param {ant} values - values to submit
+ * @param {Log} log - log to submit entry to
+ * @param {LogEntryType} entry - entry to update
+ */
 export const onLogEntrySubmit = (
   values: { [fieldId: string]: FieldValue; label: string },
   log: Log,
@@ -68,42 +76,60 @@ export const onLogEntrySubmit = (
     values: newValues,
   };
 
-  const payload = {
+  store.dispatch((entry ? updateLogEntry : addLogEntry)({
     logId: log.id,
     entryId,
     entry: newEntry,
-  };
-  store.dispatch((entry ? updateLogEntry : addLogEntry)(payload));
+  }));
 };
 
+/**
+ * Delete Log Entry Callback
+ * @param {LogEntryType} entry - entry to delete
+ * @param {Log} log - log to delete entry from
+ */
 export const onLogEntryDelete = (entry: LogEntryType, log: Log) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId: entry.id }));
 };
+
+/**
+ * Log Entry Page
+ * @param {LogEntryProps} logEntryProps - props
+ */
 
 export interface LogEntryProps {
   setToast: SetToast;
 }
 
+export interface LogEntryValues {
+  [fieldId: string]: FieldValue;
+  label: string;
+}
+
 export const LogEntry: FC<LogEntryProps> = ({
   setToast,
 }): ReactElement | null => {
+  const navigate = useNavigate();
+
+  // Get log and entry from store
   const { id: logId, entry: entryId } = useParams() as {
     id: string;
     entry: string;
   };
-  const navigate = useNavigate();
   const log: Log = useGetLog(logId);
   const entry: LogEntryType = useGetLogEntry(logId, entryId);
-  const [showSidebar, setShowSidebar] = React.useState(false);
-  const [cancel, setCancel] = React.useState(false);
-  const [isNewEntry] = React.useState(
-    typeof entryId === UNDEFINED || typeof entry === UNDEFINED
-  );
-
   const { name, fields, labelOption } = log || {};
   const logFields: LogFields[] = Object.values(fields || {});
 
+  // Page state
+  const [showSidebar, setShowSidebar] = React.useState(false);
+  const [cancel, setCancel] = React.useState(false);
+  const [isNewEntry] = React.useState(
+    typeof entryId === "undefined" || typeof entry === "undefined"
+  );
+
   React.useEffect(() => {
+    // If log doesn't exist, redirect to Home
     if (!log) {
       navigate("/");
       setToast({
@@ -113,6 +139,7 @@ export const LogEntry: FC<LogEntryProps> = ({
         status: WARNING,
       });
     } else if (!logFields.length) {
+      // If log doesn't have any fields, redirect to Edit page
       setToast({
         show: true,
         name: OOPS,
@@ -124,13 +151,14 @@ export const LogEntry: FC<LogEntryProps> = ({
   }, [log, logId, navigate, logFields.length]);
 
   React.useEffect(() => {
+    // If cancel is true, redirect to back
     if (cancel) {
       navigate(-1);
     }
   }, [cancel, navigate]);
 
+  // populate initial entry values
   const initialValues = {} as any;
-
   for (const f of logFields) {
     initialValues[f.id] = isNewEntry ? f.defaultValue : entry.values[f.id];
   }
@@ -149,6 +177,7 @@ export const LogEntry: FC<LogEntryProps> = ({
         </Row>
         <Formik
           initialValues={initialValues}
+          // todo: add validation
           onSubmit={(values) => {
             onLogEntrySubmit(values, log, entry);
             setToast({

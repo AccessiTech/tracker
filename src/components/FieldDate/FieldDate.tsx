@@ -9,7 +9,6 @@ import {
   NONE,
   TEXT_DANGER,
   TEXT_MUTED,
-  UNDEFINED,
 } from "../../strings";
 
 export interface FieldDateProps extends FormikProps<{ [key: string]: string }> {
@@ -21,7 +20,7 @@ export const FieldDate: FC<FieldDateProps> = (props): ReactElement => {
   const { id: fieldId, name, required, defaultValue, option } = props.field;
 
   const defaultValueString = `${DEFAULT}${
-    typeof defaultValue === UNDEFINED ? NONE : defaultValue
+    typeof defaultValue === "undefined" ? NONE : defaultValue
   }`;
   const fieldLabel = `${name}${required ? ASTERISK : EMPTY}`;
 

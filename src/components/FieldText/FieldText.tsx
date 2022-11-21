@@ -12,7 +12,6 @@ import {
   TEXTAREA,
   TEXT_DANGER,
   TEXT_MUTED,
-  UNDEFINED,
 } from "../../strings";
 
 export interface FieldTextProps extends FormikProps<{ [key: string]: string }> {
@@ -26,7 +25,7 @@ export const FieldText: FC<FieldTextProps> = (props): ReactElement => {
   const inputAs = (option === TEXTAREA && TEXTAREA) || INPUT;
   const fieldLabel = `${name}${required ? ASTERISK : EMPTY}`;
   const defaultValueString = `${DEFAULT} ${
-    typeof defaultValue === UNDEFINED ? NONE : defaultValue
+    typeof defaultValue === "undefined" ? NONE : defaultValue
   }`;
 
   return (

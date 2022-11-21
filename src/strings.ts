@@ -33,7 +33,6 @@ export const FALSE = "false";
 export const EMPTY = "";
 export const ASTERISK = "*";
 export const HYPHEN = "-";
-export const UNDEFINED = "undefined";
 export const NONE = "none";
 export const MANY = "many";
 export const LABEL_OPTIONS = "labelOptions";
@@ -56,6 +55,10 @@ export const ORDER = "order";
 export const EXPORT = "export";
 export const IMPORT = "import";
 export const FILE = "file";
+export const DOT_CSV = ".csv";
+export const DOT_JSON = ".json";
+export const NEW = "new";
+export const EDIT = "edit";
 
 // Display Strings
 export const HOME = "Home";
