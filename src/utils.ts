@@ -95,7 +95,6 @@ export const logToMetaCSV = (log: Log) => {
   return csv;
 };
 
-
 export const parseCSV = (csv: string): { [key: string]: any }[] => {
   const lines = csv.split("\r\n");
   const headers = lines[0].split(",");
@@ -122,4 +121,19 @@ export const parseCSV = (csv: string): { [key: string]: any }[] => {
     })
     .filter((entry) => entry.type || entry.ID);
   return entries;
+};
+
+/**
+ * Download CSV file
+ * todo: expand to support other file types; add options; add error handling; extract to package;
+ * @param {string} csv - The CSV string
+ * @param {string} filename - The filename
+ */
+export const downloadCVS = (csv: string, filename: string = "log") => {
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${filename}.csv`);
+  link.click();
 };

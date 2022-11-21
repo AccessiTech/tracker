@@ -15,7 +15,12 @@ import {
   TEXT_SUCCESS,
   UPDATED_AT,
 } from "../../strings";
-import { logEntriesToCSV, logToMetaCSV, parseCSV } from "../../utils";
+import {
+  downloadCVS,
+  logEntriesToCSV,
+  logToMetaCSV,
+  parseCSV,
+} from "../../utils";
 import { SetToast } from "../Toaster";
 
 export interface CsvModalProps {
@@ -45,15 +50,6 @@ export const UPLOAD_ENTRIES = "Upload Entries to Log";
 export const ACCEPTS_CSV = "Accepts CSV files only";
 export const OVERWRITE_EXISTING = "Overwrite existing entries";
 export const FORCE_IMPORT = "Force import (ignore errors)";
-
-export const downloadCVS = (csv: string, filename: string = "log") => {
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", `${filename}.csv`);
-  link.click();
-};
 
 export const CsvModal: FC<CsvModalProps> = ({
   show,
