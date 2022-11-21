@@ -18,7 +18,7 @@ import {
 import { logEntriesToCSV, logToMetaCSV, parseCSV } from "../../utils";
 import { SetToast } from "../Toaster";
 
-export interface PortDataModalProps {
+export interface CsvModalProps {
   logID: string;
   onHide: () => void;
   setToast: SetToast;
@@ -55,7 +55,7 @@ export const downloadCVS = (csv: string, filename: string = "log") => {
   link.click();
 };
 
-export const PortDataModal: FC<PortDataModalProps> = ({
+export const CsvModal: FC<CsvModalProps> = ({
   show,
   logID,
   onHide,
@@ -330,4 +330,4 @@ export const PortDataModal: FC<PortDataModalProps> = ({
   );
 };
 
-export default PortDataModal;
+export default CsvModal;

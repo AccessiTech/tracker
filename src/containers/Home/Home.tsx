@@ -20,7 +20,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { Sidebar } from "../../components/Sidebar";
 import { Header } from "../../components/Header";
-import { PortDataModal } from "../../components/PortDataModal";
+import { CsvModal } from "../../components/CsvModal";
 
 import store from "../../store/store";
 import { addLog } from "../../store/Log";
@@ -29,7 +29,7 @@ import {
   CANCEL,
   CHECKBOX,
   CREATED_AT,
-  DATA,
+  CSV,
   EMPTY,
   ID,
   PRIMARY,
@@ -150,7 +150,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                               setShowExportModal(true);
                             }}
                           >
-                            {DATA}
+                            {CSV}
                           </Dropdown.Item>
                           <Dropdown.Item
                             className={TEXT_DANGER}
@@ -188,7 +188,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
         </Col>
       </Row>
 
-      <PortDataModal
+      <CsvModal
         logID={exportID}
         onHide={() => {
           setShowExportModal(false);
