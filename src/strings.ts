@@ -53,6 +53,9 @@ export const SORT_DESC = "desc";
 export const SORT_ASC = "asc";
 export const SORT = "sort";
 export const ORDER = "order";
+export const EXPORT = "export";
+export const IMPORT = "import";
+export const FILE = "file";
 
 // Display Strings
 export const HOME = "Home";

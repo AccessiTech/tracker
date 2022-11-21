@@ -6,7 +6,11 @@ import store from "../../store/store";
 import {
   CHECKBOX,
   CREATED_AT,
+  EMPTY,
+  EXPORT,
+  FILE,
   ID,
+  IMPORT,
   PRIMARY,
   SECONDARY,
   SUBMIT,
@@ -23,13 +27,7 @@ import {
 } from "../../utils";
 import { SetToast } from "../Toaster";
 
-export interface CsvModalProps {
-  logID: string;
-  onHide: () => void;
-  setToast: SetToast;
-  show: boolean;
-}
-
+// display strings - todo: i18n
 export const EXPORT_DATA = "Export Log to CSV";
 export const IMPORT_DATA = "Import Data";
 export const DOWNLOAD_CSV = "Download Entries";
@@ -39,8 +37,8 @@ export const INCLUDE_ENTRY_IDS = "Include Entry IDs (Recommended)";
 export const INCLUDE_CREATED_AT = "Include Created At";
 export const INCLUDE_UPDATED_AT = "Include Updated At";
 export const USE_IDS_AS_HEADERS = "Use IDs as Headers";
-export const IMPORT = "Import";
-export const EXPORT = "Export";
+export const IMPORT_LABEL = "Import";
+export const EXPORT_LABEL = "Export";
 export const CSV_REQUIRED = "CSV is Required";
 export const CSV_EMPTY = "CSV is Empty";
 export const CSV_VALID = "CSV is valid and compatible!";
@@ -51,25 +49,48 @@ export const ACCEPTS_CSV = "Accepts CSV files only";
 export const OVERWRITE_EXISTING = "Overwrite existing entries";
 export const FORCE_IMPORT = "Force import (ignore errors)";
 
+// magic strings
+export const DOT_CSV = ".csv";
+export const OVERWRITE = "overwrite";
+export const FORCE = "force";
+
+/**
+ * Modal for importing and exporting CSV data
+ * @param {CsvModalProps} csvModalProps
+ */
+
+export interface CsvModalProps {
+  logID: string;
+  onHide: () => void;
+  setToast: SetToast;
+  show: boolean;
+}
+
 export const CsvModal: FC<CsvModalProps> = ({
   show,
   logID,
   onHide,
   setToast,
 }): ReactElement => {
+
+  // download options state
   const [includeID, setIncludeID] = React.useState(true);
   const [includeCreatedAt, setIncludeCreatedAt] = React.useState(true);
   const [includeUpdatedAt, setIncludeUpdatedAt] = React.useState(false);
   const [useIdsAsHeaders, setUseIdsAsHeaders] = React.useState(false);
+
+  // import state
   const [newEntries, setNewEntries] = React.useState(
     [] as { [key: string]: any }[]
   );
+
+  // get log
   const log: Log = useGetLog(logID);
 
   return (
     <Modal id="port-data-modal" show={show} onHide={onHide}>
-      <Tabs fill defaultActiveKey="export" id="port-data-tabs">
-        <Tab eventKey="export" title={EXPORT}>
+      <Tabs fill defaultActiveKey={EXPORT} id="port-data-tabs">
+        <Tab eventKey={EXPORT} title={EXPORT_LABEL}>
           <Modal.Header closeButton>
             <Modal.Title>{EXPORT_DATA}</Modal.Title>
           </Modal.Header>
@@ -146,13 +167,13 @@ export const CsvModal: FC<CsvModalProps> = ({
           </Modal.Footer>
         </Tab>
 
-        <Tab eventKey="import" title={IMPORT}>
+        <Tab eventKey={IMPORT} title={IMPORT_LABEL}>
           <Modal.Header closeButton>
             <Modal.Title>{IMPORT_DATA}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Formik
-              initialValues={{ file: "", overwrite: false, force: false }}
+              initialValues={{ file: EMPTY, overwrite: false, force: false }}
               onSubmit={() => {
                 newEntries.forEach((entry: any) => {
                   const newEntry = {
@@ -180,7 +201,7 @@ export const CsvModal: FC<CsvModalProps> = ({
                   );
                 });
                 setToast({
-                  context: `Imported ${newEntries.length} entries`,
+                  context: `Imported ${newEntries.length} entries`, // todo: i18n
                   show: true,
                 });
                 onHide();
@@ -213,11 +234,11 @@ export const CsvModal: FC<CsvModalProps> = ({
                   const newEntries =
                     values.overwrite || values.force
                       ? potentialEntries.filter((entry: any) => {
-                          return entry.ID;
-                        })
+                        return entry.ID;
+                      })
                       : potentialEntries.filter((entry: any) => {
-                          return entry.ID && !entryIds.includes(entry.ID);
-                        });
+                        return entry.ID && !entryIds.includes(entry.ID);
+                      });
 
                   if (!newEntries.length) {
                     errors.file = NO_NEW_ENTRIES;
@@ -242,9 +263,9 @@ export const CsvModal: FC<CsvModalProps> = ({
                     <Form.Label>{UPLOAD_ENTRIES}</Form.Label>
 
                     <Form.Control
-                      type="file"
-                      name="file"
-                      accept=".csv"
+                      type={FILE}
+                      name={FILE}
+                      accept={DOT_CSV}
                       onChange={(e: any) => {
                         setNewEntries([]);
                         const file = e.target.files[0];
@@ -252,11 +273,11 @@ export const CsvModal: FC<CsvModalProps> = ({
                           const reader = new FileReader();
                           reader.onloadend = () => {
                             const result = reader.result;
-                            setFieldValue("file", result);
+                            setFieldValue(FILE, result);
                           };
                           reader.readAsText(file);
                         } else {
-                          setFieldValue("file", "");
+                          setFieldValue(FILE, EMPTY);
                         }
                       }}
                       onBlur={handleBlur}
@@ -281,14 +302,14 @@ export const CsvModal: FC<CsvModalProps> = ({
                     <Form.Check
                       type={CHECKBOX}
                       label={OVERWRITE_EXISTING}
-                      name="overwrite"
+                      name={OVERWRITE}
                       checked={values.overwrite}
                       onChange={() => {
                         setNewEntries([]);
                         if (values.overwrite && values.force) {
-                          setFieldValue("force", !values.overwrite);
+                          setFieldValue(FORCE, !values.overwrite);
                         }
-                        setFieldValue("overwrite", !values.overwrite);
+                        setFieldValue(OVERWRITE, !values.overwrite);
                       }}
                     />
                   </Form.Group>
@@ -296,14 +317,14 @@ export const CsvModal: FC<CsvModalProps> = ({
                     <Form.Check
                       type={CHECKBOX}
                       label={FORCE_IMPORT}
-                      name="force"
+                      name={FORCE}
                       checked={values.force}
                       onChange={() => {
                         setNewEntries([]);
                         if (!values.overwrite) {
-                          setFieldValue("overwrite", !values.force);
+                          setFieldValue(OVERWRITE, !values.force);
                         }
-                        setFieldValue("force", !values.force);
+                        setFieldValue(FORCE, !values.force);
                       }}
                     />
                   </Form.Group>
@@ -314,7 +335,9 @@ export const CsvModal: FC<CsvModalProps> = ({
                     type={SUBMIT}
                     disabled={Object.keys(errors).length > 0 && touched.file}
                   >
-                    {`Import Entries (${newEntries.length})`}
+                    {
+                      `Import Entries (${newEntries.length})` // todo: i18n
+                    }
                   </Button>
                 </Form>
               )}
