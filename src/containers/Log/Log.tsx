@@ -33,7 +33,11 @@ import {
   EDIT_ENTRY,
   EDIT_LOG,
   FALSE,
+  getAddLogEntryURL,
+  getEditLogEntryURL,
+  getEditLogURL,
   HOME,
+  HOME_URL,
   HYPHEN,
   LOG_NOT_FOUND,
   OOPS,
@@ -96,7 +100,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
   // Navigate to home if log not found
   React.useEffect(() => {
     if (!log) {
-      navigate("/");
+      navigate(HOME_URL);
       setToast({
         show: true,
         name: OOPS,
@@ -252,7 +256,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                       >
                         <Dropdown.Item
                           onClick={() =>
-                            navigate(`/log/${id}/entry/${entry.id}`)
+                            navigate(getEditLogEntryURL(id, entry.id))
                           }
                         >
                           {EDIT_ENTRY}
@@ -286,7 +290,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
           <Button
             variant={DARK}
             onClick={() => {
-              navigate(`/`);
+              navigate(HOME_URL);
             }}
           >
             {HOME}
@@ -296,7 +300,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
           <Button
             variant={SECONDARY}
             onClick={() => {
-              navigate(`/log/${id}/edit`);
+              navigate(getEditLogURL(id));
             }}
           >
             {EDIT_LOG}
@@ -305,7 +309,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
         <Col>
           <Button
             variant={PRIMARY}
-            onClick={() => navigate(`/log/${id}/entry`)}
+            onClick={() => navigate(getAddLogEntryURL(id))}
           >
             {ADD_ENTRY}
           </Button>

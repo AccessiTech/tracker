@@ -29,6 +29,8 @@ import {
   BOOLEAN,
   CANCEL,
   DATE,
+  getEditLogURL,
+  HOME_URL,
   LOG_NOT_FOUND,
   NUMBER,
   OOPS,
@@ -131,7 +133,7 @@ export const LogEntry: FC<LogEntryProps> = ({
   React.useEffect(() => {
     // If log doesn't exist, redirect to Home
     if (!log) {
-      navigate("/");
+      navigate(HOME_URL);
       setToast({
         show: true,
         name: OOPS,
@@ -146,7 +148,7 @@ export const LogEntry: FC<LogEntryProps> = ({
         context: NO_LOG_FIELDS,
         status: WARNING,
       });
-      navigate(`/log/${logId}/edit`);
+      navigate(getEditLogURL(logId));
     }
   }, [log, logId, navigate, logFields.length]);
 

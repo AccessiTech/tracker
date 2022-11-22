@@ -33,7 +33,11 @@ import {
   DOT_CSV,
   EMPTY,
   FILE,
+  getAddLogEntryURL,
+  getEditLogURL,
+  HOME_URL,
   ID,
+  NEW_URL,
   PRIMARY,
   SAVE,
   SECONDARY,
@@ -91,7 +95,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
     newLogName !== EMPTY &&
     newLogName.trim() !== EMPTY
   ) {
-    navigate("/log/" + newLogId + "/edit");
+    navigate(getEditLogURL(newLogId));
   }
 
   return (
@@ -131,7 +135,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                       >
                         <Button
                           variant={PRIMARY}
-                          onClick={() => navigate(`/log/${log.id}/entry`)}
+                          onClick={() => navigate(getAddLogEntryURL(log.id))}
                         >
                           {ADD_ENTRY}
                         </Button>
@@ -144,7 +148,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
 
                         <Dropdown.Menu>
                           <Dropdown.Item
-                            onClick={() => navigate(`/log/${log.id}/edit`)}
+                            onClick={() => navigate(getEditLogURL(log.id))}
                           >
                             {EDIT}
                           </Dropdown.Item>
@@ -183,7 +187,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
             variant={PRIMARY}
             onClick={(e) => {
               e.preventDefault();
-              navigate("/new");
+              navigate(NEW_URL);
               setShowModal(true);
             }}
           >
@@ -211,7 +215,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
           setRestoredFields([]);
           setRestoredEntries([]);
           setNewLogName(EMPTY);
-          navigate("/");
+          navigate(HOME_URL);
         }}
       >
         <Modal.Header closeButton>
@@ -325,7 +329,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                     setRestoreLog(false);
                     setRestoredFields([]);
                     setRestoredEntries([]);
-                    navigate("/");
+                    navigate(HOME_URL);
                   }}
                 >
                   {CANCEL}
