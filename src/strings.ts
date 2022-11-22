@@ -101,8 +101,23 @@ export const WILDCARD = "*";
 export const HOME_URL = "/";
 export const NEW_URL = "/new";
 export const LOG_URL = "/log/";
-export const LOG_ID_URL = ":id";
+export const LOG_ID_URL_PARAM = ":id";
+export const LOG_ID_URL = LOG_ID_URL_PARAM;
+
 export const ENTRY_URL = "entry/";
 export const ENTRY_EDIT_URL = `${ENTRY_URL}:entry`;
 export const EDIT_URL = "edit/";
-export const FIELD_URL = "field/:field";
+export const FIELD_URL_PARAM = ":field";
+export const FIELD_URL = `field/${FIELD_URL_PARAM}`;
+export const EDIT_LOG_URL = LOG_URL + LOG_ID_URL + "/edit";
+export const EDIT_LOG_FIELD_URL = EDIT_LOG_URL + FIELD_URL;
+export const ADD_LOG_FIELD_URL = EDIT_LOG_URL + "/new";
+
+export const getEditLogURL = (id: string): string =>
+  EDIT_LOG_URL.replace(LOG_ID_URL, id);
+
+export const getEditLogFieldURL = (id: string, field: string): string =>
+  EDIT_LOG_FIELD_URL.replace(LOG_ID_URL, id).replace(FIELD_URL_PARAM, field);
+
+export const getAddLogFieldURL = (id: string): string =>
+  ADD_LOG_FIELD_URL.replace(LOG_ID_URL, id);

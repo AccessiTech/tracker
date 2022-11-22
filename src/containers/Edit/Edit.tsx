@@ -26,7 +26,11 @@ import {
   DARK,
   EDIT,
   EMPTY,
+  getAddLogFieldURL,
+  getEditLogFieldURL,
+  getEditLogURL,
   HOME,
+  HOME_URL,
   MODAL,
   NEW,
   PRIMARY,
@@ -99,7 +103,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
 
   // If log is not found, redirect to home
   if (!log || id !== log.id || !log.fields) {
-    navigate("/");
+    navigate(HOME_URL);
   }
 
   // Modal and Sidebar states
@@ -112,10 +116,10 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   // Current field state
   const [fieldId, setFieldId] = React.useState(fid && fid !== NEW ? fid : EMPTY);
 
-  // Reset modal to inital state
+  // Reset modal to initial state
   const resetModal = () => {
     setShowModal(false);
-    navigate(`/log/${id}/edit`);
+    navigate(getEditLogURL(id));
     setModalMode(ADD);
     setFieldId(EMPTY);
   };
@@ -124,14 +128,14 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
     _: React.MouseEvent<HTMLElement, MouseEvent>,
     field: LogFields
   ) => {
-    navigate(`/log/${log.id}/edit/field/${field.id}`);
+    navigate(getEditLogFieldURL(id, field.id));
     setShowModal(true);
     setModalMode(EDIT);
     setFieldId(field.id);
   };
 
   const onAddField = () => {
-    navigate(`/log/${log.id}/edit/field/new`);
+    navigate(getAddLogFieldURL(id));
     setShowModal(true);
     setModalMode(ADD);
     setFieldId(EMPTY);
@@ -212,7 +216,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
                     name: log.name,
                   });
                   onDeleteLog(log);
-                  navigate("/");
+                  navigate(HOME_URL);
                 }}
               >
                 {DELETE_LOG}
