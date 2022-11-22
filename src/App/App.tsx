@@ -5,7 +5,7 @@ import { Edit } from "../containers/Edit";
 import { Log } from "../containers/Log";
 import { LogEntry } from "../containers/LogEntry";
 import "./App.scss";
-import { EMPTY, SUCCESS } from "../strings";
+import { EDIT_URL, EMPTY, ENTRY_EDIT_URL, ENTRY_URL, FIELD_URL, HOME_URL, LOG_ID_URL, LOG_URL, NEW_URL, SUCCESS, WILDCARD } from "../strings";
 import { Toaster, ToastType } from "../components/Toaster";
 
 export const App: FC = (): ReactElement => {
@@ -19,22 +19,22 @@ export const App: FC = (): ReactElement => {
     <>
       <HashRouter>
         <Routes>
-          <Route path="*" element={<h1>404</h1>} />
-          <Route path="/" element={<Home setToast={setToast} />} />
-          <Route path="/new" element={<Home setToast={setToast} />} />
-          <Route path="/log/">
-            <Route path="" element={<h1>404</h1>} />
-            <Route path=":id/">
-              <Route path="" element={<Log setToast={setToast} />} />
-              <Route path="entry/" element={<LogEntry setToast={setToast} />} />
+          <Route path={WILDCARD} element={<h1>404</h1>} />
+          <Route path={HOME_URL} element={<Home setToast={setToast} />} />
+          <Route path={NEW_URL} element={<Home setToast={setToast} />} />
+          <Route path={LOG_URL}>
+            <Route path={EMPTY} element={<h1>404</h1>} />
+            <Route path={LOG_ID_URL}>
+              <Route path={EMPTY} element={<Log setToast={setToast} />} />
+              <Route path={ENTRY_URL} element={<LogEntry setToast={setToast} />} />
               <Route
-                path="entry/:entry"
+                path={ENTRY_EDIT_URL}
                 element={<LogEntry setToast={setToast} />}
               />
-              <Route path="edit/">
-                <Route path="" element={<Edit setToast={setToast} />} />
+              <Route path={EDIT_URL}>
+                <Route path={EMPTY} element={<Edit setToast={setToast} />} />
                 <Route
-                  path="field/:field/"
+                  path={FIELD_URL}
                   element={<Edit setToast={setToast} />}
                 />
               </Route>

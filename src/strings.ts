@@ -95,3 +95,14 @@ export const OOPS = "Oops!";
 export const LOG_NOT_FOUND = "Log not found";
 export const DATA = "Data";
 export const CSV = "CSV";
+
+// Route Strings
+export const WILDCARD = "*";
+export const HOME_URL = "/";
+export const NEW_URL = "/new";
+export const LOG_URL = "/log/";
+export const LOG_ID_URL = ":id";
+export const ENTRY_URL = "entry/";
+export const ENTRY_EDIT_URL = `${ENTRY_URL}:entry`;
+export const EDIT_URL = "edit/";
+export const FIELD_URL = "field/:field";
