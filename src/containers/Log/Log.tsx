@@ -50,6 +50,7 @@ import {
   WARNING,
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
+import { LogEntryFilter } from "../../components/LogEntryFilter";
 
 // Display strings
 export const ENTRIES_HEADER = "Entries ";
@@ -128,41 +129,53 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
             {ENTRIES_HEADER}
             {`(${entries.length})`}
           </h4>
-          <DropdownButton
-            id="dropdown-basic-button"
-            title={SORT_BY}
-            variant={SECONDARY}
-            className="log__actions"
-          >
-            <Dropdown.Item
-              onClick={() => {
-                setSortBy(CREATED_AT);
-              }}
-              className={`text-${CREATED_AT === sortBy ? PRIMARY : SECONDARY}`}
+
+          <div className="log__entries_header__actions">
+            {/* Sort by dropdown */}
+            <DropdownButton
+              id="dropdown-basic-button"
+              title={SORT_BY}
+              variant={SECONDARY}
+              className="log__actions"
             >
-              {DATE_CREATED}
-            </Dropdown.Item>
-            {Object.values(fields).map((field) => (
               <Dropdown.Item
-                key={`sort-by-${field.id}`}
                 onClick={() => {
-                  setSortBy(field.id);
+                  setSortBy(CREATED_AT);
                 }}
-                className={`text-${field.id === sortBy ? PRIMARY : SECONDARY}`}
+                className={`text-${
+                  CREATED_AT === sortBy ? PRIMARY : SECONDARY
+                }`}
               >
-                {field.name}
+                {DATE_CREATED}
               </Dropdown.Item>
-            ))}
-            <Dropdown.Divider />
-            <Dropdown.Item
-              onClick={() => {
-                setSortOrder(sortOrder === SORT_ASC ? SORT_DESC : SORT_ASC);
-              }}
-              className={`text-${sortOrder === SORT_ASC ? PRIMARY : SECONDARY}`}
-            >
-              {REVERSED}
-            </Dropdown.Item>
-          </DropdownButton>
+              {Object.values(fields).map((field) => (
+                <Dropdown.Item
+                  key={`sort-by-${field.id}`}
+                  onClick={() => {
+                    setSortBy(field.id);
+                  }}
+                  className={`text-${
+                    field.id === sortBy ? PRIMARY : SECONDARY
+                  }`}
+                >
+                  {field.name}
+                </Dropdown.Item>
+              ))}
+              <Dropdown.Divider />
+              <Dropdown.Item
+                onClick={() => {
+                  setSortOrder(sortOrder === SORT_ASC ? SORT_DESC : SORT_ASC);
+                }}
+                className={`text-${
+                  sortOrder === SORT_ASC ? PRIMARY : SECONDARY
+                }`}
+              >
+                {REVERSED}
+              </Dropdown.Item>
+            </DropdownButton>
+
+            <LogEntryFilter log={log} />
+          </div>
         </Col>
       </Row>
 
