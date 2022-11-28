@@ -69,6 +69,7 @@ export const EDIT_ENTRY = "Edit Entry";
 export const DELETE_ENTRY = "Delete Entry";
 export const ACTIONS = "Actions";
 export const SUBMIT_STRING = "Submit";
+export const RESET_STRING = "Reset";
 export const SAVE = "Save";
 export const CANCEL = "Cancel";
 export const DELETE = "Delete";

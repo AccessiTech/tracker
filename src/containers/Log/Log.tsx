@@ -50,7 +50,7 @@ import {
   WARNING,
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
-import { LogEntryFilter } from "../../components/LogEntryFilter";
+import { entryFilter, LogEntryFilter } from "../../components/LogEntryFilter";
 
 // Display strings
 export const ENTRIES_HEADER = "Entries ";
@@ -88,14 +88,15 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
   // Set and sidebar states
   const [sortBy, setSortBy] = React.useState(sort || CREATED_AT);
   const [sortOrder, setSortOrder] = React.useState(order || SORT_DESC);
+  const [filter, setFilter] = React.useState([] as any);
   const [showSidebar, setShowSidebar] = React.useState(false);
 
   // Define entries
   const entries: LogEntry[] = log
     ? Object.values(log.entries || {}).filter(
-        (entry: LogEntry) => entry && entry.values
-      )
-    : [];
+      (entry: LogEntry) => entryFilter(entry, filter)
+    ) : [];
+  console.log(entries[0]);
   const hasEntries = entries.length > 0;
 
   // Navigate to home if log not found
@@ -142,9 +143,8 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                 onClick={() => {
                   setSortBy(CREATED_AT);
                 }}
-                className={`text-${
-                  CREATED_AT === sortBy ? PRIMARY : SECONDARY
-                }`}
+                className={`text-${CREATED_AT === sortBy ? PRIMARY : SECONDARY
+                  }`}
               >
                 {DATE_CREATED}
               </Dropdown.Item>
@@ -154,9 +154,8 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                   onClick={() => {
                     setSortBy(field.id);
                   }}
-                  className={`text-${
-                    field.id === sortBy ? PRIMARY : SECONDARY
-                  }`}
+                  className={`text-${field.id === sortBy ? PRIMARY : SECONDARY
+                    }`}
                 >
                   {field.name}
                 </Dropdown.Item>
@@ -166,15 +165,14 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                 onClick={() => {
                   setSortOrder(sortOrder === SORT_ASC ? SORT_DESC : SORT_ASC);
                 }}
-                className={`text-${
-                  sortOrder === SORT_ASC ? PRIMARY : SECONDARY
-                }`}
+                className={`text-${sortOrder === SORT_ASC ? PRIMARY : SECONDARY
+                  }`}
               >
                 {REVERSED}
               </Dropdown.Item>
             </DropdownButton>
 
-            <LogEntryFilter log={log} />
+            <LogEntryFilter log={log} setFilter={setFilter} />
           </div>
         </Col>
       </Row>
@@ -193,9 +191,9 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                   const createdAtOrder =
                     sortOrder === SORT_ASC
                       ? new Date(valueB as string).getTime() -
-                        new Date(valueA as string).getTime()
+                      new Date(valueA as string).getTime()
                       : new Date(valueA as string).getTime() -
-                        new Date(valueB as string).getTime();
+                      new Date(valueB as string).getTime();
                   return createdAtOrder;
                 }
                 if (typeof valueA === "string" && typeof valueB === "string") {
@@ -219,8 +217,8 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                 const labelText = isLabelDate
                   ? new Date(entry.createdAt as string).toLocaleString()
                   : isLabelText
-                  ? entry.values.label
-                  : entry.values[labelOption as string];
+                    ? entry.values.label
+                    : entry.values[labelOption as string];
 
                 return (
                   <Card key={id + HYPHEN + entry.id} className="log__entry">
@@ -243,8 +241,8 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                             case SELECT:
                               value = Array.isArray(entry.values[fieldId])
                                 ? ((entry.values[fieldId] as []) || []).join(
-                                    ", " // todo: make this dynamic
-                                  )
+                                  ", " // todo: make this dynamic
+                                )
                                 : entry.values[fieldId];
                               break;
                             default:

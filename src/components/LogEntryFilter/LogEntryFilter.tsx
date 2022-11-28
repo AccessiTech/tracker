@@ -1,11 +1,27 @@
 import React from "react";
-import { Log } from "../../store/Log";
+import { Log, LogEntry } from "../../store/Log";
 import { Button, Form } from "react-bootstrap";
-import { EMPTY, PRIMARY } from "../../strings";
+import { EMPTY, PRIMARY, RESET, RESET_STRING, SECONDARY, SUBMIT, SUBMIT_STRING } from "../../strings";
 
 export interface LogEntryFilterProps {
   log: Log;
+  setFilter: React.Dispatch<React.SetStateAction<never[]>>;
 }
+
+export type EntryFilterQuery = 
+  [filterBy: "field",
+    fieldOptions: [
+      field: string, 
+      fieldOperator: "includes" | "notIncluded" | "equals" | "notEqual",
+      fieldValue: string
+    ]
+  ] |
+  [filterBy: "dateCreated", 
+    dateOptions: [
+      dateCreatedOperator: "isBefore" | "isAfter" | "isOn",
+      dateCreated: string
+  ]
+];
 
 export const FIELD = "field";
 export const INCLUDES = "includes";
@@ -16,8 +32,43 @@ export const IS_BEFORE = "isBefore";
 export const IS_AFTER = "isAfter";
 export const IS_ON = "isOn";
 
-export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log }) => {
-  console.log("LogEntryFilter", log);
+
+export const entryFilter = (entry: LogEntry, filter: EntryFilterQuery):boolean => {
+  if (!entry || !entry.values) return false;
+  if (!filter.length) return true;
+  if (filter[0] === FIELD) {
+    const [field, operator, value] = filter[1];
+    const entryValue = entry.values[field];
+    if (!entryValue) return false;
+    switch (operator) {
+      case INCLUDES:
+        return (entryValue as string).includes(value);
+      case NOT_INCLUDED:
+        return !(entryValue as string).includes(value);
+      case EQUALS:
+        return entryValue === value;
+      case NOT_EQUAL:
+        return entryValue !== value;
+      default:
+        return false;
+    }
+  } else {
+    const [operator, date] = filter[1];
+    const entryDate = entry.createdAt;
+    switch (operator) {
+      case IS_BEFORE:
+        return new Date(entryDate) < new Date(date);
+      case IS_AFTER:
+        return new Date(entryDate) > new Date(date);
+      case IS_ON:
+        return new Date(entryDate) === new Date(date);
+      default:
+        return false;
+    }
+  }
+}
+
+export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }) => {
   const [show, setShow] = React.useState(false);
   const [filterBy, setFilterBy] = React.useState(FIELD);
   const [field, setField] = React.useState(EMPTY);
@@ -43,7 +94,6 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log }) => {
         variant={PRIMARY}
         onClick={() => {
           setShow(!show);
-          resetFilterState();
         }}
       >
         Filter
@@ -57,13 +107,20 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log }) => {
             className="log__entry_filter__form"
             onSubmit={(e) => {
               e.preventDefault();
-              console.log("submit");
-              console.log("filterBy", filterBy);
-              console.log(FIELD, field);
-              console.log("fieldOperator", fieldOperator);
-              console.log("fieldValue", fieldValue);
-              console.log("dateCreated", dateCreated);
-              console.log("dateCreatedOperator", dateCreatedOperator);
+              let filterQuery: EntryFilterQuery;
+              if (filterBy === FIELD) {
+                filterQuery = [
+                  filterBy,
+                  [field, fieldOperator, fieldValue],
+                ] as EntryFilterQuery;
+              } else {
+                filterQuery = [
+                  filterBy,
+                  [dateCreatedOperator, dateCreated],
+                ] as EntryFilterQuery;
+              }
+              setFilter(filterQuery as any);
+              setShow(false);
             }}>
             <Form.Group controlId="formFilterBy">
               <Form.Label>Filter By:</Form.Label>
@@ -161,6 +218,25 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log }) => {
                 />
               </Form.Group>
             </>)}
+            {/* form group for reset and submit buttons */}
+            <Form.Group
+              controlId="formFilterResetSubmit"
+              className="log__entry_filter__reset_submit"
+            >
+              <Button
+                type={RESET}
+                variant={SECONDARY}
+                onClick={() => {
+                  resetFilterState();
+                  setFilter([] as any);
+                }}
+              >
+                {RESET_STRING}
+              </Button>
+              <Button variant={PRIMARY} type={SUBMIT}>
+                {SUBMIT_STRING}
+              </Button>
+            </Form.Group>
           </Form>
 
         </div>

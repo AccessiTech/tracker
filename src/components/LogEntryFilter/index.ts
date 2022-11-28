@@ -1,2 +1,3 @@
-import LogEntryFilter from "./LogEntryFilter";
-export { LogEntryFilter };
+import LogEntryFilter, { entryFilter } from "./LogEntryFilter";
+export type { EntryFilterQuery } from "./LogEntryFilter";
+export { entryFilter, LogEntryFilter };
