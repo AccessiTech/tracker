@@ -17,7 +17,6 @@ import {
 } from "../../strings";
 
 // Magic Strings
-export const FIELD = "field";
 export const INCLUDES = "includes";
 export const NOT_INCLUDED = "notIncluded";
 export const EQUALS = "equals";
@@ -31,8 +30,7 @@ export const DATE_CREATED = "dateCreated";
 
 // Display Strings
 export const FILTER = "Filter";
-export const FILTER_BY_LABEL = "Filter By:";
-export const FIELD_LABEL = "Field";
+export const FILTER_BY_LABEL = "Filter By";
 export const DATE_CREATED_LABEL = "Date Created";
 export const OPERATOR_LABEL = "Operator";
 export const NUMBER_OPERATORS = "Number Operators";
@@ -56,23 +54,19 @@ export interface LogEntryFilterProps {
 }
 
 export type EntryFilterQuery =
-  | [
+  [
     filterBy: string,
-    fieldOptions: [
-      fieldOperator:
-      | typeof INCLUDES
-      | typeof NOT_INCLUDED
-      | typeof EQUALS
-      | typeof NOT_EQUAL,
-      fieldValue: string
-    ]
-  ]
-  | [
-    filterBy: typeof DATE_CREATED,
-    dateOptions: [
-      dateCreatedOperator: typeof IS_BEFORE | typeof IS_AFTER | typeof IS_ON,
-      dateCreated: string
-    ]
+    fieldOperator: typeof INCLUDES
+    | typeof NOT_INCLUDED
+    | typeof GREATER_THAN
+    | typeof LESS_THAN
+    | typeof EQUALS
+    | typeof NOT_EQUAL
+    | typeof IS_BEFORE
+    | typeof IS_AFTER
+    | typeof IS_ON,
+    fieldValue: string
+
   ];
 
 export const entryFilter = (
@@ -81,36 +75,35 @@ export const entryFilter = (
 ): boolean => {
   if (!entry || !entry.values) return false;
   if (!filter.length) return true;
-  if (filter[0] !== DATE_CREATED) {
-    const field = filter[0];
-    const [operator, value] = filter[1];
-    const entryValue = entry.values[field];
-    if (!entryValue) return false;
-    switch (operator) {
-      case INCLUDES:
-        return (entryValue as string).includes(value);
-      case NOT_INCLUDED:
-        return !(entryValue as string).includes(value);
-      case EQUALS:
-        return entryValue === value;
-      case NOT_EQUAL:
-        return entryValue !== value;
-      default:
-        return false;
-    }
-  } else {
-    const [operator, date] = filter[1];
-    const entryDate = entry.createdAt;
-    switch (operator) {
-      case IS_BEFORE:
-        return new Date(entryDate) < new Date(date);
-      case IS_AFTER:
-        return new Date(entryDate) > new Date(date);
-      case IS_ON:
-        return new Date(entryDate) === new Date(date);
-      default:
-        return false;
-    }
+
+  const [field, operator, value] = filter;
+  const entryValue = filter[0] === DATE_CREATED
+    ? entry.createdAt
+    : entry.values[field];
+  console.log(filter, entryValue)
+
+  if (!entryValue) return false;
+
+  switch (operator) {
+    case INCLUDES:
+      return (entryValue as string).includes(value);
+    case NOT_INCLUDED:
+      return !(entryValue as string).includes(value);
+    case EQUALS:
+    case IS_ON:
+      return entryValue === value;
+    case NOT_EQUAL:
+      return entryValue !== value;
+    case GREATER_THAN:
+      return entryValue > value;
+    case LESS_THAN:
+      return entryValue < value;
+    case IS_BEFORE:
+      return new Date(entryValue as string) < new Date(value);
+    case IS_AFTER:
+      return new Date(entryValue as string) > new Date(value);
+    default:
+      return false;
   }
 };
 
@@ -147,9 +140,6 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({
   const [filterBy, setFilterBy] = React.useState(EMPTY);
   const [fieldOperator, setFieldOperator] = React.useState(INCLUDES);
   const [fieldValue, setFieldValue] = React.useState(EMPTY);
-  const [dateCreated, setDateCreated] = React.useState(EMPTY);
-  const [dateCreatedOperator, setDateCreatedOperator] =
-    React.useState(IS_BEFORE);
   const [isFieldNumber, setIsFieldNumber] = React.useState(
     getIsFieldNumber(filterBy, log.fields[filterBy])
   );
@@ -164,8 +154,6 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({
     setIsFieldDate(false);
     setFieldOperator(INCLUDES);
     setFieldValue(EMPTY);
-    setDateCreated(EMPTY);
-    setDateCreatedOperator(IS_BEFORE);
   };
 
   return (
@@ -187,18 +175,9 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({
             className="log__entry_filter__form"
             onSubmit={(e) => {
               e.preventDefault();
-              let filterQuery: EntryFilterQuery;
-              if (filterBy !== DATE_CREATED) {
-                filterQuery = [
-                  filterBy,
-                  [fieldOperator, fieldValue],
-                ] as EntryFilterQuery;
-              } else {
-                filterQuery = [
-                  filterBy,
-                  [dateCreatedOperator, dateCreated],
-                ] as EntryFilterQuery;
-              }
+              const filterQuery = [
+                filterBy, fieldOperator, fieldValue
+              ] as EntryFilterQuery;
               setFilter(filterQuery as any);
               setShow(false);
             }}
@@ -208,19 +187,26 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({
               controlId="formFilterField"
               className="log__entry_filter__field"
             >
-              <Form.Label>{FIELD_LABEL}</Form.Label>
+              <Form.Label>{FILTER_BY_LABEL}</Form.Label>
               <Form.Control
-                name={FIELD}
+                name="filterBy"
                 as={SELECT}
                 className="log__entry_filter_field"
                 required
                 defaultValue={filterBy}
                 onChange={(e) => {
+                  const isNumber = getIsFieldNumber(e.target.value, log.fields[e.target.value])
+                  const isDate = getIsFieldDate(e.target.value, log.fields[e.target.value])
                   setFilterBy(e.target.value);
-                  setIsFieldNumber(getIsFieldNumber(e.target.value, log.fields[e.target.value]));
-                  setIsFieldDate(
-                    getIsFieldDate(e.target.value, log.fields[e.target.value])
-                  );
+                  setIsFieldNumber(isNumber);
+                  setIsFieldDate(isDate);
+                  if (isDate) {
+                    setFieldOperator(IS_BEFORE);
+                  } else if (isNumber) {
+                    setFieldOperator(GREATER_THAN);
+                  } else {
+                    setFieldOperator(INCLUDES);
+                  }
                 }}
               >
                 <optgroup label={"Entry Fields"}>
@@ -279,7 +265,7 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({
                   <Form.Label>{VALUE_LABEL}</Form.Label>
                   <Form.Control
                     name="value"
-                    type={TEXT}
+                    type={(log.fields[filterBy] || {}).type || TEXT}
                     className="log__entry_filter_value"
                     defaultValue={fieldValue}
                     required
@@ -301,8 +287,8 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({
                     name="dateCreatedOperator"
                     as={SELECT}
                     className="log__entry_filter_date_created_operator"
-                    defaultValue={dateCreatedOperator}
-                    onChange={(e) => setDateCreatedOperator(e.target.value)}
+                    defaultValue={fieldOperator}
+                    onChange={(e) => setFieldOperator(e.target.value)}
                   >
                     <option value={IS_BEFORE}>{BEFORE_LABEL}</option>
                     <option value={IS_AFTER}>{AFTER_LABEL}</option>
@@ -316,10 +302,13 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({
                   <Form.Label>{DATE_LABEL}</Form.Label>
                   <Form.Control
                     name={DATE_CREATED}
-                    type={DATETIME_LOCAL}
+                    type={(log.fields[filterBy] || {}).option || DATETIME_LOCAL}
                     className="log__entry_filter_dateCreated"
-                    defaultValue={dateCreated}
-                    onChange={(e) => setDateCreated(e.target.value)}
+                    defaultValue={fieldValue}
+                    onChange={(e) => {
+                      console.log(e.target.value);
+                      setFieldValue(e.target.value);
+                    }}
                   />
                 </Form.Group>
               </>
@@ -336,6 +325,7 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({
                 onClick={() => {
                   resetFilterState();
                   setFilter([] as any);
+                  setShow(false);
                 }}
               >
                 {RESET_STRING}

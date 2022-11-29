@@ -2,7 +2,6 @@ import LogEntryFilter from "./LogEntryFilter";
 export { LogEntryFilter };
 export {
   entryFilter,
-  FIELD,
   INCLUDES,
   NOT_INCLUDED,
   EQUALS,

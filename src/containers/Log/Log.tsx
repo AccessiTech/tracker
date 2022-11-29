@@ -93,10 +93,10 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
 
   // Define entries
   const entries: LogEntry[] = log
-    ? Object.values(log.entries || {}).filter(
-      (entry: LogEntry) => entryFilter(entry, filter)
-    ) : [];
-  console.log(entries[0]);
+    ? Object.values(log.entries || {}).filter((entry: LogEntry) =>
+      entryFilter(entry, filter)
+    )
+    : [];
   const hasEntries = entries.length > 0;
 
   // Navigate to home if log not found
@@ -230,11 +230,6 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                         .map((fieldId: string) => {
                           let value;
                           switch (fields[fieldId].type) {
-                            case DATE:
-                              value = new Date(
-                                entry.values[fieldId] as string
-                              ).toLocaleString();
-                              break;
                             case BOOLEAN:
                               value = entry.values[fieldId] || FALSE;
                               break;
@@ -245,13 +240,14 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                                 )
                                 : entry.values[fieldId];
                               break;
+                            case DATE:
                             default:
                               value = entry.values[fieldId];
                           }
 
                           return (
                             <div
-                              key={entry.id + HYPHEN + fieldId}
+                              key={id + HYPHEN + entry.id + HYPHEN + fieldId}
                               className="log__entry__field"
                             >
                               <strong>{fields[fieldId].name}</strong>:

@@ -19,6 +19,7 @@ export const SUBMIT = "submit";
 export const RESET = "reset";
 export const MODAL = "modal";
 export const DATE = "date";
+export const TIME = "time";
 export const DATETIME = "datetime";
 export const DATETIME_LOCAL = "datetime-local";
 export const TEXT = "text";
