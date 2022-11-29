@@ -7,22 +7,6 @@ export interface LogEntryFilterProps {
   log: Log;
   setFilter: React.Dispatch<React.SetStateAction<never[]>>;
 }
-
-export type EntryFilterQuery = 
-  [filterBy: "field",
-    fieldOptions: [
-      field: string, 
-      fieldOperator: "includes" | "notIncluded" | "equals" | "notEqual",
-      fieldValue: string
-    ]
-  ] |
-  [filterBy: "dateCreated", 
-    dateOptions: [
-      dateCreatedOperator: "isBefore" | "isAfter" | "isOn",
-      dateCreated: string
-  ]
-];
-
 export const FIELD = "field";
 export const INCLUDES = "includes";
 export const NOT_INCLUDED = "notIncluded";
@@ -31,7 +15,22 @@ export const NOT_EQUAL = "notEqual";
 export const IS_BEFORE = "isBefore";
 export const IS_AFTER = "isAfter";
 export const IS_ON = "isOn";
+export const DATE_CREATED = "dateCreated";
 
+export type EntryFilterQuery = 
+  [filterBy: typeof FIELD,
+    fieldOptions: [
+      field: string, 
+      fieldOperator: typeof INCLUDES | typeof NOT_INCLUDED | typeof EQUALS | typeof NOT_EQUAL,
+      fieldValue: string
+    ]
+  ] |
+  [filterBy: typeof DATE_CREATED, 
+    dateOptions: [
+      dateCreatedOperator: typeof IS_BEFORE | typeof IS_AFTER | typeof IS_ON,
+      dateCreated: string
+  ]
+];
 
 export const entryFilter = (entry: LogEntry, filter: EntryFilterQuery):boolean => {
   if (!entry || !entry.values) return false;
