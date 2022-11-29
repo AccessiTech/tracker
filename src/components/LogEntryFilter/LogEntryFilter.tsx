@@ -66,7 +66,6 @@ export type EntryFilterQuery =
     | typeof IS_AFTER
     | typeof IS_ON,
     fieldValue: string
-
   ];
 
 export const entryFilter = (
