@@ -1,7 +1,7 @@
 import React from "react";
 import { Log, LogEntry } from "../../store/Log";
 import { Button, Form } from "react-bootstrap";
-import { DATETIME_LOCAL, EMPTY, NUMBER, PRIMARY, RESET, RESET_STRING, SECONDARY, SELECT, SUBMIT, SUBMIT_STRING, TEXT } from "../../strings";
+import { DATE, DATETIME_LOCAL, EMPTY, NUMBER, PRIMARY, RESET, RESET_STRING, SECONDARY, SELECT, SUBMIT, SUBMIT_STRING, TEXT } from "../../strings";
 
 // Magic Strings
 export const FIELD = "field";
@@ -107,12 +107,16 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
   const [isFieldNumber, setIsFieldNumber] = React.useState(
     field !== EMPTY && log.fields[field].type === NUMBER
   );
+  const [isFieldDate, setIsFieldDate] = React.useState(
+    field !== EMPTY && log.fields[field].type === DATE
+  )
   
   // Component methods
   const resetFilterState = () => {
     setFilterBy(FIELD);
     setField(EMPTY);
     setIsFieldNumber(false);
+    setIsFieldDate(false);
     setFieldOperator(INCLUDES);
     setFieldValue(EMPTY);
     setDateCreated(EMPTY);
@@ -163,7 +167,7 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
               </Form.Control>
             </Form.Group>
 
-            {filterBy === FIELD && (<>
+            {filterBy === FIELD && (
               <Form.Group
                 controlId="formFilterField"
                 className="log__entry_filter__field"
@@ -175,7 +179,8 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
                   className="log__entry_filter_field"
                   onChange={(e) => {
                     setField(e.target.value)
-                    setIsFieldNumber(log.fields[e.target.value].type === "number");
+                    setIsFieldNumber(log.fields[e.target.value].type === NUMBER);
+                    setIsFieldDate(log.fields[e.target.value].type === DATE);
                   }}
                 >
                   <option></option>
@@ -186,7 +191,9 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
                   ))}
                 </Form.Control>
               </Form.Group>
+            )}
 
+            {filterBy === FIELD && !isFieldDate && (<>
               <Form.Group
                 controlId="formFilterOperator"
                 className="log__entry_filter__operator"
@@ -231,7 +238,7 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
               </Form.Group>
             </>)}
 
-            {filterBy === DATE_CREATED && (<>
+            {(filterBy === DATE_CREATED || isFieldDate) && (<>
               <Form.Group
                 controlId="formFilterDateCreatedOperator"
                 className="log__entry_filter__date_created_operator"
