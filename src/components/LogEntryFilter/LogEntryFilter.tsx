@@ -12,27 +12,29 @@ export const INCLUDES = "includes";
 export const NOT_INCLUDED = "notIncluded";
 export const EQUALS = "equals";
 export const NOT_EQUAL = "notEqual";
+export const GREATER_THAN = "greaterThan";
+export const LESS_THAN = "lessThan";
 export const IS_BEFORE = "isBefore";
 export const IS_AFTER = "isAfter";
 export const IS_ON = "isOn";
 export const DATE_CREATED = "dateCreated";
 
-export type EntryFilterQuery = 
+export type EntryFilterQuery =
   [filterBy: typeof FIELD,
     fieldOptions: [
-      field: string, 
+      field: string,
       fieldOperator: typeof INCLUDES | typeof NOT_INCLUDED | typeof EQUALS | typeof NOT_EQUAL,
       fieldValue: string
     ]
   ] |
-  [filterBy: typeof DATE_CREATED, 
+  [filterBy: typeof DATE_CREATED,
     dateOptions: [
       dateCreatedOperator: typeof IS_BEFORE | typeof IS_AFTER | typeof IS_ON,
       dateCreated: string
-  ]
-];
+    ]
+  ];
 
-export const entryFilter = (entry: LogEntry, filter: EntryFilterQuery):boolean => {
+export const entryFilter = (entry: LogEntry, filter: EntryFilterQuery): boolean => {
   if (!entry || !entry.values) return false;
   if (!filter.length) return true;
   if (filter[0] === FIELD) {
@@ -68,6 +70,7 @@ export const entryFilter = (entry: LogEntry, filter: EntryFilterQuery):boolean =
 }
 
 export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }) => {
+  // Component state
   const [show, setShow] = React.useState(false);
   const [filterBy, setFilterBy] = React.useState(FIELD);
   const [field, setField] = React.useState(EMPTY);
@@ -77,10 +80,14 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
   const [dateCreatedOperator, setDateCreatedOperator] = React.useState(
     IS_BEFORE
   );
+  const [isFieldNumber, setIsFieldNumber] = React.useState(
+    field !== EMPTY && log.fields[field].type === "number"
+  );
 
   const resetFilterState = () => {
     setFilterBy(FIELD);
     setField(EMPTY);
+    setIsFieldNumber(false);
     setFieldOperator(INCLUDES);
     setFieldValue(EMPTY);
     setDateCreated(EMPTY);
@@ -141,7 +148,10 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
                   name={FIELD}
                   as="select"
                   className="log__entry_filter_field"
-                  onChange={(e) => setField(e.target.value)}
+                  onChange={(e) => {
+                    setField(e.target.value)
+                    setIsFieldNumber(log.fields[e.target.value].type === "number");
+                  }}
                 >
                   <option></option>
                   {Object.keys(log.fields).map((key) => (
@@ -163,10 +173,21 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
                   onChange={(e) => setFieldOperator(e.target.value)}
                   defaultValue={fieldOperator}
                 >
-                  <option value={INCLUDES}>Include:</option>
-                  <option value={NOT_INCLUDED}>Not Include:</option>
-                  <option value={EQUALS}>Equal:</option>
-                  <option value={NOT_EQUAL}>Not Equal:</option>
+                  {isFieldNumber ? (
+                    <optgroup label="Number Operators">
+                      <option value={EQUALS}>{"Equal:"}</option>
+                      <option value={NOT_EQUAL}>{"Not Equal:"}</option>
+                      <option value={GREATER_THAN}>{"Greater Than:"}</option>
+                      <option value={LESS_THAN}>{"Less Than:"}</option>
+                    </optgroup>
+                  ) : (
+                    <optgroup label="Text Operators">
+                      <option value={INCLUDES}>{"Include:"}</option>
+                      <option value={NOT_INCLUDED}>{"Not Include:"}</option>
+                      <option value={EQUALS}>{"Equal:"}</option>
+                      <option value={NOT_EQUAL}>{"Not Equal:"}</option>
+                    </optgroup>
+                  )}
                 </Form.Select>
               </Form.Group>
 
