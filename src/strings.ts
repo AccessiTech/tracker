@@ -111,8 +111,8 @@ export const EDIT_URL = "edit/";
 export const FIELD_URL_PARAM = ":field";
 export const FIELD_URL = `field/${FIELD_URL_PARAM}`;
 export const EDIT_LOG_URL = LOG_URL + LOG_ID_URL_PARAM + "/edit";
-export const EDIT_LOG_FIELD_URL = EDIT_LOG_URL + FIELD_URL;
-export const ADD_LOG_FIELD_URL = EDIT_LOG_URL + "/new";
+export const EDIT_LOG_FIELD_URL = EDIT_LOG_URL + "/" + FIELD_URL;
+export const ADD_LOG_FIELD_URL = EDIT_LOG_URL + "/field/new";
 export const ADD_LOG_ENTRY_URL = LOG_URL + LOG_ID_URL_PARAM + "/entry";
 export const EDIT_LOG_ENTRY_URL =
   LOG_URL + LOG_ID_URL_PARAM + "/entry/" + ENTRY_ID_URL_PARAM;
