@@ -225,7 +225,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
           </Accordion.Item>
         </Accordion>
 
-        <Row className="edit__button_row">
+        <Row className="form__button_row">
           <Col>
             <Button variant={DARK} onClick={() => navigate(`/`)}>
               {HOME}
