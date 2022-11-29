@@ -7,7 +7,7 @@ import {
   DATE_LABEL,
   DEFAULTS,
   FIELDS,
-  LABEL_OPTIONS,
+  LABEL_OPTION,
   PRIMARY,
   SAVE,
   SELECT,
@@ -44,7 +44,7 @@ export const EditLabelForm: FC<EditLabelFormProps> = ({
             <InputGroup>
               <Form.Control
                 as={SELECT}
-                name={LABEL_OPTIONS}
+                name={LABEL_OPTION}
                 onChange={formikProps.handleChange}
                 onBlur={formikProps.handleBlur}
                 value={formikProps.values.labelOption}
