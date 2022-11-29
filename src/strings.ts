@@ -19,6 +19,8 @@ export const SUBMIT = "submit";
 export const RESET = "reset";
 export const MODAL = "modal";
 export const DATE = "date";
+export const DATETIME = "datetime";
+export const DATETIME_LOCAL = "datetime-local";
 export const TEXT = "text";
 export const TEXTAREA = "textarea";
 export const INPUT = "input";
@@ -116,6 +118,10 @@ export const ADD_LOG_FIELD_URL = EDIT_LOG_URL + "/field/new";
 export const ADD_LOG_ENTRY_URL = LOG_URL + LOG_ID_URL_PARAM + "/entry";
 export const EDIT_LOG_ENTRY_URL =
   LOG_URL + LOG_ID_URL_PARAM + "/entry/" + ENTRY_ID_URL_PARAM;
+
+export const getLogUrl = (id: string) => {
+  return LOG_URL + id;
+};
 
 export const getEditLogURL = (id: string): string =>
   EDIT_LOG_URL.replace(LOG_ID_URL_PARAM, id);

@@ -1,12 +1,9 @@
 import React from "react";
 import { Log, LogEntry } from "../../store/Log";
 import { Button, Form } from "react-bootstrap";
-import { EMPTY, PRIMARY, RESET, RESET_STRING, SECONDARY, SUBMIT, SUBMIT_STRING } from "../../strings";
+import { DATETIME_LOCAL, EMPTY, NUMBER, PRIMARY, RESET, RESET_STRING, SECONDARY, SELECT, SUBMIT, SUBMIT_STRING, TEXT } from "../../strings";
 
-export interface LogEntryFilterProps {
-  log: Log;
-  setFilter: React.Dispatch<React.SetStateAction<never[]>>;
-}
+// Magic Strings
 export const FIELD = "field";
 export const INCLUDES = "includes";
 export const NOT_INCLUDED = "notIncluded";
@@ -18,6 +15,33 @@ export const IS_BEFORE = "isBefore";
 export const IS_AFTER = "isAfter";
 export const IS_ON = "isOn";
 export const DATE_CREATED = "dateCreated";
+
+// Display Strings
+export const FILTER = "Filter";
+export const FILTER_BY_LABEL = "Filter By:";
+export const FIELD_LABEL = "Field";
+export const DATE_CREATED_LABEL = "Date Created";
+export const DOES_LABEL = "Does...";
+export const IS_LABEL = "Is...";
+export const NUMBER_OPERATORS = "Number Operators";
+export const TEXT_OPERATORS = "Text Operators";
+export const EQUAL_LABEL = "Equal:";
+export const NOT_EQUAL_LABEL = "Not Equal:";
+export const GREATER_THAN_LABEL = "Greater Than:";
+export const LESS_THAN_LABEL = "Less Than:";
+export const INCLUDE_LABEL = "Include:";
+export const NOT_INCLUDE_LABEL = "Not Include:";
+export const VALUE_LABEL = "Value:";
+export const DATE_OPERATORS = "Date Operators";
+export const BEFORE_LABEL = "Before:";
+export const AFTER_LABEL = "After:";
+export const ON_LABEL = "On:";
+export const DATE_LABEL = "Date:";
+
+export interface LogEntryFilterProps {
+  log: Log;
+  setFilter: React.Dispatch<React.SetStateAction<never[]>>;
+}
 
 export type EntryFilterQuery =
   [filterBy: typeof FIELD,
@@ -81,9 +105,10 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
     IS_BEFORE
   );
   const [isFieldNumber, setIsFieldNumber] = React.useState(
-    field !== EMPTY && log.fields[field].type === "number"
+    field !== EMPTY && log.fields[field].type === NUMBER
   );
-
+  
+  // Component methods
   const resetFilterState = () => {
     setFilterBy(FIELD);
     setField(EMPTY);
@@ -102,7 +127,7 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
           setShow(!show);
         }}
       >
-        Filter
+        {FILTER}
       </Button>
 
       {show && (
@@ -129,12 +154,12 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
               setShow(false);
             }}>
             <Form.Group controlId="formFilterBy">
-              <Form.Label>Filter By:</Form.Label>
-              <Form.Control as="select" name="filterBy" onChange={
+              <Form.Label>{FILTER_BY_LABEL}</Form.Label>
+              <Form.Control as={SELECT} name="filterBy" onChange={
                 (e) => setFilterBy(e.target.value)
               }>
-                <option value={FIELD}>Field</option>
-                <option value="dateCreated">Date Created</option>
+                <option value={FIELD}>{FIELD_LABEL}</option>
+                <option value={DATE_CREATED}>{DATE_CREATED_LABEL}</option>
               </Form.Control>
             </Form.Group>
 
@@ -143,10 +168,10 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
                 controlId="formFilterField"
                 className="log__entry_filter__field"
               >
-                <Form.Label>Field:</Form.Label>
+                <Form.Label>{`${FIELD_LABEL}:`}</Form.Label>
                 <Form.Control
                   name={FIELD}
-                  as="select"
+                  as={SELECT}
                   className="log__entry_filter_field"
                   onChange={(e) => {
                     setField(e.target.value)
@@ -166,7 +191,7 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
                 controlId="formFilterOperator"
                 className="log__entry_filter__operator"
               >
-                <Form.Label>Does...</Form.Label>
+                <Form.Label>{DOES_LABEL}</Form.Label>
                 <Form.Select
                   name="operator"
                   className="log__entry_filter_operator"
@@ -174,18 +199,18 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
                   defaultValue={fieldOperator}
                 >
                   {isFieldNumber ? (
-                    <optgroup label="Number Operators">
-                      <option value={EQUALS}>{"Equal:"}</option>
-                      <option value={NOT_EQUAL}>{"Not Equal:"}</option>
-                      <option value={GREATER_THAN}>{"Greater Than:"}</option>
-                      <option value={LESS_THAN}>{"Less Than:"}</option>
+                    <optgroup label={NUMBER_OPERATORS}>
+                      <option value={EQUALS}>{EQUAL_LABEL}</option>
+                      <option value={NOT_EQUAL}>{NOT_EQUAL_LABEL}</option>
+                      <option value={GREATER_THAN}>{GREATER_THAN_LABEL}</option>
+                      <option value={LESS_THAN}>{LESS_THAN_LABEL}</option>
                     </optgroup>
                   ) : (
-                    <optgroup label="Text Operators">
-                      <option value={INCLUDES}>{"Include:"}</option>
-                      <option value={NOT_INCLUDED}>{"Not Include:"}</option>
-                      <option value={EQUALS}>{"Equal:"}</option>
-                      <option value={NOT_EQUAL}>{"Not Equal:"}</option>
+                    <optgroup label={TEXT_OPERATORS}>
+                      <option value={INCLUDES}>{INCLUDE_LABEL}</option>
+                      <option value={NOT_INCLUDED}>{NOT_INCLUDE_LABEL}</option>
+                      <option value={EQUALS}>{EQUAL_LABEL}</option>
+                      <option value={NOT_EQUAL}>{NOT_EQUAL_LABEL}</option>
                     </optgroup>
                   )}
                 </Form.Select>
@@ -195,10 +220,10 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
                 controlId="formFilterValue"
                 className="log__entry_filter__value"
               >
-                <Form.Label>Value:</Form.Label>
+                <Form.Label>{VALUE_LABEL}</Form.Label>
                 <Form.Control
                   name="value"
-                  type="text"
+                  type={TEXT}
                   className="log__entry_filter_value"
                   defaultValue={fieldValue}
                   onChange={(e) => setFieldValue(e.target.value)}
@@ -206,32 +231,32 @@ export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({ log, setFilter }
               </Form.Group>
             </>)}
 
-            {filterBy === "dateCreated" && (<>
+            {filterBy === DATE_CREATED && (<>
               <Form.Group
                 controlId="formFilterDateCreatedOperator"
                 className="log__entry_filter__date_created_operator"
               >
-                <Form.Label>Is...</Form.Label>
+                <Form.Label>{IS_LABEL}</Form.Label>
                 <Form.Control
                   name="dateCreatedOperator"
-                  as="select"
+                  as={SELECT}
                   className="log__entry_filter_date_created_operator"
                   defaultValue={dateCreatedOperator}
                   onChange={(e) => setDateCreatedOperator(e.target.value)}
                 >
-                  <option value={IS_BEFORE}>Before:</option>
-                  <option value={IS_AFTER}>After:</option>
-                  <option value={IS_ON}>On:</option>
+                  <option value={IS_BEFORE}>{BEFORE_LABEL}</option>
+                  <option value={IS_AFTER}>{AFTER_LABEL}</option>
+                  <option value={IS_ON}>{ON_LABEL}</option>
                 </Form.Control>
               </Form.Group>
               <Form.Group
                 controlId="formFilterDateCreated"
                 className="log__entry_filter__dateCreated"
               >
-                <Form.Label>Date:</Form.Label>
+                <Form.Label>{DATE_LABEL}</Form.Label>
                 <Form.Control
-                  name="dateCreated"
-                  type="datetime-local"
+                  name={DATE_CREATED}
+                  type={DATETIME_LOCAL}
                   className="log__entry_filter_dateCreated"
                   defaultValue={dateCreated}
                   onChange={(e) => setDateCreated(e.target.value)}
