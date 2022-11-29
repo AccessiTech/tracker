@@ -26,9 +26,11 @@ import {
   DARK,
   EDIT,
   EMPTY,
+  getAddLogEntryURL,
   getAddLogFieldURL,
   getEditLogFieldURL,
   getEditLogURL,
+  getLogUrl,
   HOME,
   HOME_URL,
   MODAL,
@@ -227,14 +229,14 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
 
         <Row className="form__button_row">
           <Col>
-            <Button variant={DARK} onClick={() => navigate(`/`)}>
+            <Button variant={DARK} onClick={() => navigate(EMPTY)}>
               {HOME}
             </Button>
           </Col>
           <Col>
             <Button
               variant={SECONDARY}
-              onClick={() => navigate(`/log/${log.id}`)}
+              onClick={() => navigate(getLogUrl(log.id))}
             >
               {VIEW_LOG}
             </Button>
@@ -242,7 +244,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
           <Col>
             <Button
               variant={PRIMARY}
-              onClick={() => navigate(`/log/${id}/entry`)}
+              onClick={() => navigate(getAddLogEntryURL(log.id))}
             >
               {ADD_ENTRY}
             </Button>

@@ -50,6 +50,7 @@ import {
   WARNING,
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
+import { entryFilter, LogEntryFilter } from "../../components/LogEntryFilter";
 
 // Display strings
 export const ENTRIES_HEADER = "Entries ";
@@ -87,13 +88,14 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
   // Set and sidebar states
   const [sortBy, setSortBy] = React.useState(sort || CREATED_AT);
   const [sortOrder, setSortOrder] = React.useState(order || SORT_DESC);
+  const [filter, setFilter] = React.useState([] as any);
   const [showSidebar, setShowSidebar] = React.useState(false);
 
   // Define entries
   const entries: LogEntry[] = log
-    ? Object.values(log.entries || {}).filter(
-        (entry: LogEntry) => entry && entry.values
-      )
+    ? Object.values(log.entries || {}).filter((entry: LogEntry) =>
+      entryFilter(entry, filter)
+    )
     : [];
   const hasEntries = entries.length > 0;
 
@@ -128,41 +130,50 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
             {ENTRIES_HEADER}
             {`(${entries.length})`}
           </h4>
-          <DropdownButton
-            id="dropdown-basic-button"
-            title={SORT_BY}
-            variant={SECONDARY}
-            className="log__actions"
-          >
-            <Dropdown.Item
-              onClick={() => {
-                setSortBy(CREATED_AT);
-              }}
-              className={`text-${CREATED_AT === sortBy ? PRIMARY : SECONDARY}`}
+
+          <div className="log__entries_header__actions">
+            {/* Sort by dropdown */}
+            <DropdownButton
+              id="dropdown-basic-button"
+              title={SORT_BY}
+              variant={SECONDARY}
+              className="log__actions"
             >
-              {DATE_CREATED}
-            </Dropdown.Item>
-            {Object.values(fields).map((field) => (
               <Dropdown.Item
-                key={`sort-by-${field.id}`}
                 onClick={() => {
-                  setSortBy(field.id);
+                  setSortBy(CREATED_AT);
                 }}
-                className={`text-${field.id === sortBy ? PRIMARY : SECONDARY}`}
+                className={`text-${CREATED_AT === sortBy ? PRIMARY : SECONDARY
+                  }`}
               >
-                {field.name}
+                {DATE_CREATED}
               </Dropdown.Item>
-            ))}
-            <Dropdown.Divider />
-            <Dropdown.Item
-              onClick={() => {
-                setSortOrder(sortOrder === SORT_ASC ? SORT_DESC : SORT_ASC);
-              }}
-              className={`text-${sortOrder === SORT_ASC ? PRIMARY : SECONDARY}`}
-            >
-              {REVERSED}
-            </Dropdown.Item>
-          </DropdownButton>
+              {Object.values(fields).map((field) => (
+                <Dropdown.Item
+                  key={`sort-by-${field.id}`}
+                  onClick={() => {
+                    setSortBy(field.id);
+                  }}
+                  className={`text-${field.id === sortBy ? PRIMARY : SECONDARY
+                    }`}
+                >
+                  {field.name}
+                </Dropdown.Item>
+              ))}
+              <Dropdown.Divider />
+              <Dropdown.Item
+                onClick={() => {
+                  setSortOrder(sortOrder === SORT_ASC ? SORT_DESC : SORT_ASC);
+                }}
+                className={`text-${sortOrder === SORT_ASC ? PRIMARY : SECONDARY
+                  }`}
+              >
+                {REVERSED}
+              </Dropdown.Item>
+            </DropdownButton>
+
+            <LogEntryFilter log={log} setFilter={setFilter} />
+          </div>
         </Col>
       </Row>
 
@@ -180,9 +191,9 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                   const createdAtOrder =
                     sortOrder === SORT_ASC
                       ? new Date(valueB as string).getTime() -
-                        new Date(valueA as string).getTime()
+                      new Date(valueA as string).getTime()
                       : new Date(valueA as string).getTime() -
-                        new Date(valueB as string).getTime();
+                      new Date(valueB as string).getTime();
                   return createdAtOrder;
                 }
                 if (typeof valueA === "string" && typeof valueB === "string") {
@@ -206,8 +217,8 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                 const labelText = isLabelDate
                   ? new Date(entry.createdAt as string).toLocaleString()
                   : isLabelText
-                  ? entry.values.label
-                  : entry.values[labelOption as string];
+                    ? entry.values.label
+                    : entry.values[labelOption as string];
 
                 return (
                   <Card key={id + HYPHEN + entry.id} className="log__entry">
@@ -219,28 +230,24 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                         .map((fieldId: string) => {
                           let value;
                           switch (fields[fieldId].type) {
-                            case DATE:
-                              value = new Date(
-                                entry.values[fieldId] as string
-                              ).toLocaleString();
-                              break;
                             case BOOLEAN:
                               value = entry.values[fieldId] || FALSE;
                               break;
                             case SELECT:
                               value = Array.isArray(entry.values[fieldId])
                                 ? ((entry.values[fieldId] as []) || []).join(
-                                    ", " // todo: make this dynamic
-                                  )
+                                  ", " // todo: make this dynamic
+                                )
                                 : entry.values[fieldId];
                               break;
+                            case DATE:
                             default:
                               value = entry.values[fieldId];
                           }
 
                           return (
                             <div
-                              key={entry.id + HYPHEN + fieldId}
+                              key={id + HYPHEN + entry.id + HYPHEN + fieldId}
                               className="log__entry__field"
                             >
                               <strong>{fields[fieldId].name}</strong>:
