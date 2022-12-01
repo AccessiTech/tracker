@@ -4,6 +4,7 @@ import { FormikProps } from "formik";
 import { BooleanLogField } from "../../store/Log";
 import {
   ASTERISK,
+  CHECKBOX,
   DEFAULT,
   EMPTY,
   SWITCH,
@@ -18,9 +19,9 @@ export interface FieldBooleanProps
 
 export const FieldBoolean: FC<FieldBooleanProps> = (props): ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = props;
-  const { id: fieldId, name, required, defaultValue } = props.field;
+  const { id: fieldId, name, required, defaultValue, option } = props.field;
 
-  const fieldLabel = `${name}${required ? ASTERISK : EMPTY}`;
+  const fieldLabel = `${name}${required ? ASTERISK : EMPTY}`; 
   const defaultValueString = `${DEFAULT}${
     typeof defaultValue === "undefined" ? false : defaultValue
   }`;
@@ -30,7 +31,7 @@ export const FieldBoolean: FC<FieldBooleanProps> = (props): ReactElement => {
       <Form.Group>
         <Form.Label>{fieldLabel}</Form.Label>
         <Form.Check
-          type={SWITCH}
+          type={option === SWITCH ? SWITCH : CHECKBOX}
           name={fieldId}
           onChange={handleChange}
           onBlur={handleBlur}

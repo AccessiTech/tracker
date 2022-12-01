@@ -61,3 +61,5 @@ export const EditFieldSelect: FC<EditFieldSelectProps> = (
     </>
   );
 };
+
+export default EditFieldSelect;

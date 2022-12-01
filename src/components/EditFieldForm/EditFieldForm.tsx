@@ -17,8 +17,9 @@ import {
 import { EditFieldText } from "./EditFieldText";
 import { EditFieldNumber } from "./EditFieldNumber";
 import { EditFieldDate } from "./EditFieldDate";
-import "./editFieldForm.scss";
 import { EditFieldSelect } from "./EditFieldSelect";
+import { EditFieldBoolean } from "./EditFieldBoolean";
+import "./editFieldForm.scss";
 import {
   ADD,
   BOOLEAN,
@@ -225,6 +226,7 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
               </Row>
             </Form.Group>
 
+            {/* Type specific Options input */}
             {values.type === TEXT && <EditFieldText {...props} />}
 
             {values.type === NUMBER && <EditFieldNumber {...props} />}
@@ -232,6 +234,8 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
             {values.type === DATE && <EditFieldDate {...props} />}
 
             {values.type === SELECT && <EditFieldSelect {...props} />}
+
+            {values.type === BOOLEAN && <EditFieldBoolean {...props} />}
 
             <hr />
             {/* Cancel and Submit Buttons */}

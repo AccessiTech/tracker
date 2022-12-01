@@ -32,7 +32,6 @@ import {
   DELETE_ENTRY,
   EDIT_ENTRY,
   EDIT_LOG,
-  FALSE,
   getAddLogEntryURL,
   getEditLogEntryURL,
   getEditLogURL,
@@ -229,20 +228,22 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                         .filter((fieldId: string) => fields[fieldId])
                         .map((fieldId: string) => {
                           let value;
-                          switch (fields[fieldId].type) {
+                          const thisValue = (entry.values || {})[fieldId];
+                          const thisField = fields[fieldId] || {};
+                          switch (thisField.type) {
                             case BOOLEAN:
-                              value = entry.values[fieldId] || FALSE;
+                              value = thisValue ? thisField.trueLabel : thisField.falseLabel;
                               break;
                             case SELECT:
-                              value = Array.isArray(entry.values[fieldId])
-                                ? ((entry.values[fieldId] as []) || []).join(
+                              value = Array.isArray(thisValue)
+                                ? ((thisValue as []) || []).join(
                                   ", " // todo: make this dynamic
                                 )
-                                : entry.values[fieldId];
+                                : thisValue;
                               break;
                             case DATE:
                             default:
-                              value = entry.values[fieldId];
+                              value = thisValue;
                           }
 
                           return (
