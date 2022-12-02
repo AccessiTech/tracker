@@ -1,4 +1,13 @@
+@import "../../variables.scss";
 .sidebar__p_version {
   font-size: 0.9rem;
   margin: 1rem 1rem 0.75rem;
+}
+
+.sidebar__body_container {
+  p {
+    a {
+      padding: 0 ($spacer / 2);
+    }
+  }
 }
