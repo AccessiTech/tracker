@@ -55,7 +55,6 @@ export const NO_LOG_FIELDS = "This log doesn't have any fields yet";
 export const ENTRY_NOT_SAVED = "Entry not saved";
 export const ENTRY_NOT_UPDATED = "Entry not updated";
 
-
 /**
  * Log Entry Submission Callback
  * @param {ant} values - values to submit
@@ -78,11 +77,13 @@ export const onLogEntrySubmit = (
     values: newValues,
   };
 
-  store.dispatch((entry ? updateLogEntry : addLogEntry)({
-    logId: log.id,
-    entryId,
-    entry: newEntry,
-  }));
+  store.dispatch(
+    (entry ? updateLogEntry : addLogEntry)({
+      logId: log.id,
+      entryId,
+      entry: newEntry,
+    })
+  );
 };
 
 /**
@@ -202,7 +203,7 @@ export const LogEntry: FC<LogEntryProps> = ({
                 <Row>
                   <Col>
                     {isTextLabel && (
-                      <Form.Group>
+                      <Form.Group className="entry__field_container">
                         <Form.Label>{ENTRY_LABEL}</Form.Label>
                         <Form.Control
                           type={TEXT}
@@ -217,7 +218,7 @@ export const LogEntry: FC<LogEntryProps> = ({
                       const { id, type } = field;
 
                       return (
-                        <Form.Group key={id}>
+                        <Form.Group key={id} className="entry__field_container">
                           {type === TEXT && (
                             <FieldText {...formikProps} field={field} />
                           )}
