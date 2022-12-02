@@ -26,4 +26,8 @@ form.form__log_entry > div {
       border-bottom: $border-width solid var(--bs-gray-400);
     }
   }
+
+  .entry__field_container {
+    margin-bottom: $spacer;
+  }
 }

@@ -194,12 +194,19 @@ export const initialTagsFieldState: TagsLogField = {
  */
 export interface BooleanLogField extends LogField {
   type: "boolean";
+  trueLabel: string;
+  falseLabel: string;
 }
 export const initialBooleanFieldState: BooleanLogField = {
   ...initialFieldState,
   name: "New Boolean Field",
   type: "boolean",
+  option: "checkbox",
+  typeOptions: ["checkbox", "switch"],
+  typeOptionStrings: ["Checkbox", "Switch"],
   defaultValue: false,
+  trueLabel: "True",
+  falseLabel: "False",
 };
 
 /**
