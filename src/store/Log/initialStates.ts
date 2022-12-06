@@ -31,7 +31,17 @@ export interface Log extends CrudState {
   entries: { [entryId: string]: LogEntry };
   sort?: string;
   order?: "asc" | "desc";
+  recurrence?: LogRecurrence;
 }
+
+export interface LogRecurrence {
+  enabled: boolean;
+  interval: number;
+  unit: "day" | "week" | "month" | "year";
+  start: string;
+  end: string;
+}
+
 export const initialLogState: Log = {
   id: "",
   name: "",

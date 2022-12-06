@@ -42,6 +42,7 @@ import {
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
 import { EditSortForm } from "../../components/EditSortForm";
+import { EditRecurrenceForm } from "../../components/EditRecurrenceForm";
 
 export const EDIT_HEADER = "Edit: ";
 export const LOG_FIELDS = "Log Fields";
@@ -202,11 +203,16 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
             </Accordion.Header>
             <Accordion.Body>
               <LogNameForm onSubmit={onUpdateLog} log={log} />
-              <br />
+              <EditSortForm log={log} onSubmit={onUpdateLog} />
+              <hr className="edit__settings_hr" />
+              <h3>Entry Settings</h3>
+              <hr />
               <EditLabelForm log={log} onSubmit={onUpdateLog} />
               <br />
-              <EditSortForm log={log} onSubmit={onUpdateLog} />
-              <br />
+              <EditRecurrenceForm log={log} onSubmit={onUpdateLog} />
+              <hr className="edit__settings_hr" />
+              <h3>Danger Zone</h3>
+              <hr />
               <Button
                 variant={DANGER}
                 type={SUBMIT}
