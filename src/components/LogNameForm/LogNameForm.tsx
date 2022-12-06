@@ -52,7 +52,7 @@ export const LogNameForm: FC<LogNameFormProps> = ({
         handleBlur,
         handleSubmit,
       }) => (
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} className="edit__form_row">
           <Form.Label>{LOG_NAME}</Form.Label>
           <InputGroup>
             <Form.Control
