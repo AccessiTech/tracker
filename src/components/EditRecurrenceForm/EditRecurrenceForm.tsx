@@ -17,23 +17,6 @@ export interface EditRecurrenceFormProps {
   onSubmit: (log: Log, values: any) => void;
 }
 
-export const setNotification = () => {
-  // set notification for 10 seconds from now
-  const now = Math.floor(Date.now());
-  // const tenSecondsFromNow = now + 5000;
-
-  const n = new Notification("Test", {
-    tag: "test",
-    renotify: true,
-    requireInteraction: true,
-    silent: false,
-    timestamp: now,
-  });
-  n.onclick = () => {
-    console.log("Notification clicked");
-  };
-}
-
 export const EditRecurrenceForm: FC<EditRecurrenceFormProps> = ({
   log,
   onSubmit,
@@ -51,7 +34,7 @@ export const EditRecurrenceForm: FC<EditRecurrenceFormProps> = ({
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values) => onSubmit(log, { recurrence: values})}
+      onSubmit={(values) => onSubmit(log, { recurrence: values })}
     >
       {(formikProps) => {
         const { dirty, values } = formikProps;
@@ -133,21 +116,6 @@ export const EditRecurrenceForm: FC<EditRecurrenceFormProps> = ({
                   />
                 </Col>
               </Row>
-              <Button
-                variant={SECONDARY}
-                onClick={() => {
-                  if (Notification?.permission === "granted") {
-                    setNotification();
-                  } else if (Notification && Notification.permission !== "denied") {
-                    Notification.requestPermission().then((permission) => {
-                      if (permission === "granted") {
-                        setNotification();
-                      }
-                    });
-                  }
-                  
-                }}
-              >Notify Me!</Button>
               <br />
             </Form.Group>
             <div className="edit__recurrence__btn_row">
