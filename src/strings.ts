@@ -62,6 +62,8 @@ export const DOT_CSV = ".csv";
 export const DOT_JSON = ".json";
 export const NEW = "new";
 export const EDIT = "edit";
+export const GRANTED = "granted";
+export const DENIED = "denied";
 
 // Display Strings
 export const HOME = "Home";

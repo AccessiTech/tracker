@@ -1,4 +1,5 @@
 import { Log } from "./store/Log";
+import { GRANTED } from "./strings";
 
 /**
  * Capitalize the first letter of a string
@@ -136,4 +137,55 @@ export const downloadCVS = (csv: string, filename: string = "log") => {
   link.setAttribute("href", url);
   link.setAttribute("download", `${filename}.csv`);
   link.click();
+};
+
+export interface NotificationOptions {
+  timestamp: number;
+  title: string;
+  body: string;
+  tag: string;
+  displayDuration?: number;
+  onclick?: () => void;
+}
+
+/**
+ * Set a notification
+ * @param {NotificationOptions} options - The notification options to use
+ * @returns {void}
+ */
+export const setNotification = async (options: NotificationOptions) => {
+  const { timestamp, title, body, tag, displayDuration, onclick } = options;
+  const now = Math.floor(Date.now());
+  const duration = timestamp - now;
+
+  const notificationTimeout = setTimeout(() => {
+    const n = new Notification(title, {
+      body,
+      tag,
+      timestamp: timestamp || now,
+      onclick,
+    } as any);
+
+    if (displayDuration) {
+      setTimeout(n.close.bind(n), displayDuration);
+    }
+    clearTimeout(notificationTimeout);
+  }, duration);
+};
+
+/**
+ * Attempt to set a notification
+ * @param {NotificationOptions} options - The notification options to use
+ * @returns {void}
+ */
+export const notify = (options: NotificationOptions) => {
+  if (Notification?.permission === GRANTED) {
+    setNotification(options);
+  } else {
+    Notification.requestPermission((permission) => {
+      if (permission === GRANTED) {
+        setNotification(options);
+      }
+    });
+  }
 };
