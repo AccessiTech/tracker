@@ -37,7 +37,7 @@ export interface Log extends CrudState {
 export interface LogRecurrence {
   enabled: boolean;
   interval: number;
-  unit: "day" | "week" | "month" | "year";
+  unit: "minute" | "hour" | "day" | "week" | "month" | "year";
   start: string;
   end: string;
 }

@@ -44,6 +44,7 @@ import {
   WARNING,
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
+import { getTimestamp, notify } from "../../utils";
 
 // Magic strings
 export const LABEL = "label";
@@ -182,6 +183,14 @@ export const LogEntry: FC<LogEntryProps> = ({
           initialValues={initialValues}
           // todo: add validation
           onSubmit={(values) => {
+            if (isNewEntry && log.recurrence?.enabled) {
+              notify({
+                title: `Log Reminder: ${log.name}`,
+                body: `You have a log entry for ${log.name} due today!`,
+                timestamp: getTimestamp(log.recurrence),
+                tag: log.id,
+              });
+            }
             onLogEntrySubmit(values, log, entry);
             setToast({
               show: true,

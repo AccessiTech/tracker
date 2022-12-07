@@ -1,4 +1,5 @@
 import { Log } from "./store/Log";
+import { LogRecurrence } from "./store/Log/initialStates";
 import { GRANTED } from "./strings";
 
 /**
@@ -179,13 +180,56 @@ export const setNotification = async (options: NotificationOptions) => {
  * @returns {void}
  */
 export const notify = (options: NotificationOptions) => {
-  if (Notification?.permission === GRANTED) {
-    setNotification(options);
+  if ("Notification" in window) {
+    if (Notification?.permission === GRANTED) {
+      setNotification(options);
+    } else {
+      Notification.requestPermission((permission) => {
+        if (permission === GRANTED) {
+          setNotification(options);
+        }
+      });
+    }
   } else {
-    Notification.requestPermission((permission) => {
-      if (permission === GRANTED) {
-        setNotification(options);
-      }
-    });
+    alert(
+      `This browser does not support desktop notification.
+      Please use a modern browser, such as "Google Chrome",
+      "Mozilla Firefox", or "Microsoft Edge".`
+    );
   }
+};
+
+/**
+ * Get the timestamp for a log recurrence
+ * @param {LogRecurrence} recurrence - The recurrence to use
+ * @returns {number} - The timestamp
+ */
+export const getTimestamp = (recurrence?: LogRecurrence): number => {
+  const now = Date.now();
+  if (!recurrence) return now;
+  const { interval, unit } = recurrence;
+  let timestamp = now;
+  switch (unit) {
+    case "minute":
+      timestamp = now + interval * 60 * 1000;
+      break;
+    case "hour":
+      timestamp = now + interval * 60 * 60 * 1000;
+      break;
+    case "day":
+      timestamp = now + interval * 24 * 60 * 60 * 1000;
+      break;
+    case "week":
+      timestamp = now + interval * 7 * 24 * 60 * 60 * 1000;
+      break;
+    case "month":
+      timestamp = now + interval * 30 * 24 * 60 * 60 * 1000;
+      break;
+    case "year":
+      timestamp = now + interval * 365 * 24 * 60 * 60 * 1000;
+      break;
+    default:
+      break;
+  }
+  return timestamp;
 };

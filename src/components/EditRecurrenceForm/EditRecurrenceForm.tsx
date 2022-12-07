@@ -85,6 +85,8 @@ export const EditRecurrenceForm: FC<EditRecurrenceFormProps> = ({
                     required={values.enabled}
                     disabled={!values.enabled}
                   >
+                    <option value={"minute"}>{"Minutes"}</option>
+                    <option value={"hour"}>{"Hours"}</option>
                     <option value={"day"}>{"Days"}</option>
                     <option value={"week"}>{"Weeks"}</option>
                     <option value={"month"}>{"Months"}</option>
