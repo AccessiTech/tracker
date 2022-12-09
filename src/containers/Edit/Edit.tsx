@@ -42,7 +42,7 @@ import {
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
 import { EditSortForm } from "../../components/EditSortForm";
-import { EditRecurrenceForm } from "../../components/EditRecurrenceForm";
+// import { EditRecurrenceForm } from "../../components/EditRecurrenceForm";
 
 export const EDIT_HEADER = "Edit: ";
 export const LOG_FIELDS = "Log Fields";
@@ -203,12 +203,15 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
             <Accordion.Body>
               <LogNameForm onSubmit={onUpdateLog} log={log} />
               <EditSortForm log={log} onSubmit={onUpdateLog} />
+              {/* todo: Introduce Entry Settings subsection when there are multiple settings
               <hr className="edit__settings_hr" />
               <h3>Entry Settings</h3>
-              <hr />
-              <EditLabelForm log={log} onSubmit={onUpdateLog} />
+              <hr /> */}
               <br />
-              <EditRecurrenceForm log={log} onSubmit={onUpdateLog} />
+              <EditLabelForm log={log} onSubmit={onUpdateLog} />
+              {/* todo: Implement recurrence and reminders when there is a backend
+              <br />
+              <EditRecurrenceForm log={log} onSubmit={onUpdateLog} /> */}
             </Accordion.Body>
           </Accordion.Item>
           <Accordion.Item eventKey="2">
