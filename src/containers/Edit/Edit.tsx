@@ -42,6 +42,7 @@ import {
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
 import { EditSortForm } from "../../components/EditSortForm";
+// import { EditRecurrenceForm } from "../../components/EditRecurrenceForm";
 
 export const EDIT_HEADER = "Edit: ";
 export const LOG_FIELDS = "Log Fields";
@@ -69,9 +70,7 @@ export const onUpdateLog = (log: Log, values: any): void => {
 
  * @param {Log} log - log to delete
  */
-export const onDeleteLog = (
-  log: Log
-) => {
+export const onDeleteLog = (log: Log) => {
   store.dispatch(removeLog({ logId: log.id }));
 };
 
@@ -116,7 +115,9 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   ); // "add" or "edit"
 
   // Current field state
-  const [fieldId, setFieldId] = React.useState(fid && fid !== NEW ? fid : EMPTY);
+  const [fieldId, setFieldId] = React.useState(
+    fid && fid !== NEW ? fid : EMPTY
+  );
 
   // Reset modal to initial state
   const resetModal = () => {
@@ -163,7 +164,6 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
           className="accordion__log_settings"
           defaultActiveKey={["0"]}
         >
-
           {/* LOG FIELDS TABLE */}
           <Accordion.Item eventKey="0">
             <Accordion.Header>
@@ -202,11 +202,23 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
             </Accordion.Header>
             <Accordion.Body>
               <LogNameForm onSubmit={onUpdateLog} log={log} />
+              <EditSortForm log={log} onSubmit={onUpdateLog} />
+              {/* todo: Introduce Entry Settings subsection when there are multiple settings
+              <hr className="edit__settings_hr" />
+              <h3>Entry Settings</h3>
+              <hr /> */}
               <br />
               <EditLabelForm log={log} onSubmit={onUpdateLog} />
+              {/* todo: Implement recurrence and reminders when there is a backend
               <br />
-              <EditSortForm log={log} onSubmit={onUpdateLog} />
-              <br />
+              <EditRecurrenceForm log={log} onSubmit={onUpdateLog} /> */}
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="2">
+            <Accordion.Header>
+              <h2>Danger Zone</h2>
+            </Accordion.Header>
+            <Accordion.Body>
               <Button
                 variant={DANGER}
                 type={SUBMIT}

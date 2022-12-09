@@ -1,3 +1,5 @@
+@import "../../variables.scss";
+
 .accordion__log_settings {
   border-top: 1px solid var(--bs-accordion-border-color);
   border-bottom: 1px solid var(--bs-accordion-border-color);
@@ -27,4 +29,24 @@
     padding-left: 0;
     padding-right: 0;
   }
+}
+
+.edit__form_row {
+  margin-bottom: $spacer;
+
+  .form-switch .form-check-input {
+    width: 3.5rem;
+    height: 2rem;
+    margin-top: 0;
+  }
+}
+
+.edit__settings_hr {
+  margin-top: calc(2 * $spacer);
+}
+
+.edit__recurrence__btn_row {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacer;
 }
