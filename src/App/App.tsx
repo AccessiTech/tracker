@@ -1,6 +1,5 @@
 import React, { FC, ReactElement, useEffect } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
-import { gapi } from 'gapi-script';
 import { Home } from "../containers/Home";
 import { Edit } from "../containers/Edit";
 import { Log } from "../containers/Log";
@@ -10,16 +9,6 @@ import { EDIT_URL, EMPTY, ENTRY_EDIT_URL, ENTRY_URL, FIELD_URL, HOME_URL, LOG_ID
 import { Toaster, ToastType } from "../components/Toaster";
 
 export const App: FC = (): ReactElement => {
-  const clientId = process.env.REACT_APP_G_CLIENT_ID;
-  useEffect(() => {
-    const initClient = () => {
-      gapi.auth2.init({
-        clientId: clientId,
-        scope: ''
-      });
-    };
-    gapi.load('client:auth2', initClient);
-  });
   const [toast, setToast] = React.useState({
     show: false,
     context: EMPTY,
