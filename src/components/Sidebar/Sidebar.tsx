@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { FC, ReactElement } from "react";
 import { Accordion, Button, Offcanvas } from "react-bootstrap";
-import { END, SIDEBAR_HEADER } from "../../strings";
+import { googleLogout, useGoogleLogin, TokenResponse } from '@react-oauth/google';
+import { END, OUTLINE_PRIMARY, SIDEBAR_HEADER } from "../../strings";
 import "./sidebar.scss";
 
 export const SIDEBAR_BODY =
@@ -42,6 +43,21 @@ export const Sidebar: FC<SidebarProps> = ({
   showSidebar,
   toggleSidebar,
 }): ReactElement => {
+
+  const [credentials, setCredentials] = useState(null) as any;
+  const login = useGoogleLogin({
+    onSuccess: (tokenResponse: TokenResponse) => {
+      // todo: add session to state
+      setCredentials(tokenResponse);
+    },
+    onError: error => {
+      console.log(error)
+    }
+  });
+  const logout = () => {
+    setCredentials(null);
+    googleLogout()
+  }
   return (
     <Offcanvas
       show={showSidebar}
@@ -49,7 +65,11 @@ export const Sidebar: FC<SidebarProps> = ({
       placement={END}
     >
       <Offcanvas.Header closeButton>
-        <Button variant="link">{"Log In"}</Button>
+        <Button
+          onClick={() => credentials ? logout() : login()}
+          variant={OUTLINE_PRIMARY}
+        >{!credentials ? "Log In" : "Log Out"}</Button>
+
       </Offcanvas.Header>
       <Offcanvas.Body className="sidebar__body_container">
         <Accordion flush defaultActiveKey={"0"}>
