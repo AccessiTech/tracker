@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { FC, ReactElement } from "react";
-import { Offcanvas } from "react-bootstrap";
+import { Accordion, Offcanvas } from "react-bootstrap";
 import { END, SIDEBAR_HEADER } from "../../strings";
 import "./sidebar.scss";
+import { GoogleAuthButton } from "../GoogleAuth";
 
 export const SIDEBAR_BODY =
   "This is a simple app to help you keep track of your logs. Highly customizable logs allow you to track anything you want!";
@@ -42,6 +43,8 @@ export const Sidebar: FC<SidebarProps> = ({
   showSidebar,
   toggleSidebar,
 }): ReactElement => {
+  const [credentials, setCredentials] = useState(null) as any;
+
   return (
     <Offcanvas
       show={showSidebar}
@@ -49,45 +52,80 @@ export const Sidebar: FC<SidebarProps> = ({
       placement={END}
     >
       <Offcanvas.Header closeButton>
-        <Offcanvas.Title as="h2">{SIDEBAR_HEADER}</Offcanvas.Title>
+        <GoogleAuthButton
+          authenticated={!!credentials}
+          onLogin={(credentials) => {
+            setCredentials(credentials);
+          }}
+          onLogout={() => {
+            setCredentials(null);
+          }}
+        />
       </Offcanvas.Header>
       <Offcanvas.Body className="sidebar__body_container">
-        <p>{SIDEBAR_BODY}</p>
-        <h3>{SIDEBAR_DATA_HEADER}</h3>
-        <p>{SIDEBAR_DATA_BODY_1}</p>
-        <p>{SIDEBAR_DATA_BODY_2}</p>
-        <h3>{SIDEBAR_ISSUES_HEADER}</h3>
-        <p>
-          {SIDEBAR_ISSUES_BODY}
-          <a
-            href={SIDEBAR_ISSUES_LINK}
-            title={GITHUB_ISSUES}
-            target={"_blank"}
-            rel={"noreferrer"}
-          >
-            <i
-              className="fa fa-arrow-up-right-from-square"
-              aria-hidden="true"
-            ></i>
-            <span className="visible_hidden">{GITHUB_ISSUES}</span>
-          </a>
-        </p>
-        <h3>{SIDEBAR_FEATURES_HEADER}</h3>
-        <p>
-          {SIDEBAR_FEATURES_BODY}
-          <a
-            href={SIDEBAR_FEATURES_LINK}
-            title={GITHUB_DISCUSSIONS}
-            target={"_blank"}
-            rel={"noreferrer"}
-          >
-            <i
-              className="fa fa-arrow-up-right-from-square"
-              aria-hidden="true"
-            ></i>
-            <span className="visible_hidden">{GITHUB_DISCUSSIONS}</span>
-          </a>
-        </p>
+        <Accordion flush defaultActiveKey={"0"}>
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>
+              <h4>{SIDEBAR_HEADER}</h4>
+            </Accordion.Header>
+            <Accordion.Body>
+              <p>{SIDEBAR_BODY}</p>
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="1">
+            <Accordion.Header>
+              <h4>{SIDEBAR_DATA_HEADER}</h4>
+            </Accordion.Header>
+            <Accordion.Body>
+              <p>{SIDEBAR_DATA_BODY_1}</p>
+              <p>{SIDEBAR_DATA_BODY_2}</p>
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="2">
+            <Accordion.Header>
+              <h4>{SIDEBAR_ISSUES_HEADER}</h4>
+            </Accordion.Header>
+            <Accordion.Body>
+              <p>
+                {SIDEBAR_ISSUES_BODY}
+                <a
+                  href={SIDEBAR_ISSUES_LINK}
+                  title={GITHUB_ISSUES}
+                  target={"_blank"}
+                  rel={"noreferrer"}
+                >
+                  <i
+                    className="fa fa-arrow-up-right-from-square"
+                    aria-hidden="true"
+                  ></i>
+                  <span className="visible_hidden">{GITHUB_ISSUES}</span>
+                </a>
+              </p>
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="3">
+            <Accordion.Header>
+              <h4>{SIDEBAR_FEATURES_HEADER}</h4>
+            </Accordion.Header>
+            <Accordion.Body>
+              <p>
+                {SIDEBAR_FEATURES_BODY}
+                <a
+                  href={SIDEBAR_FEATURES_LINK}
+                  title={GITHUB_DISCUSSIONS}
+                  target={"_blank"}
+                  rel={"noreferrer"}
+                >
+                  <i
+                    className="fa fa-arrow-up-right-from-square"
+                    aria-hidden="true"
+                  ></i>
+                  <span className="visible_hidden">{GITHUB_DISCUSSIONS}</span>
+                </a>
+              </p>
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
       </Offcanvas.Body>
       <p className="sidebar__p_version text-muted">
         Version: {process.env.REACT_APP_VERSION}
