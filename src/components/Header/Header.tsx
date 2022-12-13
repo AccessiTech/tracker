@@ -2,7 +2,7 @@ import React from "react";
 import { FC, ReactElement } from "react";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { OUTLINE_SECONDARY, SIDEBAR_HEADER } from "../../strings";
+import { OUTLINE_SECONDARY, ABOUT_APP_HEADER } from "../../strings";
 import { ToggleSidebar } from "../Sidebar";
 import "./header.scss";
 
@@ -44,7 +44,7 @@ export const Header: FC<HeaderProps> = ({
         className="sidebar__button_toggle"
         variant={OUTLINE_SECONDARY}
         onClick={() => toggleSidebar(true)}
-        title={SIDEBAR_HEADER}
+        title={ABOUT_APP_HEADER}
       >
         <i>i</i>
       </Button>

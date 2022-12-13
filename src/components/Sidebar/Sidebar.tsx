@@ -1,29 +1,10 @@
 import React, { useState } from "react";
 import { FC, ReactElement } from "react";
-import { Accordion, Offcanvas } from "react-bootstrap";
-import { END, SIDEBAR_HEADER } from "../../strings";
+import { Button, Offcanvas } from "react-bootstrap";
+import { END } from "../../strings";
 import "./sidebar.scss";
 import { GoogleAuthButton } from "../GoogleAuth";
-
-export const SIDEBAR_BODY =
-  "This is a simple app to help you keep track of your logs. Highly customizable logs allow you to track anything you want!";
-export const SIDEBAR_DATA_HEADER = "Data Usage";
-export const SIDEBAR_DATA_BODY_1 =
-  "This app uses local storage to store your logs, no data is sent to a server. Your data is never sold to anyone, EVER.";
-export const SIDEBAR_DATA_BODY_2 =
-  "If you want to delete your personal data, just delete the Log / Entry. To completely clear the App data, clear your browser's local storage via the browser inspector tools.";
-export const SIDEBAR_ISSUES_HEADER = "Report Issues";
-export const SIDEBAR_ISSUES_BODY =
-  "If you find any issues with the app, please report them on the GitHub issues page.";
-export const SIDEBAR_ISSUES_LINK =
-  "https://github.com/AccessiTech/tracker/issues";
-export const SIDEBAR_FEATURES_HEADER = "Feature Requests";
-export const SIDEBAR_FEATURES_BODY =
-  "If you have any feature requests, please feel free to start (or join) a discussion on Github!";
-export const SIDEBAR_FEATURES_LINK =
-  "https://github.com/AccessiTech/tracker/discussions";
-export const GITHUB_ISSUES = "GitHub Issues";
-export const GITHUB_DISCUSSIONS = "GitHub Discussions";
+import { AboutModal } from "../AboutModal";
 
 /**
  * Sidebar Component
@@ -44,7 +25,7 @@ export const Sidebar: FC<SidebarProps> = ({
   toggleSidebar,
 }): ReactElement => {
   const [credentials, setCredentials] = useState(null) as any;
-
+  const [showAbout, setShowAbout] = useState(false) as any;
   return (
     <Offcanvas
       show={showSidebar}
@@ -63,69 +44,14 @@ export const Sidebar: FC<SidebarProps> = ({
         />
       </Offcanvas.Header>
       <Offcanvas.Body className="sidebar__body_container">
-        <Accordion flush defaultActiveKey={"0"}>
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>
-              <h4>{SIDEBAR_HEADER}</h4>
-            </Accordion.Header>
-            <Accordion.Body>
-              <p>{SIDEBAR_BODY}</p>
-            </Accordion.Body>
-          </Accordion.Item>
-          <Accordion.Item eventKey="1">
-            <Accordion.Header>
-              <h4>{SIDEBAR_DATA_HEADER}</h4>
-            </Accordion.Header>
-            <Accordion.Body>
-              <p>{SIDEBAR_DATA_BODY_1}</p>
-              <p>{SIDEBAR_DATA_BODY_2}</p>
-            </Accordion.Body>
-          </Accordion.Item>
-          <Accordion.Item eventKey="2">
-            <Accordion.Header>
-              <h4>{SIDEBAR_ISSUES_HEADER}</h4>
-            </Accordion.Header>
-            <Accordion.Body>
-              <p>
-                {SIDEBAR_ISSUES_BODY}
-                <a
-                  href={SIDEBAR_ISSUES_LINK}
-                  title={GITHUB_ISSUES}
-                  target={"_blank"}
-                  rel={"noreferrer"}
-                >
-                  <i
-                    className="fa fa-arrow-up-right-from-square"
-                    aria-hidden="true"
-                  ></i>
-                  <span className="visible_hidden">{GITHUB_ISSUES}</span>
-                </a>
-              </p>
-            </Accordion.Body>
-          </Accordion.Item>
-          <Accordion.Item eventKey="3">
-            <Accordion.Header>
-              <h4>{SIDEBAR_FEATURES_HEADER}</h4>
-            </Accordion.Header>
-            <Accordion.Body>
-              <p>
-                {SIDEBAR_FEATURES_BODY}
-                <a
-                  href={SIDEBAR_FEATURES_LINK}
-                  title={GITHUB_DISCUSSIONS}
-                  target={"_blank"}
-                  rel={"noreferrer"}
-                >
-                  <i
-                    className="fa fa-arrow-up-right-from-square"
-                    aria-hidden="true"
-                  ></i>
-                  <span className="visible_hidden">{GITHUB_DISCUSSIONS}</span>
-                </a>
-              </p>
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
+        <Button
+          variant="primary"
+          onClick={() => {
+            setShowAbout(true);
+          }}
+          className="sidebar__button"
+        >About</Button>
+        <AboutModal show={showAbout} onHide={() => setShowAbout(false)} />
       </Offcanvas.Body>
       <p className="sidebar__p_version text-muted">
         Version: {process.env.REACT_APP_VERSION}
