@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { FC, ReactElement } from "react";
-import { Accordion, Button, Offcanvas } from "react-bootstrap";
-import { googleLogout, useGoogleLogin, TokenResponse } from '@react-oauth/google';
-import { END, OUTLINE_PRIMARY, SIDEBAR_HEADER } from "../../strings";
+import { Accordion, Offcanvas } from "react-bootstrap";
+import { END, SIDEBAR_HEADER } from "../../strings";
 import "./sidebar.scss";
+import { GoogleAuthButton } from "../GoogleAuth";
 
 export const SIDEBAR_BODY =
   "This is a simple app to help you keep track of your logs. Highly customizable logs allow you to track anything you want!";
@@ -43,21 +43,8 @@ export const Sidebar: FC<SidebarProps> = ({
   showSidebar,
   toggleSidebar,
 }): ReactElement => {
-
   const [credentials, setCredentials] = useState(null) as any;
-  const login = useGoogleLogin({
-    onSuccess: (tokenResponse: TokenResponse) => {
-      // todo: add session to state
-      setCredentials(tokenResponse);
-    },
-    onError: error => {
-      console.log(error)
-    }
-  });
-  const logout = () => {
-    setCredentials(null);
-    googleLogout()
-  }
+
   return (
     <Offcanvas
       show={showSidebar}
@@ -65,11 +52,15 @@ export const Sidebar: FC<SidebarProps> = ({
       placement={END}
     >
       <Offcanvas.Header closeButton>
-        <Button
-          onClick={() => credentials ? logout() : login()}
-          variant={OUTLINE_PRIMARY}
-        >{!credentials ? "Log In" : "Log Out"}</Button>
-
+        <GoogleAuthButton
+          authenticated={!!credentials}
+          onLogin={(credentials) => {
+            setCredentials(credentials);
+          }}
+          onLogout={() => {
+            setCredentials(null);
+          }}
+        />
       </Offcanvas.Header>
       <Offcanvas.Body className="sidebar__body_container">
         <Accordion flush defaultActiveKey={"0"}>
