@@ -5,6 +5,12 @@ import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
 import "./sidebar.scss";
 import { GoogleAuthButton } from "../GoogleAuth";
 import { AboutModal } from "../AboutModal";
+import store from "../../store/store";
+import {
+  authenticate,
+  deauthenticate,
+  useAuthenticated,
+} from "../../store/Session";
 
 /**
  * Sidebar Component
@@ -24,8 +30,9 @@ export const Sidebar: FC<SidebarProps> = ({
   showSidebar,
   toggleSidebar,
 }): ReactElement => {
-  const [credentials, setCredentials] = useState(null) as any;
+  const [authenticated, setAuthenticated] = useState(useAuthenticated());
   const [showAbout, setShowAbout] = useState(false) as any;
+  let logoutTimeout: any;
   return (
     <Offcanvas
       show={showSidebar}
@@ -35,12 +42,26 @@ export const Sidebar: FC<SidebarProps> = ({
     >
       <Offcanvas.Header closeButton>
         <GoogleAuthButton
-          authenticated={!!credentials}
+          authenticated={authenticated}
           onLogin={(credentials) => {
-            setCredentials(credentials);
+            store.dispatch(
+              authenticate({
+                data: credentials,
+                expiresAt: Date.now() + credentials.expires_in * 1000,
+              })
+            );
+            // Set timeout to log out user after token expires
+            logoutTimeout = setTimeout(() => {
+              setAuthenticated(false);
+              store.dispatch(deauthenticate({}));
+              alert("You have been logged out due to inactivity.");
+              clearTimeout(logoutTimeout);
+            }, credentials.expires_in * 1000);
           }}
           onLogout={() => {
-            setCredentials(null);
+            setAuthenticated(false);
+            store.dispatch(deauthenticate({}));
+            clearTimeout(logoutTimeout);
           }}
         />
         <Button
