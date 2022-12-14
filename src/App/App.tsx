@@ -1,4 +1,4 @@
-import React, { FC, ReactElement } from "react";
+import React, { FC, ReactElement, useEffect } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Home } from "../containers/Home";
@@ -8,9 +8,26 @@ import { LogEntry } from "../containers/LogEntry";
 import "./App.scss";
 import { EDIT_URL, EMPTY, ENTRY_EDIT_URL, ENTRY_URL, FIELD_URL, HOME_URL, LOG_ID_URL, LOG_URL, NEW_URL, SUCCESS, WILDCARD } from "../strings";
 import { Toaster, ToastType } from "../components/Toaster";
+import { deauthenticate, useAuthenticated, useSessionExpiresAt } from "../store/Session/reducer";
 
 export const App: FC = (): ReactElement => {
   const clientId = process.env.REACT_APP_G_CLIENT_ID as string;
+  const authenticated = useAuthenticated();
+  const expires_at = authenticated ? useSessionExpiresAt() : 0;
+  useEffect(() => {
+    if (authenticated) {
+      if  (expires_at < Date.now()) {
+        deauthenticate('');
+        alert('Session expired. Please log in again.')
+      } else {
+        const sessionTimeout = setTimeout(() => {
+          deauthenticate('');
+          alert('Session expired. Please log in again!!!!!!')
+          clearTimeout(sessionTimeout);
+        }, expires_at - Date.now());
+      }
+    }
+  }, []);
   const [toast, setToast] = React.useState({
     show: false,
     context: EMPTY,
