@@ -46,7 +46,7 @@ export const Header: FC<HeaderProps> = ({
         onClick={() => toggleSidebar(true)}
         title={ABOUT_APP_HEADER}
       >
-        <i>i</i>
+        <i className="fa fa-bars fa-lg" aria-hidden="true"></i>
       </Button>
     </header>
   );
