@@ -16,7 +16,7 @@ export const App: FC = (): ReactElement => {
   const expires_at = authenticated ? useSessionExpiresAt() : 0;
   useEffect(() => {
     if (authenticated) {
-      if  (expires_at < Date.now()) {
+      if (expires_at && expires_at < Date.now()) {
         deauthenticate('');
         alert('Session expired. Please log in again.')
       } else {
