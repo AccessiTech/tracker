@@ -17,6 +17,7 @@ import {
 import storage from "reduxjs-toolkit-persist/lib/storage";
 import { PersistConfig, Persistor } from "reduxjs-toolkit-persist/lib/types";
 import { logSlice, logSliceName } from "./Log";
+import { sessionSlice, sessionSliceName } from "./Session";
 
 const persistConfig: PersistConfig<any> = {
   key: "@accessitech/tracker",
@@ -25,6 +26,7 @@ const persistConfig: PersistConfig<any> = {
 
 const reducers: Reducer<CombinedState<any>> = combineReducers({
   [logSliceName]: logSlice.reducer,
+  [sessionSliceName]: sessionSlice.reducer,
 });
 
 const persistedReducer: Reducer = persistReducer(persistConfig, reducers);
