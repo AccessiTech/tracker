@@ -1,4 +1,25 @@
 @import "../../variables.scss";
+.sidebar {
+  .offcanvas-header {
+    justify-content: flex-end;
+
+    button:first-of-type {
+      margin-right: auto;
+    }
+
+    .sidebar__about_btn {
+      margin-right: 0.25rem;
+      color: #6c757d;
+      i {
+        vertical-align: 0;
+      }
+      &:hover,
+      &:active {
+        color: black;
+      }
+    }
+  }
+}
 .sidebar__p_version {
   font-size: 0.9rem;
   margin: 1rem 1rem 0.75rem;

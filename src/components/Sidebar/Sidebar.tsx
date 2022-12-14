@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FC, ReactElement } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
-import { END } from "../../strings";
+import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
 import "./sidebar.scss";
 import { GoogleAuthButton } from "../GoogleAuth";
 import { AboutModal } from "../AboutModal";
@@ -31,6 +31,7 @@ export const Sidebar: FC<SidebarProps> = ({
       show={showSidebar}
       onHide={() => toggleSidebar(false)}
       placement={END}
+      className="sidebar"
     >
       <Offcanvas.Header closeButton>
         <GoogleAuthButton
@@ -42,15 +43,18 @@ export const Sidebar: FC<SidebarProps> = ({
             setCredentials(null);
           }}
         />
-      </Offcanvas.Header>
-      <Offcanvas.Body className="sidebar__body_container">
         <Button
-          variant="primary"
+          variant={LINK_SECONDARY}
           onClick={() => {
             setShowAbout(true);
           }}
-          className="sidebar__button"
-        >About</Button>
+          className="sidebar__about_btn"
+          title={ABOUT_APP_HEADER}
+        >
+          <i className="fa fa-info fa-lg" aria-hidden="true"></i>
+        </Button>
+      </Offcanvas.Header>
+      <Offcanvas.Body className="sidebar__body_container">
         <AboutModal show={showAbout} onHide={() => setShowAbout(false)} />
       </Offcanvas.Body>
       <p className="sidebar__p_version text-muted">
