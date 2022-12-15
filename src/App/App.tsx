@@ -13,7 +13,8 @@ import { deauthenticate, useAuthenticated, useSessionExpiresAt } from "../store/
 export const App: FC = (): ReactElement => {
   const clientId = process.env.REACT_APP_G_CLIENT_ID as string;
   const authenticated = useAuthenticated();
-  const expires_at = authenticated ? useSessionExpiresAt() : 0;
+  const expires_at = useSessionExpiresAt();
+
   useEffect(() => {
     if (authenticated) {
       if (expires_at && expires_at < Date.now()) {
