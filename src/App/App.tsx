@@ -15,7 +15,7 @@ import { setLogoutTimer } from "../components/GoogleAuth";
 export const App: FC = (): ReactElement => {
   const clientId = process.env.REACT_APP_G_CLIENT_ID as string;
   const session = useSession();
-  const { authenticated, expiresAt, autoRefresh } = session;
+  const { authenticated, expiresAt, data } = session;
 
   const handleLogout = (): void => {
     googleLogout();
@@ -30,6 +30,8 @@ export const App: FC = (): ReactElement => {
         setLogoutTimer({
           logoutCallback: handleLogout,
           timeout: expiresAt - Date.now(),
+          // autoRefresh,
+          sessionData: data,
         });
       }
     }

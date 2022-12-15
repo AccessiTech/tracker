@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FC, ReactElement } from "react";
-import { Button, Form, Offcanvas } from "react-bootstrap";
+import { Button, Offcanvas } from "react-bootstrap";
 import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
 import "./sidebar.scss";
 import { GoogleAuthButton, setLogoutTimer } from "../GoogleAuth";
@@ -33,10 +33,10 @@ export const Sidebar: FC<SidebarProps> = ({
   toggleSidebar,
 }): ReactElement => {
   const session = useSession();
-  const { authenticated: isAuthenticated, autoRefresh } = session;
+  const { authenticated: isAuthenticated } = session;
 
   const [authenticated, setAuthenticated] = useState(isAuthenticated);
-  const [rememberMe, setRememberMe] = useState(autoRefresh);
+  // const [rememberMe, setRememberMe] = useState(autoRefresh);
   const [showAbout, setShowAbout] = useState(false) as any;
 
   useEffect(() => {
@@ -54,13 +54,15 @@ export const Sidebar: FC<SidebarProps> = ({
     store.dispatch(
       authenticate({
         data: credentials,
-        autoRefresh: rememberMe,
+        // autoRefresh: rememberMe,
         expiresAt: Date.now() + credentials.expires_in * 1000,
       })
     );
     setLogoutTimer({
       logoutCallback: handleLogout,
       timeout: credentials.expires_in * 1000,
+      // autoRefresh: rememberMe,
+      sessionData: credentials,
     });
   };
 
@@ -77,7 +79,7 @@ export const Sidebar: FC<SidebarProps> = ({
           onLogin={handleLogin}
           onLogout={handleLogout}
         />
-        <Form.Check
+        {/* <Form.Check
           id="sidebar__check_remember"
           type="checkbox"
           label="Remember Me"
@@ -85,7 +87,7 @@ export const Sidebar: FC<SidebarProps> = ({
           onChange={(e) => {
             setRememberMe(e.target.checked);
           }}
-        />
+        /> */}
 
         <Button
           variant={LINK_SECONDARY}

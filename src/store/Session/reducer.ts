@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 export const sessionSliceName = "session";
 
 export interface SessionState {
-  data?: { [key: string]: any };
+  data: { [key: string]: any };
   authenticated: boolean;
   expiresAt: number;
   autoRefresh: boolean;
@@ -14,6 +14,7 @@ export const initialState: SessionState = {
   authenticated: false,
   expiresAt: 0,
   autoRefresh: false,
+  data: {},
 };
 
 export const AUTHENTICATE = "session/authenticate";
@@ -37,7 +38,7 @@ export const sessionSlice: Slice<
     },
     [DEAUTHENTICATE]: (state) => {
       state.authenticated = false;
-      state.data = undefined;
+      state.data = {};
       state.expiresAt = 0;
       state.autoRefresh = false;
     },

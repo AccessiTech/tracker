@@ -56,3 +56,62 @@ export const GoogleAuthButton: FC<GoogleAuthProps> = ({
     </Button>
   );
 };
+
+// todo: update this to use the new auth system once it is published
+export const fetchRefreshToken = async (refreshToken: string) => {
+  const response = await fetch(
+    `https://securetoken.googleapis.com/v1/token?key=${process.env.REACT_APP_G_CLIENT_ID as string}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
+    }
+  );
+  return response.json();
+};
+
+let logoutTimeout: any;
+
+export const clearLogoutTimer = () => {
+  clearTimeout(logoutTimeout);
+}
+
+export interface LogoutTimerProps {
+  logoutCallback: EmptyFunction;
+  autoRefresh?: boolean;
+  sessionData: {[key: string]: any};
+  timeout: number;
+}
+
+export const setLogoutTimer = ({
+  logoutCallback,
+  autoRefresh = false,
+  timeout,
+  sessionData,
+}: LogoutTimerProps) => {
+  if (autoRefresh) {
+    logoutTimeout = setTimeout(async () => {
+      clearLogoutTimer();
+      const refreshResponse = await fetchRefreshToken(sessionData.refresh_token);
+      if (refreshResponse.error) {
+        logoutCallback();
+      } else {
+        setLogoutTimer({
+          logoutCallback,
+          autoRefresh,
+          timeout: (refreshResponse.expires_in * 1000) - (1000 * 60 * 5),
+          sessionData: refreshResponse,
+        });
+      }
+    }, timeout - (1000 * 60 * 5));
+  } else {
+    logoutTimeout = setTimeout(() => {
+      logoutCallback();
+      clearLogoutTimer();
+    }, timeout);
+  }
+};
+
+
