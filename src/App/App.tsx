@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useEffect } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { googleLogout, GoogleOAuthProvider } from '@react-oauth/google';
 import { Home } from "../containers/Home";
 import { Edit } from "../containers/Edit";
 import { Log } from "../containers/Log";
@@ -18,10 +18,12 @@ export const App: FC = (): ReactElement => {
   useEffect(() => {
     if (authenticated) {
       if (expires_at && expires_at < Date.now()) {
+        googleLogout();
         deauthenticate('');
         alert('Session expired. Please log in again.')
       } else {
         const sessionTimeout = setTimeout(() => {
+          googleLogout();
           deauthenticate('');
           alert('Session expired. Please log in again!!!!!!')
           clearTimeout(sessionTimeout);
@@ -29,6 +31,7 @@ export const App: FC = (): ReactElement => {
       }
     }
   }, []);
+
   const [toast, setToast] = React.useState({
     show: false,
     context: EMPTY,
