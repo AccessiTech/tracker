@@ -44,6 +44,7 @@ export const Sidebar: FC<SidebarProps> = ({
         <GoogleAuthButton
           authenticated={authenticated}
           onLogin={(credentials) => {
+            setAuthenticated(true);
             store.dispatch(
               authenticate({
                 data: credentials,
