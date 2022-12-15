@@ -5,6 +5,8 @@ export {
   DEFAULT_LOGOUT_TEXT,
   DEFAULT_LOGIN_VARIANT,
   DEFAULT_LOGOUT_VARIANT,
+
+  setLogoutTimer,
  } from "./GoogleAuthC";
 export type {
   GoogleAuthProps,

@@ -3,15 +3,16 @@ import { FC, ReactElement } from "react";
 import { Button, Form, Offcanvas } from "react-bootstrap";
 import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
 import "./sidebar.scss";
-import { GoogleAuthButton } from "../GoogleAuth";
+import { GoogleAuthButton, setLogoutTimer } from "../GoogleAuth";
 import { AboutModal } from "../AboutModal";
 import store from "../../store/store";
 import {
   authenticate,
   deauthenticate,
-  useAuthenticated,
-  useSessionAutoRefresh,
+  useSession,
 } from "../../store/Session";
+import { TokenResponse } from "@react-oauth/google";
+import { clearLogoutTimer } from "../GoogleAuth/GoogleAuthC";
 
 /**
  * Sidebar Component
@@ -31,17 +32,38 @@ export const Sidebar: FC<SidebarProps> = ({
   showSidebar,
   toggleSidebar,
 }): ReactElement => {
-  const isAuthenticated = useAuthenticated();
-  const isAutoRefresh = useSessionAutoRefresh();
+  const session = useSession();
+  const { authenticated: isAuthenticated, autoRefresh } = session;
+
   const [authenticated, setAuthenticated] = useState(isAuthenticated);
-  const [rememberMe, setRememberMe] = useState(isAutoRefresh);
+  const [rememberMe, setRememberMe] = useState(autoRefresh);
   const [showAbout, setShowAbout] = useState(false) as any;
 
   useEffect(() => {
     setAuthenticated(isAuthenticated);
   }, [isAuthenticated]);
 
-  let logoutTimeout: any;
+  const handleLogout = () => {
+    setAuthenticated(false);
+    store.dispatch(deauthenticate(""));
+    clearLogoutTimer();
+  };
+
+  const handleLogin = (credentials: TokenResponse) => {
+    setAuthenticated(true);
+    store.dispatch(
+      authenticate({
+        data: credentials,
+        autoRefresh: rememberMe,
+        expiresAt: Date.now() + credentials.expires_in * 1000,
+      })
+    );
+    setLogoutTimer({
+      logoutCallback: handleLogout,
+      timeout: credentials.expires_in * 1000,
+    });
+  };
+
   return (
     <Offcanvas
       show={showSidebar}
@@ -52,27 +74,8 @@ export const Sidebar: FC<SidebarProps> = ({
       <Offcanvas.Header closeButton>
         <GoogleAuthButton
           authenticated={authenticated}
-          onLogin={(credentials) => {
-            setAuthenticated(true);
-            store.dispatch(
-              authenticate({
-                data: credentials,
-                autoRefresh: rememberMe,
-                expiresAt: Date.now() + credentials.expires_in * 1000,
-              })
-            );
-            // Set timeout to log out user after token expires
-            logoutTimeout = setTimeout(() => {
-              setAuthenticated(false);
-              store.dispatch(deauthenticate({}));
-              clearTimeout(logoutTimeout);
-            }, credentials.expires_in * 1000);
-          }}
-          onLogout={() => {
-            setAuthenticated(false);
-            store.dispatch(deauthenticate({}));
-            clearTimeout(logoutTimeout);
-          }}
+          onLogin={handleLogin}
+          onLogout={handleLogout}
         />
         <Form.Check
           id="sidebar__check_remember"

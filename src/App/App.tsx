@@ -8,25 +8,29 @@ import { LogEntry } from "../containers/LogEntry";
 import "./App.scss";
 import { EDIT_URL, EMPTY, ENTRY_EDIT_URL, ENTRY_URL, FIELD_URL, HOME_URL, LOG_ID_URL, LOG_URL, NEW_URL, SUCCESS, WILDCARD } from "../strings";
 import { Toaster, ToastType } from "../components/Toaster";
-import { deauthenticate, useAuthenticated, useSessionExpiresAt } from "../store/Session/reducer";
+import { deauthenticate, useSession } from "../store/Session/reducer";
 import store from "../store/store";
+import { setLogoutTimer } from "../components/GoogleAuth";
 
 export const App: FC = (): ReactElement => {
   const clientId = process.env.REACT_APP_G_CLIENT_ID as string;
-  const authenticated = useAuthenticated();
-  const expires_at = useSessionExpiresAt();
+  const session = useSession();
+  const { authenticated, expiresAt, autoRefresh } = session;
+
+  const handleLogout = (): void => {
+    googleLogout();
+    store.dispatch(deauthenticate(''));
+  };
 
   useEffect(() => {
     if (authenticated) {
-      if (expires_at && expires_at < Date.now()) {
-        googleLogout();
-        store.dispatch(deauthenticate(''));
+      if (expiresAt && expiresAt < Date.now()) {
+        handleLogout();
       } else {
-        const sessionTimeout = setTimeout(() => {
-          googleLogout();
-          store.dispatch(deauthenticate(''));
-          clearTimeout(sessionTimeout);
-        }, expires_at - Date.now());
+        setLogoutTimer({
+          logoutCallback: handleLogout,
+          timeout: expiresAt - Date.now(),
+        });
       }
     }
   }, []);
