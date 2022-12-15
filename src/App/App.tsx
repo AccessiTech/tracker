@@ -9,6 +9,7 @@ import "./App.scss";
 import { EDIT_URL, EMPTY, ENTRY_EDIT_URL, ENTRY_URL, FIELD_URL, HOME_URL, LOG_ID_URL, LOG_URL, NEW_URL, SUCCESS, WILDCARD } from "../strings";
 import { Toaster, ToastType } from "../components/Toaster";
 import { deauthenticate, useAuthenticated, useSessionExpiresAt } from "../store/Session/reducer";
+import store from "../store/store";
 
 export const App: FC = (): ReactElement => {
   const clientId = process.env.REACT_APP_G_CLIENT_ID as string;
@@ -19,13 +20,11 @@ export const App: FC = (): ReactElement => {
     if (authenticated) {
       if (expires_at && expires_at < Date.now()) {
         googleLogout();
-        deauthenticate('');
-        alert('Session expired. Please log in again.')
+        store.dispatch(deauthenticate(''));
       } else {
         const sessionTimeout = setTimeout(() => {
           googleLogout();
-          deauthenticate('');
-          alert('Session expired. Please log in again!!!!!!')
+          store.dispatch(deauthenticate(''));
           clearTimeout(sessionTimeout);
         }, expires_at - Date.now());
       }
@@ -38,6 +37,7 @@ export const App: FC = (): ReactElement => {
     name: EMPTY,
     status: SUCCESS,
   } as ToastType);
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <HashRouter>

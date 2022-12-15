@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FC, ReactElement } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
 import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
@@ -30,8 +30,14 @@ export const Sidebar: FC<SidebarProps> = ({
   showSidebar,
   toggleSidebar,
 }): ReactElement => {
-  const [authenticated, setAuthenticated] = useState(useAuthenticated());
+  const isAuthenticated = useAuthenticated();
+  const [authenticated, setAuthenticated] = useState(isAuthenticated);
   const [showAbout, setShowAbout] = useState(false) as any;
+
+  useEffect(() => {
+    setAuthenticated(isAuthenticated);
+  }, [isAuthenticated]);
+
   let logoutTimeout: any;
   return (
     <Offcanvas
@@ -55,7 +61,6 @@ export const Sidebar: FC<SidebarProps> = ({
             logoutTimeout = setTimeout(() => {
               setAuthenticated(false);
               store.dispatch(deauthenticate({}));
-              alert("You have been logged out due to inactivity.");
               clearTimeout(logoutTimeout);
             }, credentials.expires_in * 1000);
           }}
