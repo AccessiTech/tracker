@@ -13,6 +13,7 @@ export {
   useAuthenticated,
   useSessionData,
   useSessionExpiresAt,
+  useSessionAutoRefresh,
 
   // Strings
   AUTHENTICATE,

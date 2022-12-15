@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FC, ReactElement } from "react";
-import { Button, Offcanvas } from "react-bootstrap";
+import { Button, Form, Offcanvas } from "react-bootstrap";
 import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
 import "./sidebar.scss";
 import { GoogleAuthButton } from "../GoogleAuth";
@@ -10,6 +10,7 @@ import {
   authenticate,
   deauthenticate,
   useAuthenticated,
+  useSessionAutoRefresh,
 } from "../../store/Session";
 
 /**
@@ -31,7 +32,9 @@ export const Sidebar: FC<SidebarProps> = ({
   toggleSidebar,
 }): ReactElement => {
   const isAuthenticated = useAuthenticated();
+  const isAutoRefresh = useSessionAutoRefresh();
   const [authenticated, setAuthenticated] = useState(isAuthenticated);
+  const [rememberMe, setRememberMe] = useState(isAutoRefresh);
   const [showAbout, setShowAbout] = useState(false) as any;
 
   useEffect(() => {
@@ -54,6 +57,7 @@ export const Sidebar: FC<SidebarProps> = ({
             store.dispatch(
               authenticate({
                 data: credentials,
+                autoRefresh: rememberMe,
                 expiresAt: Date.now() + credentials.expires_in * 1000,
               })
             );
@@ -70,6 +74,16 @@ export const Sidebar: FC<SidebarProps> = ({
             clearTimeout(logoutTimeout);
           }}
         />
+        <Form.Check
+          id="sidebar__check_remember"
+          type="checkbox"
+          label="Remember Me"
+          className="sidebar__check_remember"
+          onChange={(e) => {
+            setRememberMe(e.target.checked);
+          }}
+        />
+
         <Button
           variant={LINK_SECONDARY}
           onClick={() => {

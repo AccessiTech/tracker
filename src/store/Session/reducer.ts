@@ -7,11 +7,13 @@ export interface SessionState {
   data?: { [key: string]: any };
   authenticated: boolean;
   expiresAt: number;
+  autoRefresh: boolean;
 }
 
 export const initialState: SessionState = {
   authenticated: false,
   expiresAt: 0,
+  autoRefresh: false,
 };
 
 export const AUTHENTICATE = "session/authenticate";
@@ -27,15 +29,17 @@ export const sessionSlice: Slice<
   initialState,
   reducers: {
     [AUTHENTICATE]: (state, action) => {
-      const { data, expiresAt } = action.payload;
+      const { data, expiresAt, autoRefresh } = action.payload;
       state.authenticated = true;
       state.data = data;
       state.expiresAt = expiresAt;
+      state.autoRefresh = autoRefresh;
     },
     [DEAUTHENTICATE]: (state) => {
       state.authenticated = false;
       state.data = undefined;
       state.expiresAt = 0;
+      state.autoRefresh = false;
     },
     [UPDATE_AUTHENTICATION]: (state, action) => {
       const { data } = action.payload;
@@ -65,4 +69,9 @@ export const useSessionData = (): { [key: string]: any } | undefined => {
 export const useSessionExpiresAt = (): number => {
   const session = useSession();
   return session.expiresAt;
+};
+
+export const useSessionAutoRefresh = (): boolean => {
+  const session = useSession();
+  return session.autoRefresh;
 };
