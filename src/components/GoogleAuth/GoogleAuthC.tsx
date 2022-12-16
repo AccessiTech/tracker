@@ -1,10 +1,6 @@
 import React, { FC, ReactElement } from "react";
-import {
-  googleLogout,
-  useGoogleLogin,
-  TokenResponse,
-} from "@react-oauth/google";
 import { Button } from "react-bootstrap";
+import { authenticateUser, deauthenticateUser, TokenResponse } from "./GoogleAuthZ";
 
 export type EmptyFunction = () => void;
 export type GoogleLoginSuccess = (tokenResponse: TokenResponse) => void;
@@ -33,19 +29,9 @@ export const GoogleAuthButton: FC<GoogleAuthProps> = ({
   loginText = DEFAULT_LOGIN_TEXT,
   logoutText = DEFAULT_LOGOUT_TEXT,
 }): ReactElement => {
-  const login = useGoogleLogin({
-    onSuccess: (tokenResponse: TokenResponse) => {
-      onLogin(tokenResponse);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
 
-  const logout = () => {
-    onLogout();
-    googleLogout();
-  };
+  const login = () => authenticateUser(onLogin);
+  const logout = () => deauthenticateUser(onLogout);
 
   return (
     <Button
@@ -55,21 +41,6 @@ export const GoogleAuthButton: FC<GoogleAuthProps> = ({
       {authenticated ? logoutText : loginText}
     </Button>
   );
-};
-
-// todo: update this to use the new auth system once it is published
-export const fetchRefreshToken = async (refreshToken: string) => {
-  const response = await fetch(
-    `https://securetoken.googleapis.com/v1/token?key=${process.env.REACT_APP_G_CLIENT_ID as string}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
-    }
-  );
-  return response.json();
 };
 
 let logoutTimeout: any;
@@ -89,12 +60,14 @@ export const setLogoutTimer = ({
   logoutCallback,
   autoRefresh = false,
   timeout,
-  sessionData,
+  // sessionData,
 }: LogoutTimerProps) => {
+  // auto refresh doesn't work yet!
   if (autoRefresh) {
     logoutTimeout = setTimeout(async () => {
       clearLogoutTimer();
-      const refreshResponse = await fetchRefreshToken(sessionData.refresh_token);
+      // const refreshResponse = await fetchRefreshToken(sessionData.refresh_token);
+      const refreshResponse = {} as any;// todo: refresh token
       if (refreshResponse.error) {
         logoutCallback();
       } else {

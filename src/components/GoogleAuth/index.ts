@@ -5,10 +5,25 @@ export {
   DEFAULT_LOGIN_VARIANT,
   DEFAULT_LOGOUT_VARIANT,
   setLogoutTimer,
-  fetchRefreshToken,
 } from "./GoogleAuthC";
 export type {
   GoogleAuthProps,
   EmptyFunction,
   GoogleLoginSuccess,
 } from "./GoogleAuthC";
+
+export {
+  DISCOVERY_DOC,
+  SCOPES,
+
+  initGoogleAuth,
+  authenticateUser,
+  deauthenticateUser,
+  getTokenClient,
+} from './GoogleAuthZ';
+
+export type {
+  ErrorCode,
+  TokenResponse,
+  InitGoogleAuthParams,
+} from './GoogleAuthZ';
