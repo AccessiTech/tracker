@@ -1,3 +1,5 @@
+import { EmptyFunction } from "./GoogleAuthC";
+
 export const DISCOVERY_DOC =
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
 export const SCOPES = ["https://www.googleapis.com/auth/drive"];
@@ -50,7 +52,7 @@ export const initGoogleAuth = ({
   apiKey,
   clientId,
   discoveryDocs = [DISCOVERY_DOC],
-}: InitGoogleAuthParams): void => {
+}: InitGoogleAuthParams, callback?:EmptyFunction): void => {
   if (!apiInitialized) {
     const gapiScript = document.createElement("script");
     gapiScript.src = "https://apis.google.com/js/api.js";
@@ -74,6 +76,9 @@ export const initGoogleAuth = ({
               callback: "",
             });
             googleInitialized = true;
+            if (callback) {
+              callback();
+            }
           };
           document.body.appendChild(googleScript);
         }
@@ -84,10 +89,12 @@ export const initGoogleAuth = ({
 };
 
 export const authenticateUser = (
-  tokenCallback: (token: TokenResponse) => void
+  tokenCallback: (token: TokenResponse) => void,
+  tokenData?: TokenResponse
 ) => {
   tokenClient.callback = tokenCallback;
-  tokenClient.requestAccessToken({ prompt: "consent" });
+  const prompt = tokenData ? "none" : "consent";
+  tokenClient.requestAccessToken({ prompt });
 };
 
 export const deauthenticateUser = (
@@ -101,4 +108,12 @@ export const deauthenticateUser = (
 
 export const getTokenClient = () => {
   return tokenClient;
+};
+
+export const getApiClient = () => {
+  return gapi && gapi.client;
+};
+
+export const getGoogle = () => {
+  return google;
 };

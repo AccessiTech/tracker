@@ -3,7 +3,7 @@ import { FC, ReactElement } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
 import { ABOUT_APP_HEADER, END, LINK_SECONDARY, PRIMARY } from "../../strings";
 import "./sidebar.scss";
-import { GoogleAuthButton, setLogoutTimer } from "../GoogleAuth";
+import { GoogleAuthButton, listFiles, setLogoutTimer } from "../GoogleAuth";
 import { AboutModal } from "../AboutModal";
 import store from "../../store/store";
 import {
@@ -106,6 +106,7 @@ export const Sidebar: FC<SidebarProps> = ({
           variant={PRIMARY}
           className="sidebar__button"
           onClick={() => {
+            listFiles();
             // const client = getOauth2Client({
             //   clientId: process.env.REACT_APP_CLIENT_ID as string,
             //   clientSecret: process.env.REACT_APP_CLIENT_SECRET as string,

@@ -21,6 +21,8 @@ export {
   authenticateUser,
   deauthenticateUser,
   getTokenClient,
+  getApiClient,
+  getGoogle,
 } from './GoogleAuthZ';
 
 export type {

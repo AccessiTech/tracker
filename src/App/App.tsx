@@ -9,7 +9,7 @@ import { EDIT_URL, EMPTY, ENTRY_EDIT_URL, ENTRY_URL, FIELD_URL, HOME_URL, LOG_ID
 import { Toaster, ToastType } from "../components/Toaster";
 import { deauthenticate, useSession } from "../store/Session/reducer";
 import store from "../store/store";
-import { deauthenticateUser, initGoogleAuth, setLogoutTimer } from "../components/GoogleAuth";
+import { authenticateUser, deauthenticateUser, initGoogleAuth, setLogoutTimer } from "../components/GoogleAuth";
 
 export const App: FC = (): ReactElement => {
   const apiKey = process.env.REACT_APP_G_API_KEY as string;
@@ -24,19 +24,22 @@ export const App: FC = (): ReactElement => {
   };
 
   useEffect(() => {
-    initGoogleAuth({ apiKey, clientId });
-    if (authenticated) {
-      if (expiresAt && expiresAt < Date.now()) {
-        handleLogout();
-      } else {
-        setLogoutTimer({
-          logoutCallback: handleLogout,
-          timeout: expiresAt - Date.now(),
-          // autoRefresh,
-          sessionData: data,
-        });
+    initGoogleAuth({ apiKey, clientId }, () => {
+      if (authenticated) {
+        if (expiresAt && expiresAt < Date.now()) {
+          handleLogout();
+        } else {
+          authenticateUser(() => {
+            setLogoutTimer({
+              logoutCallback: handleLogout,
+              timeout: expiresAt - Date.now(),
+              // autoRefresh,
+              sessionData: data,
+            });
+          }, data.access_token && data);
+        }
       }
-    }
+    });
   }, []);
 
   const [toast, setToast] = React.useState({
