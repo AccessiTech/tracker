@@ -4,14 +4,13 @@ export {
   DEFAULT_LOGOUT_TEXT,
   DEFAULT_LOGIN_VARIANT,
   DEFAULT_LOGOUT_VARIANT,
-  setLogoutTimer,
-  clearLogoutTimer,
-} from "./GoogleAuthC";
+  
+} from "./GoogleAuthButton";
 export type {
   GoogleAuthProps,
   EmptyFunction,
   GoogleLoginSuccess,
-} from "./GoogleAuthC";
+} from "./GoogleAuthButton";
 
 export {
   DISCOVERY_DOC,
@@ -23,13 +22,16 @@ export {
   getTokenClient,
   getApiClient,
   getGoogle,
-} from './GoogleAuthZ';
+
+  setLogoutTimer,
+  clearLogoutTimer,
+} from './GoogleAuth';
 
 export type {
   ErrorCode,
   TokenResponse,
   InitGoogleAuthParams,
-} from './GoogleAuthZ';
+} from './GoogleAuth';
 
 export {
   listFiles,

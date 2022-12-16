@@ -1,4 +1,4 @@
-import { getApiClient } from "./GoogleAuthZ";
+import { getApiClient } from "./GoogleAuth";
 
 export const listFiles = async () => {
   const { drive } = getApiClient();

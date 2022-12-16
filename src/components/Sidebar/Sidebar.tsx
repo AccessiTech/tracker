@@ -3,7 +3,7 @@ import { FC, ReactElement } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
 import { ABOUT_APP_HEADER, END, LINK_SECONDARY, PRIMARY } from "../../strings";
 import "./sidebar.scss";
-import { GoogleAuthButton, listFiles, setLogoutTimer } from "../GoogleAuth";
+import { GoogleAuthButton, listFiles, setLogoutTimer } from "../GoogleApi";
 import { AboutModal } from "../AboutModal";
 import store from "../../store/store";
 import {
@@ -11,7 +11,7 @@ import {
   deauthenticate,
   useSession,
 } from "../../store/Session";
-import { clearLogoutTimer, TokenResponse } from "../GoogleAuth";
+import { clearLogoutTimer, TokenResponse } from "../GoogleApi";
 
 /**
  * Sidebar Component
