@@ -13,6 +13,7 @@ export interface GoogleAuthProps {
   logoutVariant?: string;
   loginText?: string;
   logoutText?: string;
+  tokenData?: TokenResponse;
 }
 
 export const DEFAULT_LOGIN_VARIANT = "outline-primary";
@@ -28,10 +29,11 @@ export const GoogleAuthButton: FC<GoogleAuthProps> = ({
   logoutVariant = DEFAULT_LOGOUT_VARIANT,
   loginText = DEFAULT_LOGIN_TEXT,
   logoutText = DEFAULT_LOGOUT_TEXT,
+  tokenData,
 }): ReactElement => {
 
   const login = () => authenticateUser(onLogin);
-  const logout = () => deauthenticateUser(onLogout);
+  const logout = () => deauthenticateUser(onLogout, tokenData);
 
   return (
     <Button

@@ -11,8 +11,7 @@ import {
   deauthenticate,
   useSession,
 } from "../../store/Session";
-import { TokenResponse } from "@react-oauth/google";
-import { clearLogoutTimer } from "../GoogleAuth/GoogleAuthC";
+import { clearLogoutTimer, TokenResponse } from "../GoogleAuth";
 
 /**
  * Sidebar Component
@@ -33,7 +32,7 @@ export const Sidebar: FC<SidebarProps> = ({
   toggleSidebar,
 }): ReactElement => {
   const session = useSession();
-  const { authenticated: isAuthenticated } = session;
+  const { authenticated: isAuthenticated, data } = session;
 
   const [authenticated, setAuthenticated] = useState(isAuthenticated);
   // const [rememberMe, setRememberMe] = useState(autoRefresh);
@@ -78,6 +77,7 @@ export const Sidebar: FC<SidebarProps> = ({
           authenticated={authenticated}
           onLogin={handleLogin}
           onLogout={handleLogout}
+          tokenData={data.access_token && data}
         />
         {/* <Form.Check
           id="sidebar__check_remember"

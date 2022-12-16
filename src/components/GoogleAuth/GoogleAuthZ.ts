@@ -91,9 +91,10 @@ export const authenticateUser = (
 };
 
 export const deauthenticateUser = (
-  signOutCallback: () => void
+  signOutCallback: () => void,
+  tokenData?: TokenResponse,
 ) => {
-  const token = gapi.client.getToken();
+  const token = tokenData || gapi.client.getToken();
   google.accounts.oauth2.revoke(token.access_token);
   signOutCallback();
 };
