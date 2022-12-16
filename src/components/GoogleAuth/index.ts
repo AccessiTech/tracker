@@ -30,3 +30,7 @@ export type {
   TokenResponse,
   InitGoogleAuthParams,
 } from './GoogleAuthZ';
+
+export {
+  listFiles,
+} from './GoogleDrive';
