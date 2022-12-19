@@ -35,4 +35,14 @@ export type {
 
 export {
   listFiles,
+  listFolders,
+  createFolder,
+  createFile,
+  createSpreadsheet,
+} from './GoogleDrive';
+
+export type {
+  CreateFolderProps,
+  CreateFileProps,
+  CreateSpreadsheetProps,
 } from './GoogleDrive';

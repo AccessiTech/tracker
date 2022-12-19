@@ -1,18 +1,72 @@
 import { getApiClient } from "./GoogleAuth";
 
-export const listFiles = async () => {
+export const listFiles = () => {
   const { drive } = getApiClient();
-  const response = await drive.files.list({
+  return drive.files.list({
     pageSize: 10,
     fields: "nextPageToken, files(id, name)",
   });
-  const files = response.result.files;
-  if (files && files.length > 0) {
-    console.log("Files:");
-    files.map((file: any) => {
-      console.log(`${file.name} (${file.id})`);
-    });
-  } else {
-    console.log("No files found.");
-  }
+}
+
+export const listFolders = () => {
+  const { drive } = getApiClient();
+  return drive.files.list({
+    q: "mimeType='application/vnd.google-apps.folder'",
+    fields: "nextPageToken, files(id, name)",
+  });
+}
+
+export interface CreateFolderProps {
+  name: string;
+  parents?: string[];
+}
+export const createFolder = ({
+  name,
+  parents,
+}: CreateFileProps) => {
+  const { drive } = getApiClient();
+  return drive.files.create({
+    resource: {
+      name,
+      mimeType: "application/vnd.google-apps.folder",
+      parents,
+    },
+    fields: "id",
+  });
+}
+
+export interface CreateFileProps {
+  name: string;
+  mimeType: string;
+  parents: string[];
+}
+export const createFile = ({
+  name,
+  mimeType,
+  parents,
+}: CreateFileProps) => {
+  const { drive } = getApiClient();
+  return drive.files.create({
+    resource: {
+      name,
+      mimeType,
+      parents,
+    },
+    fields: "id",
+  });
+}
+
+export interface CreateSpreadsheetProps {
+  name: string;
+  parents: string[];
+}
+export const createSpreadsheet = ({
+  name,
+  parents,
+}: CreateSpreadsheetProps) => {
+  return createFile({
+    name,
+    mimeType: "application/vnd.google-apps.spreadsheet",
+    parents,
+  });
 }
