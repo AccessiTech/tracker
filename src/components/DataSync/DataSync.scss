@@ -1,0 +1,31 @@
+@import "./../../variables.scss";
+#modal__data_sync {
+  .modal-header {
+    h3 {
+      margin-bottom: 0;
+    }
+  }
+
+  .modal__vertical_divider {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 1;
+    align-self: center;
+
+    &_line {
+      height: 2rem;
+      width: 1px;
+      background-color: black;
+      align-self: center;
+    }
+  }
+
+  h4 {
+    margin-bottom: $spacer;
+  }
+
+  .modal__select_folder {
+    margin-top: calc($spacer / 2);
+  }
+}
