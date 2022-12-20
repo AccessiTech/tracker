@@ -1,29 +1,33 @@
 import { getApiClient } from "./GoogleAuth";
 
-export const listFiles = () => {
+export interface ListProps {
+  pageSize?: number;
+  parents?: string[];
+}
+export const listFiles = ({ pageSize, parents }: ListProps) => {
   const { drive } = getApiClient();
   return drive.files.list({
-    pageSize: 10,
+    pageSize: pageSize,
     fields: "nextPageToken, files(id, name)",
+    q: parents ? `'${parents[0]}' in parents and trashed=false` : "trashed=false",
   });
-}
+};
 
-export const listFolders = () => {
+export const listFolders = ({ pageSize, parents }: ListProps) => {
   const { drive } = getApiClient();
   return drive.files.list({
     q: "mimeType='application/vnd.google-apps.folder'",
     fields: "nextPageToken, files(id, name)",
+    pageSize,
+    parents,
   });
-}
+};
 
 export interface CreateFolderProps {
   name: string;
   parents?: string[];
 }
-export const createFolder = ({
-  name,
-  parents,
-}: CreateFileProps) => {
+export const createFolder = ({ name, parents }: CreateFolderProps) => {
   const { drive } = getApiClient();
   return drive.files.create({
     resource: {
@@ -33,18 +37,14 @@ export const createFolder = ({
     },
     fields: "id",
   });
-}
+};
 
 export interface CreateFileProps {
   name: string;
   mimeType: string;
   parents: string[];
 }
-export const createFile = ({
-  name,
-  mimeType,
-  parents,
-}: CreateFileProps) => {
+export const createFile = ({ name, mimeType, parents }: CreateFileProps) => {
   const { drive } = getApiClient();
   return drive.files.create({
     resource: {
@@ -54,7 +54,7 @@ export const createFile = ({
     },
     fields: "id",
   });
-}
+};
 
 export interface CreateSpreadsheetProps {
   name: string;
@@ -69,4 +69,4 @@ export const createSpreadsheet = ({
     mimeType: "application/vnd.google-apps.spreadsheet",
     parents,
   });
-}
+};

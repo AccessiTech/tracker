@@ -7,12 +7,14 @@ export {
   SET_SYNC_METHOD,
   SET_GOOGLE_DRIVE_FOLDER_ID,
   SET_GOOGLE_DRIVE_LOG_SHEET_ID,
-  SET_GOOGLE_DRIVE_LOG_SHEET,
+  SET_GOOGLE_DRIVE_LOG_SHEETS,
+  
   toggleSync,
   setSyncMethod,
   setGoogleDriveFolderId,
   setGoogleDriveLogSheetId,
-  setGoogleDriveLogSheet,
+  setGoogleDriveLogSheets,
+  
   useDataSync,
   useSyncEnabled,
   useSyncMethod,

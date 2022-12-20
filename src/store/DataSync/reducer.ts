@@ -40,7 +40,7 @@ export const SET_SYNC_METHOD = "dataSync/setSyncMethod";
 export const SET_GOOGLE_DRIVE_FOLDER_ID = "dataSync/setGoogleDriveFolderId";
 export const SET_GOOGLE_DRIVE_LOG_SHEET_ID =
   "dataSync/setGoogleDriveLogSheetId";
-export const SET_GOOGLE_DRIVE_LOG_SHEET = "dataSync/setGoogleDriveLogSheet";
+export const SET_GOOGLE_DRIVE_LOG_SHEETS = "dataSync/setGoogleDriveLogSheets";
 
 // Reducer
 export const dataSyncSlice: Slice<
@@ -66,7 +66,7 @@ export const dataSyncSlice: Slice<
       const { logSheetId } = action.payload;
       state.googleDrive.logSheetId = logSheetId;
     },
-    [SET_GOOGLE_DRIVE_LOG_SHEET]: (state, action) => {
+    [SET_GOOGLE_DRIVE_LOG_SHEETS]: (state, action) => {
       const { logSheet } = action.payload;
       state.googleDrive.logSheets[logSheet.id] = logSheet;
     },
@@ -80,8 +80,8 @@ export const setGoogleDriveFolderId =
   dataSyncSlice.actions[SET_GOOGLE_DRIVE_FOLDER_ID];
 export const setGoogleDriveLogSheetId =
   dataSyncSlice.actions[SET_GOOGLE_DRIVE_LOG_SHEET_ID];
-export const setGoogleDriveLogSheet =
-  dataSyncSlice.actions[SET_GOOGLE_DRIVE_LOG_SHEET];
+export const setGoogleDriveLogSheets =
+  dataSyncSlice.actions[SET_GOOGLE_DRIVE_LOG_SHEETS];
 
 
 // Hooks
