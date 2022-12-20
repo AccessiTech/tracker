@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FC, ReactElement } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
-import { ABOUT_APP_HEADER, END, LINK_SECONDARY, PRIMARY } from "../../strings";
+import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
 import "./sidebar.scss";
-import { GoogleAuthButton, listFiles, setLogoutTimer } from "../GoogleApi";
+import { GoogleAuthButton, setLogoutTimer } from "../GoogleApi";
 import { AboutModal } from "../AboutModal";
 import store from "../../store/store";
 import {
@@ -12,6 +12,7 @@ import {
   useSession,
 } from "../../store/Session";
 import { clearLogoutTimer, TokenResponse } from "../GoogleApi";
+import { DataSync } from "../DataSync";
 
 /**
  * Sidebar Component
@@ -102,24 +103,7 @@ export const Sidebar: FC<SidebarProps> = ({
       </Offcanvas.Header>
       <Offcanvas.Body className="sidebar__body_container">
         
-        <Button
-          variant={PRIMARY}
-          className="sidebar__button"
-          onClick={() => {
-            listFiles();
-            // const client = getOauth2Client({
-            //   clientId: process.env.REACT_APP_CLIENT_ID as string,
-            //   clientSecret: process.env.REACT_APP_CLIENT_SECRET as string,
-            //   redirectUri: process.env.REACT_APP_REDIRECT_URI as string,
-            // });
-            // console.log(client);
-
-            // initGoogleAuth({
-            //   apiKey: process.env.REACT_APP_G_API_KEY as string,
-            //   clientId: process.env.REACT_APP_G_CLIENT_ID as string,
-            // })
-          }}
-        >Test!!</Button>
+        <DataSync />
         
         <AboutModal show={showAbout} onHide={() => setShowAbout(false)} />
       </Offcanvas.Body>
