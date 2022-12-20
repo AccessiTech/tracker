@@ -13,7 +13,7 @@ export type {
 } from "./GoogleAuthButton";
 
 export {
-  DISCOVERY_DOC,
+  DISCOVERY_DOCS,
   SCOPES,
 
   initGoogleAuth,
@@ -46,3 +46,13 @@ export type {
   CreateFileProps,
   CreateSpreadsheetProps,
 } from './GoogleDrive';
+
+export {
+  setSheetValues,
+  getSheetValues,
+} from './GoogleSheets';
+
+export type {
+  setSheetValuesProps,
+  getSheetValuesProps,
+} from './GoogleSheets';

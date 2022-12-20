@@ -1,8 +1,13 @@
 import { EmptyFunction } from "./GoogleAuthButton";
 
-export const DISCOVERY_DOC =
-  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
-export const SCOPES = ["https://www.googleapis.com/auth/drive"];
+export const DISCOVERY_DOCS = [
+  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
+  "https://sheets.googleapis.com/$discovery/rest?version=v4",
+];
+export const SCOPES = [
+  "https://www.googleapis.com/auth/drive",
+  "https://www.googleapis.com/auth/spreadsheets",
+];
 
 let apiInitialized = false;
 let googleInitialized = false;
@@ -51,7 +56,7 @@ export interface InitGoogleAuthParams {
 export const initGoogleAuth = ({
   apiKey,
   clientId,
-  discoveryDocs = [DISCOVERY_DOC],
+  discoveryDocs = DISCOVERY_DOCS,
 }: InitGoogleAuthParams, callback?:EmptyFunction): void => {
   if (!apiInitialized) {
     const gapiScript = document.createElement("script");
