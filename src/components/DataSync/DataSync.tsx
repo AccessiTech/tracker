@@ -8,10 +8,16 @@ import "./DataSync.scss";
 
 export interface DataSyncProps {
   authenticated: boolean;
+  onError?: (error: any) => void;
+}
+
+export const handleError = (error: any): void => {
+  console.error(JSON.parse(error.body));
 }
 
 export const DataSync: FC<DataSyncProps> = ({
   authenticated,
+  onError = handleError,
 }): ReactElement => {
   const [showModal, setShowModal] = React.useState(false);
 
@@ -21,7 +27,7 @@ export const DataSync: FC<DataSyncProps> = ({
         {"Sync Data..."}
       </Button>
       {showModal && (
-        <DataSyncModal showModal={showModal} setShowModal={setShowModal} />
+        <DataSyncModal showModal={showModal} setShowModal={setShowModal} onError={onError} />
       )}
     </>
   );
@@ -49,17 +55,13 @@ export const noFolderFound: DriveFolder = {
 export interface DataSyncModalProps {
   showModal: boolean;
   setShowModal: (showModal: boolean) => void;
-  onError?: (error: any) => void;
-}
-
-export const handleError = (error: any):void => {
-  console.error(JSON.parse(error.body));
+  onError: (error: any) => void;
 }
 
 export const DataSyncModal: FC<DataSyncModalProps> = ({
   showModal,
   setShowModal,
-  onError = handleError,
+  onError,
 }): ReactElement => {
   const [selectFolder, setSelectFolder] = React.useState(false);
   const [activeTab] = React.useState(DataSyncTabs.SPLASH);

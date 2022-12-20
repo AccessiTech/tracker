@@ -103,7 +103,9 @@ export const Sidebar: FC<SidebarProps> = ({
       </Offcanvas.Header>
       <Offcanvas.Body className="sidebar__body_container">
         
-        <DataSync authenticated={authenticated}/>
+        <DataSync
+          authenticated={authenticated}
+        />
         
         <AboutModal show={showAbout} onHide={() => setShowAbout(false)} />
       </Offcanvas.Body>
