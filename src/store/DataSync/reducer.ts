@@ -16,6 +16,7 @@ export interface LogSheet {
 export interface DataSyncState {
   syncEnabled: boolean;
   syncMethod: typeof GOOGLE_DRIVE;
+  syncId: string;
   googleDrive: {
     folderId: string;
     logSheetId: string;
@@ -27,6 +28,7 @@ export interface DataSyncState {
 export const initialState: DataSyncState = {
   syncEnabled: false,
   syncMethod: GOOGLE_DRIVE,
+  syncId: EMPTY,
   googleDrive: {
     folderId: EMPTY,
     logSheetId: EMPTY,
@@ -37,6 +39,7 @@ export const initialState: DataSyncState = {
 // Action Types
 export const TOGGLE_SYNC = "dataSync/toggleSync";
 export const SET_SYNC_METHOD = "dataSync/setSyncMethod";
+export const Set_SYNC_ID = "dataSync/setSyncId";
 export const SET_GOOGLE_DRIVE_FOLDER_ID = "dataSync/setGoogleDriveFolderId";
 export const SET_GOOGLE_DRIVE_LOG_SHEET_ID =
   "dataSync/setGoogleDriveLogSheetId";
@@ -58,6 +61,10 @@ export const dataSyncSlice: Slice<
       const { syncMethod } = action.payload;
       state.syncMethod = syncMethod;
     },
+    [Set_SYNC_ID]: (state, action) => {
+      const { syncId } = action.payload;
+      state.syncId = syncId;
+    },
     [SET_GOOGLE_DRIVE_FOLDER_ID]: (state, action) => {
       const { folderId } = action.payload;
       state.googleDrive.folderId = folderId;
@@ -76,6 +83,7 @@ export const dataSyncSlice: Slice<
 // Action Creators
 export const toggleSync = dataSyncSlice.actions[TOGGLE_SYNC];
 export const setSyncMethod = dataSyncSlice.actions[SET_SYNC_METHOD];
+export const setSyncId = dataSyncSlice.actions[Set_SYNC_ID];
 export const setGoogleDriveFolderId =
   dataSyncSlice.actions[SET_GOOGLE_DRIVE_FOLDER_ID];
 export const setGoogleDriveLogSheetId =
@@ -92,6 +100,11 @@ export const useDataSync = (): DataSyncState => {
 export const useSyncEnabled = (): boolean => {
   const dataSync = useDataSync();
   return dataSync.syncEnabled;
+};
+
+export const useSyncId = (): string => {
+  const dataSync = useDataSync();
+  return dataSync.syncId;
 };
 
 export const useSyncMethod = (): typeof GOOGLE_DRIVE => {
