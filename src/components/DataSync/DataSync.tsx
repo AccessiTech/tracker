@@ -90,12 +90,9 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
 
   React.useEffect(() => {
     listFolders({})
-      .then((result: any) => {
-        if (!result.body) {
-          throw new Error("Error listing folders");
-        }
-        const folders = JSON.parse(result.body).files;
-        setFolders(folders.length ? folders : [noFolderFound]);
+      .then((files: any[]) => {
+        const folders = files.length ? files : [noFolderFound];
+        setFolders(folders);
       })
       .catch((err: any) => {
         onError(err);

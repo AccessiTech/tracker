@@ -15,14 +15,16 @@ export const listFiles = async ({ pageSize, parents }: ListProps) => {
   return result.files;
 };
 
-export const listFolders = ({ pageSize, parents }: ListProps) => {
+export const listFolders = async ({ pageSize, parents }: ListProps) => {
   const { drive } = getApiClient();
-  return drive.files.list({
+  const response = await drive.files.list({
     q: "mimeType='application/vnd.google-apps.folder'",
     fields: "nextPageToken, files(id, name)",
     pageSize,
     parents,
   });
+  const { result } = response;
+  return result.files;
 };
 
 export interface CreateFolderProps {
