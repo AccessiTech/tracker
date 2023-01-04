@@ -50,9 +50,11 @@ export type {
 export {
   setSheetValues,
   getSheetValues,
+  setSheetName,
 } from './GoogleSheets';
 
 export type {
   setSheetValuesProps,
   getSheetValuesProps,
+  setSheetNameProps,
 } from './GoogleSheets';
