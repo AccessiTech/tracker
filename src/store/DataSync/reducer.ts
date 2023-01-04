@@ -38,6 +38,7 @@ export const initialState: DataSyncState = {
 
 // Action Types
 export const TOGGLE_SYNC = "dataSync/toggleSync";
+export const RESET_SYNC = "dataSync/resetSync";
 export const SET_SYNC_METHOD = "dataSync/setSyncMethod";
 export const Set_SYNC_ID = "dataSync/setSyncId";
 export const SET_GOOGLE_DRIVE_FOLDER_ID = "dataSync/setGoogleDriveFolderId";
@@ -56,6 +57,16 @@ export const dataSyncSlice: Slice<
   reducers: {
     [TOGGLE_SYNC]: (state) => {
       state.syncEnabled = !state.syncEnabled;
+    },
+    [RESET_SYNC]: (state) => {
+      const { syncEnabled, syncMethod, syncId, googleDrive } = initialState;
+      const { folderId, logSheetId, logSheets } = googleDrive;
+      state.syncEnabled = syncEnabled;
+      state.syncMethod = syncMethod;
+      state.syncId = syncId;
+      state.googleDrive.folderId = folderId;
+      state.googleDrive.logSheetId = logSheetId;
+      state.googleDrive.logSheets =logSheets;
     },
     [SET_SYNC_METHOD]: (state, action) => {
       const { syncMethod } = action.payload;
@@ -82,6 +93,7 @@ export const dataSyncSlice: Slice<
 
 // Action Creators
 export const toggleSync = dataSyncSlice.actions[TOGGLE_SYNC];
+export const resetSync = dataSyncSlice.actions[RESET_SYNC];
 export const setSyncMethod = dataSyncSlice.actions[SET_SYNC_METHOD];
 export const setSyncId = dataSyncSlice.actions[Set_SYNC_ID];
 export const setGoogleDriveFolderId =
