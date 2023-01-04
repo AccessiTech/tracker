@@ -4,13 +4,15 @@ export interface ListProps {
   pageSize?: number;
   parents?: string[];
 }
-export const listFiles = ({ pageSize, parents }: ListProps) => {
+export const listFiles = async ({ pageSize, parents }: ListProps) => {
   const { drive } = getApiClient();
-  return drive.files.list({
+  const response = await drive.files.list({
     pageSize: pageSize,
     fields: "nextPageToken, files(id, name)",
     q: parents ? `'${parents[0]}' in parents and trashed=false` : "trashed=false",
   });
+  const { result } = response;
+  return result.files;
 };
 
 export const listFolders = ({ pageSize, parents }: ListProps) => {
