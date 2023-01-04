@@ -21,8 +21,9 @@ export interface DataSyncProps {
 }
 
 export const handleError = (error: any): void => {
-  console.error(JSON.parse(error.body));
   store.dispatch(resetSync(""));
+  // console.error(error);
+  throw new Error(error?.message || error);
 };
 
 export const DataSync: FC<DataSyncProps> = ({
@@ -125,6 +126,9 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
             parents: [e.target.value],
           }).then((files:any[]) => {
             setFilesToSelect(files);
+          }).catch((err:any) => {
+            onError(err?.result?.error);
+            setActiveTab(DataSyncTabs.ERROR);
           });
         }
       }}
@@ -190,7 +194,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       })
                         .then(onInitSuccess)
                         .catch((err: any) => {
-                          onError(err);
+                          onError(err?.result?.error);
                           setActiveTab(DataSyncTabs.ERROR);
                         });
                     }}

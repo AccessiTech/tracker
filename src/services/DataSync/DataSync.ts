@@ -36,7 +36,7 @@ export const initDataSync = async ({
       })
       .catch((err: any) => {
         console.log("Error creating folder: ");
-        onError(err);
+        onError(err?.result?.error);
       }));
   if (!newFolderId) {
     throw new Error("Error creating folder");
@@ -57,7 +57,7 @@ export const initDataSync = async ({
       })
       .catch((err: any) => {
         console.log("Error creating primary spreadsheet: ");
-        onError(err);
+        onError(err?.result?.error);
       }));
 
   if (!spreadsheetId) {
@@ -100,7 +100,7 @@ export const initDataSync = async ({
       }))
       .catch((err: any) => {
         console.log("Error updating sheet: ");
-        onError(err);
+        onError(err?.result?.error);
       });
   }
   
@@ -128,7 +128,8 @@ export const connectDataSync = async ({
     range: "A2",
   }).then((result: any) => result[0][0])
   .catch((err: any) => {
-    onError(err);
+    console.log("Error getting syncId: ");
+    onError(err?.result?.error);
   });
   if (!syncId) throw new Error("Error getting syncId");
   return {
