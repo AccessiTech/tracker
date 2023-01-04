@@ -3,6 +3,7 @@ import {
   createFolder,
   createSpreadsheet,
   getSheetValues,
+  setSheetName,
   setSheetValues,
 } from "../../components/GoogleApi";
 
@@ -74,25 +75,37 @@ export const initDataSync = async ({
   if (syncId instanceof Array) {
     syncId = syncId[0][0];
   }
-  console.log("syncId: ", syncId);
 
   if (!selectedLogSheet) {
     const newSheetData = {
       syncId,
       dateCreated: new Date().toISOString(),
-    };
+    } as any;
+
+    const newSheetValues = [];
+    for (const key in newSheetData) {
+      if (Object.prototype.hasOwnProperty.call(newSheetData, key)) {
+        newSheetValues.push([key, newSheetData[key]]);
+      }
+    }
+
+    const renameResponse = await setSheetName({
+      sheetId: spreadsheetId,
+      sheetName: "Metadata",
+    })
+      .catch((err: any) => {
+        console.log("Error renaming sheet: ");
+        onError(err?.result?.error);
+      });
+    if (!renameResponse) {
+      throw new Error("Error renaming sheet");
+    }
 
     return setSheetValues({
       sheetId: spreadsheetId,
-      range: "A1",
-      values: [Object.keys(newSheetData), Object.values(newSheetData)],
+      range: "Metadata!A1",
+      values: newSheetValues,
     })
-      .then((result: any) => {
-        if (result.status !== 200 || !result.body) {
-          throw new Error("Error updating sheet");
-        }
-        return JSON.parse(result.body);
-      })
       .then(() => ({
         folderId: newFolderId,
         logSheetId: spreadsheetId,
@@ -125,7 +138,7 @@ export const connectDataSync = async ({
   const logSheetId = selectedLogSheet;
   const syncId = await getSheetValues({
     sheetId: logSheetId,
-    range: "A2",
+    range: "Metadata!B1",
   }).then((result: any) => result[0][0])
   .catch((err: any) => {
     console.log("Error getting syncId: ");

@@ -13,6 +13,7 @@ import {
 } from "../../store/Session";
 import { clearLogoutTimer, TokenResponse } from "../GoogleApi";
 import { DataSync } from "../DataSync";
+import { resetSync } from "../../store/DataSync";
 
 /**
  * Sidebar Component
@@ -106,6 +107,9 @@ export const Sidebar: FC<SidebarProps> = ({
         <DataSync
           authenticated={authenticated}
         />
+        <Button variant="secondary" onClick={() => {
+          store.dispatch(resetSync(""))
+        }}>Clear Sync</Button>
         
         <AboutModal show={showAbout} onHide={() => setShowAbout(false)} />
       </Offcanvas.Body>
