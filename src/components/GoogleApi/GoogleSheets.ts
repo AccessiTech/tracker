@@ -25,10 +25,12 @@ export interface getSheetValuesProps {
   sheetId: string;
   range: string;
 }
-export const getSheetValues = ({ sheetId, range }: getSheetValuesProps) => {
+export const getSheetValues = async ({ sheetId, range }: getSheetValuesProps) => {
   const { sheets } = getApiClient();
-  return sheets.spreadsheets.values.get({
+  const response = await sheets.spreadsheets.values.get({
     spreadsheetId: sheetId,
     range,
   });
+  const { result } = response;
+  return result.values;
 };
