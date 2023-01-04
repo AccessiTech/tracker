@@ -1,13 +1,19 @@
 import React, { FC, ReactElement } from "react";
 import { Button, Col, Form, Modal, Nav, Row, Tab } from "react-bootstrap";
-import { v4 as uuidv4 } from "uuid";
 import store from "../../store/store";
-import { setGoogleDriveFolderId, setGoogleDriveLogSheetId, setSyncId, useDataSync } from "../../store/DataSync";
+import {
+  resetSync,
+  setGoogleDriveFolderId,
+  setGoogleDriveLogSheetId,
+  setSyncId,
+  useDataSync,
+} from "../../store/DataSync";
 
 import { PRIMARY } from "../../strings";
-import { createFolder, createSpreadsheet, getSheetValues, listFiles, listFolders, setSheetValues } from "../GoogleApi";
+import { listFiles, listFolders } from "../GoogleApi";
 
 import "./DataSync.scss";
+import { connectDataSync, initDataSync } from "../../services/DataSync";
 
 export interface DataSyncProps {
   authenticated: boolean;
@@ -16,7 +22,8 @@ export interface DataSyncProps {
 
 export const handleError = (error: any): void => {
   console.error(JSON.parse(error.body));
-}
+  store.dispatch(resetSync(""));
+};
 
 export const DataSync: FC<DataSyncProps> = ({
   authenticated,
@@ -30,7 +37,11 @@ export const DataSync: FC<DataSyncProps> = ({
         {"Sync Data..."}
       </Button>
       {showModal && (
-        <DataSyncModal showModal={showModal} setShowModal={setShowModal} onError={onError} />
+        <DataSyncModal
+          showModal={showModal}
+          setShowModal={setShowModal}
+          onError={onError}
+        />
       )}
     </>
   );
@@ -88,18 +99,37 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
       })
       .catch((err: any) => {
         onError(err);
-        setShowModal(false);
+        setActiveTab(DataSyncTabs.ERROR);
       });
   }, []);
+
+  React.useEffect(() => {
+    if (syncId !== sid) {
+      setSid(syncId);
+    }
+    if (folderId !== selectedFolder) {
+      setSelectedFolder(folderId);
+    }
+    if (logSheetId !== mainSheetId) {
+      setMainSheetId(logSheetId);
+    }
+  }, [syncId, folderId, logSheetId]);
 
   const SelectFolder = () => (
     <Form.Select
       id="modal__select_folder"
       className="modal__select_folder"
       defaultValue={selectedFolder}
-      onChange={(e) => {
-        console.log(e.target.value);
+      onChange={async (e) => {
         setSelectedFolder(e.target.value);
+        setShowFileSelect(true);
+        if (e.target.parentElement?.classList.contains('existing_sync')) {
+          listFiles({
+            parents: [e.target.value],
+          }).then((files:any[]) => {
+            setFilesToSelect(files);
+          });
+        }
       }}
     >
       <option>{"Select Folder"}</option>
@@ -116,6 +146,13 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
       )}
     </Form.Select>
   );
+
+  const onInitSuccess = ({ syncId, folderId, logSheetId }: any) => {
+    store.dispatch(setGoogleDriveFolderId({ folderId }));
+    store.dispatch(setGoogleDriveLogSheetId({ logSheetId }));
+    store.dispatch(setSyncId({ syncId }));
+    setActiveTab(DataSyncTabs.SELECT_LOGS);
+  };
 
   return (
     <Modal
@@ -142,67 +179,25 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                 {"Tracker Keeper can sync your data using your Google Drive."}
               </p>
               <Row>
-                <Col>
+                <Col className="new_sync">
                   <h4>{"Start New Data Sync"}</h4>
-                  <Button variant={PRIMARY} onClick={async () => {
-                    console.log("Create Files");
-                    setActiveTab(DataSyncTabs.IN_PROGRESS);
+                  <Button
+                    variant={PRIMARY}
+                    onClick={() => {
+                      setActiveTab(DataSyncTabs.IN_PROGRESS);
 
-                    const newFolderId = selectFolder ? selectedFolder :
-                      await createFolder({
-                        name: "Tracker Keeper Data"
-                      }).then((result: any) => {
-                        if (!result.body) {
-                          throw new Error("Error creating folder");
-                        }
-                        return JSON.parse(result.body).id;
-                      }).catch((err: any) => {
-                        console.log("Error creating folder: ");
-                        onError(err);
-                      });
-                    setSelectFolder(newFolderId);
-                    store.dispatch(setGoogleDriveFolderId({ folderId: newFolderId }));
-
-                    const spreadsheetId = await createSpreadsheet({
-                      name: "Tracker Keeper Data",
-                      parents: [newFolderId],
-                    }).then((result: any) => {
-                      if (!result.body) {
-                        throw new Error("Error creating spreadsheet");
-                      }
-                      return JSON.parse(result.body).id;
-                    }).catch((err: any) => {
-                      console.log("Error creating primary spreadsheet: ");
-                      onError(err);
-                    });
-                    setMainSheetId(spreadsheetId);
-                    store.dispatch(setGoogleDriveLogSheetId({ logSheetId: spreadsheetId }));
-
-                    const newSheetData = {
-                      syncId: uuidv4(),
-                      dateCreated: new Date().toISOString()
-                    }
-                    const updatedSheet = await setSheetValues({
-                      sheetId: spreadsheetId,
-                      range: "A1",
-                      values: [
-                        Object.keys(newSheetData),
-                        Object.values(newSheetData),
-                      ],
-                    }).then((result: any) => {
-                      if (result.status !== 200 || !result.body) {
-                        throw new Error("Error updating sheet");
-                      }
-                      return JSON.parse(result.body);
-                    }).catch((err: any) => {
-                      console.log("Error updating sheet: ");
-                      onError(err);
-                    });
-                    setSid(newSheetData.syncId);
-                    store.dispatch(setSyncId({ syncId: updatedSheet.spreadsheetId }))
-
-                    setActiveTab(DataSyncTabs.SUCCESS);
-                  }}>
+                      initDataSync({
+                        onError,
+                        selectedFolder,
+                        selectedLogSheet: mainSheetId,
+                      })
+                        .then(onInitSuccess)
+                        .catch((err: any) => {
+                          onError(err);
+                          setActiveTab(DataSyncTabs.ERROR);
+                        });
+                    }}
+                  >
                     {"Create Files"}
                   </Button>
                   <Form.Check
@@ -222,7 +217,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   <span>{"Or"}</span>
                   <div className="modal__vertical_divider_line" />
                 </Col>
-                <Col>
+                <Col className="existing_sync">
                   <h4>{"Connect to Existing Data Sync"}</h4>
                   <SelectFolder />
                   {showFileSelect && (
@@ -231,66 +226,40 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       className="modal__select_file"
                       defaultValue={mainSheetId}
                       onChange={(e) => {
-                        console.log(e.target.value);
                         setMainSheetId(e.target.value);
-                        store.dispatch(setGoogleDriveLogSheetId({ logSheetId: e.target.value }));
-                        setActiveTab(DataSyncTabs.SUCCESS);
-                      }}>
+                      }}
+                    >
                       <option>{"Select File"}</option>
-                      {filesToSelect.length ? filesToSelect.map((file) => (
+                      {filesToSelect.length ? (
+                        filesToSelect.map((file) => (
                           <option key={file.id} value={file.id}>
                             {file.name}
                           </option>
-                        )) : (
-                          <option>{"Loading Files..."}</option>
-                        )
-                      }
-                      </Form.Select>
+                        ))
+                      ) : (
+                        <option>{"Loading Files..."}</option>
+                      )}
+                    </Form.Select>
                   )}
-                  <Button variant={PRIMARY} onClick={async () => {
-                    console.log("Connect to Existing Data Sync");
-                    setActiveTab(DataSyncTabs.IN_PROGRESS);
+                  <Button
+                    variant={PRIMARY}
+                    onClick={ () => {
+                      setActiveTab(DataSyncTabs.IN_PROGRESS);
 
-                    const files = await listFiles({
-                      parents: [selectedFolder],
-                    }).then((result: any) => {
-                      if (!result.body) {
-                        throw new Error("Error listing files");
-                      }
-                      const files = JSON.parse(result.body).files;
-                      return files;
-                    })
-                      .catch((err: any) => {
-                        console.log("Error listing files: ");
-                        onError(err);
-                      });
-                    setFilesToSelect(files);
+                      connectDataSync({
+                        onError,
+                        selectedFolder,
+                        selectedLogSheet: mainSheetId,
+                      }).then(onInitSuccess)
+                        .catch((err: any) => {
+                          onError(err);
+                          setActiveTab(DataSyncTabs.ERROR);
+                        });
 
-                    for (const file of files) {
-                      const content = await getSheetValues({
-                        sheetId: file.id,
-                        range: "A1:A2",
-                      }).then((result: any) => {
-                        if (!result.body) {
-                          throw new Error("Error getting sheet values");
-                        }
-                        return JSON.parse(result.body);
-                      }).catch((err: any) => {
-                        console.log("Error getting sheet values: ");
-                        onError(err);
-                      });
-
-                      if (content.values[0][0] === "syncId" && content.values[1][0] === sid) {
-                        store.dispatch(setGoogleDriveFolderId({ folderId: selectedFolder }));
-                        store.dispatch(setGoogleDriveLogSheetId({ logSheetId: file.id }));
-                        store.dispatch(setSyncId({ syncId: content.values[1][0] }));
-                        setActiveTab(DataSyncTabs.SUCCESS);
-                        return;
-                      }
-                    }
-                    setActiveTab(DataSyncTabs.SPLASH);
-                    setShowFileSelect(true);
-                  }}>{"Connect"}</Button>
+                    }}
+                  >
+                    {"Connect"}
+                  </Button>
                 </Col>
               </Row>
             </Tab.Pane>
