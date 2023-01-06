@@ -1,2 +1,16 @@
-export { initDataSync, connectDataSync } from "./DataSync";
-export type { InitDataSyncProps, InitDataSyncResponse, ConnectDataSyncProps } from "./DataSync";
+export {
+  initDataSync,
+  connectDataSync,
+  updateDataSync,
+  getLogsToSync,
+  setLogsToSync,
+} from "./DataSync";
+
+export type {
+  InitDataSyncProps,
+  InitDataSyncResponse,
+  ConnectDataSyncProps,
+  UpdateDataSyncProps,
+  GetLogsToSyncProps,
+  SetLogsToSyncProps,
+} from "./DataSync";

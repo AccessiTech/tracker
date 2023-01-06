@@ -1,19 +1,21 @@
 import React, { FC, ReactElement } from "react";
-import { Button, Col, Form, Modal, Nav, Row, Tab } from "react-bootstrap";
+import { Button, Col, Form, Modal, Nav, Row, Tab, Table } from "react-bootstrap";
 import store from "../../store/store";
 import {
   resetSync,
+  setEnableSync,
   setGoogleDriveFolderId,
   setGoogleDriveLogSheetId,
   setSyncId,
   useDataSync,
 } from "../../store/DataSync";
 
-import { PRIMARY } from "../../strings";
+import { OUTLINE_SECONDARY, PRIMARY } from "../../strings";
 import { listFiles, listFolders } from "../GoogleApi";
 
 import "./DataSync.scss";
-import { connectDataSync, initDataSync } from "../../services/DataSync";
+import { connectDataSync, initDataSync, setLogsToSync } from "../../services/DataSync";
+import { Log, useGetLogsArray } from "../../store/Log";
 
 export interface DataSyncProps {
   authenticated: boolean;
@@ -78,10 +80,11 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   setShowModal,
   onError,
 }): ReactElement => {
-  const { googleDrive, syncId } = useDataSync();
+  const { googleDrive, syncId, syncEnabled } = useDataSync();
   const { folderId, logSheetId } = googleDrive;
+  const _activeTab = syncEnabled ? DataSyncTabs.SELECT_LOGS : DataSyncTabs.SPLASH;
   const [selectFolder, setSelectFolder] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState(DataSyncTabs.SPLASH);
+  const [activeTab, setActiveTab] = React.useState(_activeTab);
   const [folders, setFolders] = React.useState([] as DriveFolder[]);
   const [selectedFolder, setSelectedFolder] = React.useState(folderId as string);
   const [mainSheetId, setMainSheetId] = React.useState(logSheetId as string);
@@ -89,18 +92,32 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   const [filesToSelect, setFilesToSelect] = React.useState([] as any[]);
   const [sid, setSid] = React.useState(syncId as string);
 
+  const [localLogs] = React.useState(useGetLogsArray());
+  const [allLogs, setAllLogs] = React.useState([] as any[]);
+  const [remoteLogs, setRemoteLogs] = React.useState([] as any[]);
+  const [selectedLogs, setSelectedLogs] = React.useState([] as string[]);
+
+  // On Mount
   React.useEffect(() => {
-    listFolders({})
-      .then((files: any[]) => {
-        const folders = files.length ? files : [noFolderFound];
-        setFolders(folders);
-      })
-      .catch((err: any) => {
-        onError(err);
-        setActiveTab(DataSyncTabs.ERROR);
-      });
+    if (!syncEnabled) {
+      listFolders({})
+        .then((files: any[]) => {
+          const folders = files.length ? files : [noFolderFound];
+          setFolders(folders);
+        })
+        .catch((err: any) => {
+          onError(err);
+          setActiveTab(DataSyncTabs.ERROR);
+        });
+    } else {
+      setActiveTab(DataSyncTabs.SELECT_LOGS);
+      // todo: get remote logs
+      const newRemoteLogs = [] as any[];
+      setRemoteLogs(newRemoteLogs);
+    }
   }, []);
 
+  // On Sync data Change
   React.useEffect(() => {
     if (syncId !== sid) {
       setSid(syncId);
@@ -113,12 +130,23 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
     }
   }, [syncId, folderId, logSheetId]);
 
+  // on local and remote logs change
+  React.useEffect(() => {
+    const allLogsSet = new Set([...localLogs, ...remoteLogs]);
+    setAllLogs(Array.from(allLogsSet));
+  }, [localLogs, remoteLogs]);
+
   const SelectFolder = () => (
     <Form.Select
       id="modal__select_folder"
       className="modal__select_folder"
       defaultValue={selectedFolder}
       onChange={async (e) => {
+        if (!e.target.value) {
+          setSelectedFolder(e.target.value);
+          setShowFileSelect(false);
+          return;
+        }
         setSelectedFolder(e.target.value);
         setShowFileSelect(true);
         if (e.target.parentElement?.classList.contains('existing_sync')) {
@@ -133,7 +161,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
         }
       }}
     >
-      <option>{"Select Folder"}</option>
+      <option value={""}>{"Select Folder"}</option>
       {folders.length ? (
         folders.map((folder) => {
           return (
@@ -149,6 +177,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   );
 
   const onInitSuccess = ({ syncId, folderId, logSheetId }: any) => {
+    store.dispatch(setEnableSync(true));
     store.dispatch(setGoogleDriveFolderId({ folderId }));
     store.dispatch(setGoogleDriveLogSheetId({ logSheetId }));
     store.dispatch(setSyncId({ syncId }));
@@ -175,6 +204,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
         </Modal.Header>
         <Modal.Body>
           <Tab.Content>
+
+            {/* ***** SPLASH TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.SPLASH}>
               <p>
                 {"Tracker Keeper can sync your data using your Google Drive."}
@@ -264,18 +295,97 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                 </Col>
               </Row>
             </Tab.Pane>
+
+            {/* ***** IN PROGRESS TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.IN_PROGRESS}>
               <p>{"In Progress"}</p>
             </Tab.Pane>
+
+            {/* ***** SELECT LOGS TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.SELECT_LOGS}>
-              <p>{"Select Logs"}</p>
+              <h4>{"Select Logs to Sync"}</h4>
+              {/* table with rows for each log and a checkbox for selection */}
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>{"Log Name"}</th>
+                    <th>{"Sync"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allLogs.map((log: Log) => (
+                    <tr key={log.id}>
+                      <td>{log.name}</td>
+                      <td>
+                        <Form.Check
+                          type="checkbox"
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            const newSelectedLogs = checked
+                              ? [...selectedLogs, log.id]
+                              : selectedLogs.filter((id) => id !== log.id);
+                            setSelectedLogs(newSelectedLogs);
+                          }}
+                          defaultChecked={selectedLogs.includes(log.id)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+
+              <Button
+                variant={OUTLINE_SECONDARY}
+                onClick={() => {
+                  setActiveTab(DataSyncTabs.SPLASH);
+                  store.dispatch(resetSync(""));
+                }}
+              >{"Disconnect"}</Button>
+              &nbsp;
+
+              <Button
+                variant={PRIMARY}
+                onClick={() => {
+                  setActiveTab(DataSyncTabs.IN_PROGRESS);
+                  setLogsToSync({
+                    onError,
+                    folderId: selectedFolder,
+                    logSheetId: mainSheetId,
+                    syncId,
+                    logs: selectedLogs,
+                  })
+                    .then(async () => {
+                      // 1. get existing log sheets
+
+                      // 2. get logs to sync
+
+                      // 3. create new log sheets for logs when needed
+
+                      // 4. sync existing logs
+
+                    })
+                    .then(() => {
+                      setActiveTab(DataSyncTabs.SUCCESS);
+                    })
+                    .catch((err: any) => {
+                      throw onError(err);
+                    });
+                }}
+              >{"Sync Logs"}</Button>
+
             </Tab.Pane>
+
+            {/* ***** SUCCESS TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.SUCCESS}>
               <p>{"Success"}</p>
             </Tab.Pane>
+
+            {/* ***** ERROR TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.ERROR}>
               <p>{"Error"}</p>
             </Tab.Pane>
+
+            {/* ***** CONFIG TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.CONFIG}>
               <p>{"Config"}</p>
             </Tab.Pane>

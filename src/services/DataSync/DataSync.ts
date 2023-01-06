@@ -151,3 +151,138 @@ export const connectDataSync = async ({
     syncId,
   };
 };
+
+export interface UpdateDataSyncProps {
+  onError: (error: any) => void;
+  folderId: string;
+  logSheetId: string;
+  syncId: string;
+  data: any;
+}
+export const updateDataSync = async ({
+  onError,
+  folderId,
+  logSheetId,
+  syncId,
+  data,
+}: UpdateDataSyncProps): Promise<void> => {
+  const newSheetData = {
+    syncId,
+    dateUpdated: new Date().toISOString(),
+    ...data,
+  } as any;
+
+  const newSheetValues = [];
+  for (const key in newSheetData) {
+    if (Object.prototype.hasOwnProperty.call(newSheetData, key)) {
+      newSheetValues.push([key, newSheetData[key]]);
+    }
+  }
+
+  return setSheetValues({
+    sheetId: logSheetId,
+    range: "Metadata!A1",
+    values: newSheetValues,
+  })
+    .then(() => ({
+      folderId,
+      logSheetId,
+      syncId,
+    }))
+    .catch((err: any) => {
+      console.log("Error updating sheet: ");
+      onError(err?.result?.error);
+    });
+}
+
+export interface SetLogsToSyncProps {
+  onError: (error: any) => void;
+  folderId: string;
+  logSheetId: string;
+  syncId: string;
+  logs: string[];
+}
+
+export const setLogsToSync = async ({
+  onError,
+  folderId,
+  logSheetId,
+  syncId,
+  logs,
+}: SetLogsToSyncProps): Promise<void> => {
+
+  const existingSheetData = await getSheetValues({
+    sheetId: logSheetId,
+    range: "Metadata!A:B",
+  }).then((result: []) => {
+    const data = {};
+    for (const row of result) {
+      data[row[0]] = row[1];
+    }
+    return data;
+  }).catch((err: any) => {
+    console.log("Error getting existing sheet data: ");
+    throw onError(err?.result?.error);
+  });
+
+  // if (existingSheetData.syncId !== syncId) throw new Error("Sync ID mismatch");
+
+  const newSheetData = {
+    ...existingSheetData,
+    syncId,
+    dateUpdated: new Date().toISOString(),
+    logs: JSON.stringify(logs),
+  } as any;
+
+  const newSheetValues = [];
+  for (const key in newSheetData) {
+    if (Object.prototype.hasOwnProperty.call(newSheetData, key)) {
+      newSheetValues.push([key, newSheetData[key]]);
+    }
+  }
+
+  return setSheetValues({
+    sheetId: logSheetId,
+    range: "Metadata!A1",
+    values: newSheetValues,
+  })
+    .then(() => ({
+      folderId,
+      logSheetId,
+      syncId,
+    }))
+    .catch((err: any) => {
+      console.log("Error updating sheet: ");
+      throw onError(err?.result?.error);
+    });
+};
+
+export interface GetLogsToSyncProps {
+  onError: (error: any) => void;
+  logSheetId: string;
+  syncId: string;
+}
+
+export const getLogsToSync = async ({
+  onError,
+  logSheetId,
+}: GetLogsToSyncProps): Promise<string[]> => {
+  const existingSheetData = await getSheetValues({
+    sheetId: logSheetId,
+    range: "Metadata!A:B",
+  }).then((result: []) => {
+    const data = {};
+    for (const row of result) {
+      data[row[0]] = row[1];
+    }
+    return data as any;
+  }).catch((err: any) => {
+    console.log("Error getting existing sheet data: ");
+    throw onError(err?.result?.error);
+  });
+
+  // if (existingSheetData.syncId !== syncId) throw new Error("Sync ID mismatch");
+
+  const logs = JSON.parse(existingSheetData.logs);
+  return logs;
+}
