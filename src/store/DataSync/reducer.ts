@@ -37,7 +37,7 @@ export const initialState: DataSyncState = {
 };
 
 // Action Types
-export const TOGGLE_SYNC = "dataSync/toggleSync";
+export const SET_ENABLE_SYNC = "dataSync/setEnableSync";
 export const RESET_SYNC = "dataSync/resetSync";
 export const SET_SYNC_METHOD = "dataSync/setSyncMethod";
 export const Set_SYNC_ID = "dataSync/setSyncId";
@@ -55,8 +55,9 @@ export const dataSyncSlice: Slice<
   name: dataSyncSliceName,
   initialState,
   reducers: {
-    [TOGGLE_SYNC]: (state) => {
-      state.syncEnabled = !state.syncEnabled;
+    [SET_ENABLE_SYNC]: (state, action) => {
+      const { syncEnabled } = action.payload;
+      state.syncEnabled = syncEnabled;
     },
     [RESET_SYNC]: (state) => {
       const { syncEnabled, syncMethod, syncId, googleDrive } = initialState;
@@ -92,7 +93,7 @@ export const dataSyncSlice: Slice<
 });
 
 // Action Creators
-export const toggleSync = dataSyncSlice.actions[TOGGLE_SYNC];
+export const setEnableSync = dataSyncSlice.actions[SET_ENABLE_SYNC];
 export const resetSync = dataSyncSlice.actions[RESET_SYNC];
 export const setSyncMethod = dataSyncSlice.actions[SET_SYNC_METHOD];
 export const setSyncId = dataSyncSlice.actions[Set_SYNC_ID];

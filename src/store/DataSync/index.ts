@@ -3,7 +3,7 @@ export {
   dataSyncSliceName,
   GOOGLE_DRIVE,
   initialState,
-  TOGGLE_SYNC,
+  SET_ENABLE_SYNC,
   RESET_SYNC,
   SET_SYNC_METHOD,
   Set_SYNC_ID,
@@ -11,7 +11,7 @@ export {
   SET_GOOGLE_DRIVE_LOG_SHEET_ID,
   SET_GOOGLE_DRIVE_LOG_SHEETS,
   
-  toggleSync,
+  setEnableSync,
   resetSync,
   setSyncMethod,
   setSyncId,
