@@ -2,6 +2,7 @@ import React, { FC, ReactElement } from "react";
 import { Button, Col, Form, Modal, Nav, Row, Tab, Table } from "react-bootstrap";
 import store from "../../store/store";
 import {
+  addGoogleDriveLogSheet,
   resetSync,
   setEnableSync,
   setGoogleDriveFolderId,
@@ -17,7 +18,7 @@ import { listFiles, listFolders } from "../GoogleApi";
 import "./DataSync.scss";
 import { connectDataSync, getLogSheetIds, initDataSync, setLogsToSync } from "../../services/DataSync";
 import { Log, useGetLogsArray } from "../../store/Log";
-import { initNewLogSheet } from "../../services/DataSync/DataSync";
+import { initNewLogSheet, setLogSheetIds } from "../../services/DataSync/DataSync";
 
 export interface DataSyncProps {
   authenticated: boolean;
@@ -372,6 +373,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
 
                       // 3. create new log sheets for logs when needed
                       if (sheetsToCreate.length) {
+                        const sheetMap:any = {};
                         for (const logId of sheetsToCreate) {
                           const thisLog = localLogs.find(
                             (log) => log.id === logId
@@ -382,16 +384,26 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                               syncId,
                               log: thisLog,
                               folderId: selectedFolder,
+                            }).then((sheetId:{id:string}) => {
+                              sheetMap[logId] = sheetId.id;
+                              store.dispatch(addGoogleDriveLogSheet({ [logId]: sheetId.id }));
                             });
                           }
                         }
+
+                        // 4. update log sheet ids in main sheet
+                        setLogSheetIds({
+                          onError,
+                          logSheetId: mainSheetId,
+                          logSheetIds: {
+                            ...existingLogSheetIds,
+                            ...sheetMap,
+                          },
+                        });
                       }
-
-                      // 4. sync existing logs
-
                     })
                     .then(() => {
-                      setActiveTab(DataSyncTabs.SUCCESS);
+                      setActiveTab(DataSyncTabs.CONFIG);
                     })
                     .catch((err: any) => {
                       throw onError(err);
