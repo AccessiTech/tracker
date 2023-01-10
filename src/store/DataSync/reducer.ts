@@ -7,11 +7,6 @@ export const dataSyncSliceName = "dataSync";
 export const GOOGLE_DRIVE = "googleDrive";
 
 // State Interfaces
-export interface LogSheet {
-  id: string;
-  fieldsSheetId: string;
-  entriesSheetId: string;
-}
 
 export interface DataSyncState {
   syncEnabled: boolean;
@@ -20,7 +15,7 @@ export interface DataSyncState {
   googleDrive: {
     folderId: string;
     logSheetId: string;
-    logSheets: { [key: string]: LogSheet };
+    logSheets: { [key: string]: string };
   };
 }
 
@@ -86,8 +81,11 @@ export const dataSyncSlice: Slice<
       state.googleDrive.logSheetId = logSheetId;
     },
     [SET_GOOGLE_DRIVE_LOG_SHEETS]: (state, action) => {
-      const { logSheet } = action.payload;
-      state.googleDrive.logSheets[logSheet.id] = logSheet;
+      const { logSheets } = action.payload;
+      state.googleDrive.logSheets = {
+        ...state.googleDrive.logSheets,
+        ...logSheets,
+      };
     },
   },
 });
@@ -139,12 +137,12 @@ export const useGoogleDriveLogSheetId = (): string => {
   return googleDrive.logSheetId;
 };
 
-export const useGoogleDriveLogSheets = (): { [key: string]: LogSheet } => {
+export const useGoogleDriveLogSheets = (): { [key: string]: string } => {
   const googleDrive = useGoogleDrive();
   return googleDrive.logSheets;
 };
 
-export const useGoogleDriveLogSheet = (id: string): LogSheet => {
+export const useGoogleDriveLogSheet = (id: string): string => {
   const googleDrive = useGoogleDrive();
-  return googleDrive.logSheets[id] || ({} as LogSheet);
+  return googleDrive.logSheets[id] || EMPTY;
 };
