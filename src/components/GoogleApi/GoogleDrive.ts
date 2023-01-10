@@ -48,7 +48,7 @@ export interface CreateFileProps {
   mimeType: string;
   parents: string[];
 }
-export const createFile = ({ name, mimeType, parents }: CreateFileProps) => {
+export const createFile = async ({ name, mimeType, parents }: CreateFileProps) => {
   const { drive } = getApiClient();
   return drive.files.create({
     resource: {
@@ -64,7 +64,7 @@ export interface CreateSpreadsheetProps {
   name: string;
   parents: string[];
 }
-export const createSpreadsheet = ({
+export const createSpreadsheet = async ({
   name,
   parents,
 }: CreateSpreadsheetProps) => {

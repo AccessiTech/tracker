@@ -43,38 +43,43 @@ export interface setSheetNameProps {
   sheetName: string | string[];
 }
 
-export const defaultSheetNameRequest = {
-  updateSheetProperties: {
-    properties: {
-      sheetId: 0,
-      title: "",
-    },
-    fields: "title",
-  },
-};
-
 export const setSheetName = async ({
   sheetId,
   sheetName,
 }: setSheetNameProps) => {
   const { sheets } = getApiClient();
-
   const requests = Array.isArray(sheetName)
     ? sheetName.map((name, index) => {
-        const thisRequest = { ...defaultSheetNameRequest };
-        thisRequest.updateSheetProperties.properties.sheetId = index;
-        thisRequest.updateSheetProperties.properties.title = name;
+        const thisRequest:any = {};
+        if (!index) {
+          thisRequest.updateSheetProperties = {
+            properties: {
+              sheetId: index,
+              title: name,
+              index,
+            },
+            fields: "title",
+          }
+        } else {
+          thisRequest.addSheet = {
+            properties: {
+              sheetId: index,
+              title: name,
+              index,
+            },
+          };
+        }
         return thisRequest;
       })
     : [
         {
-          ...defaultSheetNameRequest,
           updateSheetProperties: {
-            ...defaultSheetNameRequest.updateSheetProperties,
             properties: {
-              ...defaultSheetNameRequest.updateSheetProperties.properties,
+              sheetId: 0,
               title: sheetName,
-            }
+              index: 0,
+            },
+            fields: "title",
           }
         },
       ];
