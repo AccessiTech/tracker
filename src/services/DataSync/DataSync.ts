@@ -441,7 +441,7 @@ export const initNewLogSheet = async ({
     // basic field info
     "id", "name", "type", "required", "option", "typeOption", "typeOptionStrings", "defaultValue",
     // field specific info
-    "min", "max", "step", "unit", "truelabel", "falseLabel", "options",
+    "min", "max", "step", "unit", "trueLabel", "falseLabel", "options",
     // CRUD info
     "createdAt", "updatedAt"
   ];
@@ -519,7 +519,7 @@ export const setLogFields = async ({
     // basic field info
     "id", "name", "type", "required", "option", "typeOption", "typeOptionStrings", "defaultValue",
     // field specific info
-    "min", "max", "step", "unit", "truelabel", "falseLabel", "options",
+    "min", "max", "step", "unit", "trueLabel", "falseLabel", "options",
     // CRUD info
     "createdAt", "updatedAt"
   ];
