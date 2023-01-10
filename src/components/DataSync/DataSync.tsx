@@ -6,6 +6,7 @@ import {
   setEnableSync,
   setGoogleDriveFolderId,
   setGoogleDriveLogSheetId,
+  setGoogleDriveLogSheets,
   setSyncId,
   useDataSync,
 } from "../../store/DataSync";
@@ -14,8 +15,9 @@ import { OUTLINE_SECONDARY, PRIMARY } from "../../strings";
 import { listFiles, listFolders } from "../GoogleApi";
 
 import "./DataSync.scss";
-import { connectDataSync, initDataSync, setLogsToSync } from "../../services/DataSync";
+import { connectDataSync, getLogSheetIds, initDataSync, setLogsToSync } from "../../services/DataSync";
 import { Log, useGetLogsArray } from "../../store/Log";
+import { initNewLogSheet } from "../../services/DataSync/DataSync";
 
 export interface DataSyncProps {
   authenticated: boolean;
@@ -81,7 +83,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   onError,
 }): ReactElement => {
   const { googleDrive, syncId, syncEnabled } = useDataSync();
-  const { folderId, logSheetId } = googleDrive;
+  const { folderId, logSheetId, logSheets } = googleDrive;
   const _activeTab = syncEnabled ? DataSyncTabs.SELECT_LOGS : DataSyncTabs.SPLASH;
   const [selectFolder, setSelectFolder] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState(_activeTab);
@@ -176,10 +178,11 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
     </Form.Select>
   );
 
-  const onInitSuccess = ({ syncId, folderId, logSheetId }: any) => {
+  const onInitSuccess = ({ syncId, folderId, logSheetId, sheets }: any) => {
     store.dispatch(setEnableSync(true));
     store.dispatch(setGoogleDriveFolderId({ folderId }));
     store.dispatch(setGoogleDriveLogSheetId({ logSheetId }));
+    store.dispatch(setGoogleDriveLogSheets({ logSheets: sheets }));
     store.dispatch(setSyncId({ syncId }));
     setActiveTab(DataSyncTabs.SELECT_LOGS);
   };
@@ -304,7 +307,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
             {/* ***** SELECT LOGS TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.SELECT_LOGS}>
               <h4>{"Select Logs to Sync"}</h4>
-              {/* table with rows for each log and a checkbox for selection */}
+
               <Table striped bordered hover>
                 <thead>
                   <tr>
@@ -356,10 +359,33 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   })
                     .then(async () => {
                       // 1. get existing log sheets
+                      const existingLogSheetIds = await getLogSheetIds({
+                        onError,
+                        logSheetId: mainSheetId,
+                        syncId,
+                      });
 
                       // 2. get logs to sync
+                      const sheetsToCreate = selectedLogs.filter(
+                        (logId) => !existingLogSheetIds[logId]
+                      );
 
                       // 3. create new log sheets for logs when needed
+                      if (sheetsToCreate.length) {
+                        for (const logId of sheetsToCreate) {
+                          const thisLog = localLogs.find(
+                            (log) => log.id === logId
+                          );
+                          if (thisLog) {
+                            await initNewLogSheet({
+                              onError,
+                              syncId,
+                              log: thisLog,
+                              folderId: selectedFolder,
+                            });
+                          }
+                        }
+                      }
 
                       // 4. sync existing logs
 

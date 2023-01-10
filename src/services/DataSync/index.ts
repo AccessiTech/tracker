@@ -4,6 +4,13 @@ export {
   updateDataSync,
   getLogsToSync,
   setLogsToSync,
+  getLogSheetIds,
+  setLogSheetIds,
+  initNewLogSheet,
+  getLogFields,
+  setLogFields,
+  getLogEntries,
+  setLogEntries,
 } from "./DataSync";
 
 export type {
@@ -13,4 +20,11 @@ export type {
   UpdateDataSyncProps,
   GetLogsToSyncProps,
   SetLogsToSyncProps,
+  GetLogSheetIdsProps,
+  SetLogSheetIdsProps,
+  InitNewLogSheetProps,
+  GetLogFieldsProps,
+  SetLogFieldsProps,
+  GetLogEntriesProps,
+  SetLogEntriesProps,
 } from "./DataSync";
