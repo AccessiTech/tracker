@@ -40,6 +40,8 @@ export const SET_GOOGLE_DRIVE_FOLDER_ID = "dataSync/setGoogleDriveFolderId";
 export const SET_GOOGLE_DRIVE_LOG_SHEET_ID =
   "dataSync/setGoogleDriveLogSheetId";
 export const SET_GOOGLE_DRIVE_LOG_SHEETS = "dataSync/setGoogleDriveLogSheets";
+export const ADD_GOOGLE_DRIVE_LOG_SHEET = "dataSync/addGoogleDriveLogSheet";
+export const REMOVE_GOOGLE_DRIVE_LOG_SHEET = "dataSync/removeGoogleDriveLogSheet";
 
 // Reducer
 export const dataSyncSlice: Slice<
@@ -82,11 +84,18 @@ export const dataSyncSlice: Slice<
     },
     [SET_GOOGLE_DRIVE_LOG_SHEETS]: (state, action) => {
       const { logSheets } = action.payload;
+      state.googleDrive.logSheets = logSheets;
+    },
+    [ADD_GOOGLE_DRIVE_LOG_SHEET]: (state, action) => {
       state.googleDrive.logSheets = {
         ...state.googleDrive.logSheets,
-        ...logSheets,
+        ...action.payload,
       };
     },
+    [REMOVE_GOOGLE_DRIVE_LOG_SHEET]: (state, action) => {
+      const { logSheetId } = action.payload;
+      delete state.googleDrive.logSheets[logSheetId];
+    }
   },
 });
 
@@ -101,6 +110,10 @@ export const setGoogleDriveLogSheetId =
   dataSyncSlice.actions[SET_GOOGLE_DRIVE_LOG_SHEET_ID];
 export const setGoogleDriveLogSheets =
   dataSyncSlice.actions[SET_GOOGLE_DRIVE_LOG_SHEETS];
+export const addGoogleDriveLogSheet =
+  dataSyncSlice.actions[ADD_GOOGLE_DRIVE_LOG_SHEET];
+export const removeGoogleDriveLogSheet =
+  dataSyncSlice.actions[REMOVE_GOOGLE_DRIVE_LOG_SHEET];
 
 
 // Hooks

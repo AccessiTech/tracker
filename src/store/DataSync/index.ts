@@ -10,6 +10,8 @@ export {
   SET_GOOGLE_DRIVE_FOLDER_ID,
   SET_GOOGLE_DRIVE_LOG_SHEET_ID,
   SET_GOOGLE_DRIVE_LOG_SHEETS,
+  ADD_GOOGLE_DRIVE_LOG_SHEET,
+  REMOVE_GOOGLE_DRIVE_LOG_SHEET,
   
   setEnableSync,
   resetSync,
@@ -18,6 +20,8 @@ export {
   setGoogleDriveFolderId,
   setGoogleDriveLogSheetId,
   setGoogleDriveLogSheets,
+  addGoogleDriveLogSheet,
+  removeGoogleDriveLogSheet,
   
   useDataSync,
   useSyncEnabled,
