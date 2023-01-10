@@ -79,7 +79,6 @@ export const initDataSync = async ({
     const newSheetData = {
       syncId,
       dateCreated: new Date().toISOString(),
-      sheetIds: '[]',
       logsToSync: '[]',
     } as any;
 
@@ -323,16 +322,12 @@ export const getLogSheetIds = async ({
 /** ***** Set Log Sheet IDs in a Data Sync ****** */
 export interface SetLogSheetIdsProps {
   onError: (error: any) => void;
-  folderId: string;
   logSheetId: string;
-  syncId: string;
   logSheetIds: { [key: string]: string };
 }
 export const setLogSheetIds = async ({
   onError,
-  folderId,
   logSheetId,
-  syncId,
   logSheetIds,
 }: SetLogSheetIdsProps): Promise<void> => {
   
@@ -354,7 +349,6 @@ export const setLogSheetIds = async ({
   
     const newSheetData = {
       ...existingSheetData,
-      syncId,
       dateUpdated: new Date().toISOString(),
       logSheetIds: JSON.stringify(logSheetIds),
     } as any;
@@ -372,9 +366,7 @@ export const setLogSheetIds = async ({
       values: newSheetValues,
     })
       .then(() => ({
-        folderId,
         logSheetId,
-        syncId,
         logSheetIds: JSON.stringify(logSheetIds),
       }))
       .catch((err: any) => {
@@ -395,8 +387,8 @@ export const initNewLogSheet = async ({
   folderId,
   log,
   syncId,
-}: InitNewLogSheetProps): Promise<any> => {
-  const logSheetId = await createSpreadsheet({
+}: InitNewLogSheetProps): Promise<{id:string}> => {
+  const sheetId = await createSpreadsheet({
     parents: [folderId],
     name: log.name,
   })
@@ -425,7 +417,7 @@ export const initNewLogSheet = async ({
     }
   }
   const renameResponse = await setSheetName({
-    sheetId: logSheetId,
+    sheetId,
     sheetName: ["Entries", "Fields", "Metadata"],
   }).catch((err: any) => {
     console.log("Error renaming Log sheet: ");
@@ -448,24 +440,27 @@ export const initNewLogSheet = async ({
 
   return Promise.all([
     setSheetValues({
-      sheetId: logSheetId,
+      sheetId,
       range: "Metadata!A1",
       values: newSheetValues,
     }),
     setSheetValues({
-      sheetId: logSheetId,
+      sheetId,
       range: "Fields!A1",
       values: [fieldHeaders],
     }),
     setSheetValues({
-      sheetId: logSheetId,
+      sheetId,
       range: "Entries!A1",
       values: [
         [...fieldIds, "createdAt", "updatedAt"],
         [...fieldNames, "createdAt", "updatedAt"],
       ],
     }),
-  ]).catch((err: any) => {
+  ]).then(() => ({
+    id: sheetId,
+  }))
+  .catch((err: any) => {
     console.log("Error updating log sheet: ");
     throw onError(err?.result?.error);
   });
