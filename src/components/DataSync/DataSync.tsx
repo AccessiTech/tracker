@@ -83,7 +83,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   onError,
 }): ReactElement => {
   const { googleDrive, syncId, syncEnabled } = useDataSync();
-  const { folderId, logSheetId, logSheets } = googleDrive;
+  const { folderId, logSheetId } = googleDrive;
   const _activeTab = syncEnabled ? DataSyncTabs.SELECT_LOGS : DataSyncTabs.SPLASH;
   const [selectFolder, setSelectFolder] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState(_activeTab);

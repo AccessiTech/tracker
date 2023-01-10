@@ -80,6 +80,7 @@ export const initDataSync = async ({
       syncId,
       dateCreated: new Date().toISOString(),
       sheetIds: '[]',
+      logsToSync: '[]',
     } as any;
 
     const newSheetValues = [];
@@ -234,7 +235,7 @@ export const setLogsToSync = async ({
     ...existingSheetData,
     syncId,
     dateUpdated: new Date().toISOString(),
-    logs: JSON.stringify(logs),
+    logsToSync: JSON.stringify(logs),
   } as any;
 
   const newSheetValues = [];
@@ -286,7 +287,7 @@ export const getLogsToSync = async ({
 
   // if (existingSheetData.syncId !== syncId) throw new Error("Sync ID mismatch");
 
-  const logs = JSON.parse(existingSheetData.logs);
+  const logs = JSON.parse(existingSheetData.logsToSync) || [];
   return logs;
 }
 
@@ -311,7 +312,7 @@ export const getLogSheetIds = async ({
     }
     return data as any;
   }).then((existingSheetData: any) => {
-    return JSON.parse(existingSheetData.logSheetIds || {});
+    return JSON.parse(existingSheetData.logSheetIds || '{}');
   })
   .catch((err: any) => {
     console.log("Error getting existing sheet data: ");
@@ -398,10 +399,17 @@ export const initNewLogSheet = async ({
   const logSheetId = await createSpreadsheet({
     parents: [folderId],
     name: log.name,
-  }).catch((err: any) => {
-    console.log("Error creating new Log sheet: ");
-    throw onError(err?.result?.error);
-  });
+  })
+    .then((res: any) => {
+      const id = res?.result?.id;
+      if (!id) throw new Error("No ID returned from createSpreadsheet");
+      return id;
+    })
+    .catch((err: any) => {
+      console.log("Error creating new Log sheet: ");
+      throw onError(err?.result?.error);
+    });
+
 
   const newSheetData = {
     syncId,
