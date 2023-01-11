@@ -1,18 +1,76 @@
 import { getApiClient } from "./GoogleAuth";
 
-export const listFiles = async () => {
+export interface ListProps {
+  pageSize?: number;
+  parents?: string[];
+}
+export const listFiles = async ({ pageSize, parents }: ListProps) => {
   const { drive } = getApiClient();
   const response = await drive.files.list({
-    pageSize: 10,
+    pageSize: pageSize,
     fields: "nextPageToken, files(id, name)",
+    q: parents ? `'${parents[0]}' in parents and trashed=false` : "trashed=false",
   });
-  const files = response.result.files;
-  if (files && files.length > 0) {
-    console.log("Files:");
-    files.map((file: any) => {
-      console.log(`${file.name} (${file.id})`);
-    });
-  } else {
-    console.log("No files found.");
-  }
+  const { result } = response;
+  return result.files;
+};
+
+export const listFolders = async ({ pageSize, parents }: ListProps) => {
+  const { drive } = getApiClient();
+  const response = await drive.files.list({
+    q: "mimeType='application/vnd.google-apps.folder'",
+    fields: "nextPageToken, files(id, name)",
+    pageSize,
+    parents,
+  });
+  const { result } = response;
+  return result.files;
+};
+
+export interface CreateFolderProps {
+  name: string;
+  parents?: string[];
 }
+export const createFolder = ({ name, parents }: CreateFolderProps) => {
+  const { drive } = getApiClient();
+  return drive.files.create({
+    resource: {
+      name,
+      mimeType: "application/vnd.google-apps.folder",
+      parents,
+    },
+    fields: "id",
+  });
+};
+
+export interface CreateFileProps {
+  name: string;
+  mimeType: string;
+  parents: string[];
+}
+export const createFile = async ({ name, mimeType, parents }: CreateFileProps) => {
+  const { drive } = getApiClient();
+  return drive.files.create({
+    resource: {
+      name,
+      mimeType,
+      parents,
+    },
+    fields: "id",
+  });
+};
+
+export interface CreateSpreadsheetProps {
+  name: string;
+  parents: string[];
+}
+export const createSpreadsheet = async ({
+  name,
+  parents,
+}: CreateSpreadsheetProps) => {
+  return createFile({
+    name,
+    mimeType: "application/vnd.google-apps.spreadsheet",
+    parents,
+  });
+};
