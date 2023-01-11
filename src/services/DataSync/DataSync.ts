@@ -632,12 +632,18 @@ export interface SyncLogSheetProps {
   logSheetId: string;
   log?: Log;
 }
+export interface SyncLogSheetResponse {
+  metadata: Partial<Log>;
+  entries: LogEntry[];
+  fields: LogFields[];
+}
+
 export const syncLogSheet = async ({
   onError,
   logSheetId,
   log,
-}: SyncLogSheetProps): Promise<Log> => {
-  const newMetadata:any = await syncLogMetadata({
+}: SyncLogSheetProps): Promise<SyncLogSheetResponse> => {
+  const newMetadata: any = await syncLogMetadata({
     onError,
     logSheetId,
     log,
@@ -652,15 +658,16 @@ export const syncLogSheet = async ({
     logSheetId,
     log,
   });
-  
-  // return log entries and fields that were updated
-  return {
-    ...newMetadata,
-    recurrence: newMetadata.recurrence ? JSON.parse(newMetadata.recurrence) : undefined,
+
+  return  {
+    metadata: {
+      ...newMetadata,
+      recurrence: newMetadata.recurrence ? JSON.parse(newMetadata.recurrence) : undefined,
+    } as Partial<Log>,
     entries: newEntries,
     fields: newFields,
-  } as Log;
-}
+  };
+};
 
 /** ***** Sync Log Metadata ***** */
 export interface SyncLogMetadataOptions {
@@ -756,11 +763,12 @@ export interface SyncLogFieldsOptions {
   logSheetId: string;
   log?: Log;
 }
+
 export const syncLogFields = async ({
   onError,
   logSheetId,
   log,
-}: SyncLogFieldsOptions): Promise<{[fieldId:string]:LogFields}> => {
+}: SyncLogFieldsOptions): Promise<LogFields[]> => {
   // get existing log fields from sheet
   const existingFields: any = await getLogFields({
     onError,
@@ -775,7 +783,7 @@ export const syncLogFields = async ({
 
   // if there is no local log, return existing data from sheet
   if (!log) {
-    return existingFields as { [fieldId: string]: LogFields };
+    return Object.values(existingFields);
   }
 
   // get fields from local log
@@ -826,12 +834,12 @@ export const syncLogFields = async ({
       logSheetId,
       logFields: newFields,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     onError(error);
   }
 
   // return log fields that were updated
-  return newFields as { [fieldId: string]: LogFields };
+  return updatedFieldIds.map((id) => newFields[id]);
 };
 
 
@@ -845,7 +853,7 @@ export const syncLogEntries = async ({
   onError,
   logSheetId,
   log,
-}: SyncLogEntriesOptions): Promise<{[entryId:string]:LogEntry}> => {
+}: SyncLogEntriesOptions): Promise<LogEntry[]> => {
   // get existing log entries from sheet
   const existingEntries = await getLogEntries({
     onError,
@@ -860,7 +868,7 @@ export const syncLogEntries = async ({
 
   // if there is no local log, return existing data from sheet
   if (!log) {
-    return existingEntries as { [entryId: string]: LogEntry };
+    return Object.values(existingEntries);
   }
 
   // get entries from local log
@@ -916,5 +924,5 @@ export const syncLogEntries = async ({
   }
 
   // return log entries that were updated
-  return newEntries as { [entryId: string]: LogEntry };
+  return updatedEntryIds.map((id) => newEntries[id]);
 };
