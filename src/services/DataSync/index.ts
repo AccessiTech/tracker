@@ -11,6 +11,7 @@ export {
   setLogFields,
   getLogEntries,
   setLogEntries,
+  syncLogSheet,
 } from "./DataSync";
 
 export type {
@@ -27,4 +28,5 @@ export type {
   SetLogFieldsProps,
   GetLogEntriesProps,
   SetLogEntriesProps,
+  SyncLogSheetProps,
 } from "./DataSync";

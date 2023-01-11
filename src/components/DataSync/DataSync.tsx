@@ -17,8 +17,8 @@ import { listFiles, listFolders } from "../GoogleApi";
 
 import "./DataSync.scss";
 import { connectDataSync, getLogSheetIds, initDataSync, setLogsToSync } from "../../services/DataSync";
-import { Log, useGetLogsArray } from "../../store/Log";
-import { initNewLogSheet, setLogSheetIds } from "../../services/DataSync/DataSync";
+import { addLog,  Log, updateLog, useGetLogsArray } from "../../store/Log";
+import { initNewLogSheet, setLogSheetIds, syncLogSheet } from "../../services/DataSync/DataSync";
 
 export interface DataSyncProps {
   authenticated: boolean;
@@ -133,10 +133,28 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
     }
   }, [syncId, folderId, logSheetId]);
 
+  // On Sync Setup
+  React.useEffect(() => {
+    if (mainSheetId) {
+      getLogSheetIds({
+        onError,
+        logSheetId: mainSheetId,
+      }).then((sheetIds: {[key:string]: string}) => {
+        setRemoteLogs(Object.keys(sheetIds).map((key) => ({
+          id: key,
+          name: sheetIds[key],
+        })));
+      });
+    }
+  }, [mainSheetId]);
+
   // on local and remote logs change
   React.useEffect(() => {
-    const allLogsSet = new Set([...localLogs, ...remoteLogs]);
-    setAllLogs(Array.from(allLogsSet));
+    const allLogsSet = new Set([...(localLogs.map((l) => l.id)), ...(remoteLogs.map((l) => l.id))]);
+    const allLogs = Array.from(allLogsSet).map((id) => 
+      localLogs.find((l) => l.id === id) || remoteLogs.find((l) => l.id === id)
+    ).filter((l) => l);
+    setAllLogs(allLogs);
   }, [localLogs, remoteLogs]);
 
   const SelectFolder = () => (
@@ -219,10 +237,10 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   <h4>{"Start New Data Sync"}</h4>
                   <Button
                     variant={PRIMARY}
-                    onClick={() => {
+                    onClick={async () => {
                       setActiveTab(DataSyncTabs.IN_PROGRESS);
 
-                      initDataSync({
+                      await initDataSync({
                         onError,
                         selectedFolder,
                         selectedLogSheet: mainSheetId,
@@ -279,10 +297,10 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   )}
                   <Button
                     variant={PRIMARY}
-                    onClick={ () => {
+                    onClick={async () => {
                       setActiveTab(DataSyncTabs.IN_PROGRESS);
 
-                      connectDataSync({
+                      await connectDataSync({
                         onError,
                         selectedFolder,
                         selectedLogSheet: mainSheetId,
@@ -291,7 +309,15 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                           onError(err);
                           setActiveTab(DataSyncTabs.ERROR);
                         });
-
+                      
+                      const logSheetIds:any = await getLogSheetIds({
+                        onError,
+                        logSheetId: mainSheetId,
+                      });
+                      setRemoteLogs(Object.keys(logSheetIds).map((key) => ({
+                        id: key,
+                        name: logSheetIds[key],
+                      })));
                     }}
                   >
                     {"Connect"}
@@ -363,17 +389,18 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       const existingLogSheetIds = await getLogSheetIds({
                         onError,
                         logSheetId: mainSheetId,
-                        syncId,
                       });
+                      console.log('existingLogSheetIds', existingLogSheetIds)
+                      // setRemoteLogs(Object.keys(existingLogSheetIds).map((id:string) => id));
 
                       // 2. get logs to sync
                       const sheetsToCreate = selectedLogs.filter(
                         (logId) => !existingLogSheetIds[logId]
                       );
-
+                      
                       // 3. create new log sheets for logs when needed
+                      let sheetMap:any = {};
                       if (sheetsToCreate.length) {
-                        const sheetMap:any = {};
                         for (const logId of sheetsToCreate) {
                           const thisLog = localLogs.find(
                             (log) => log.id === logId
@@ -392,7 +419,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                         }
 
                         // 4. update log sheet ids in main sheet
-                        setLogSheetIds({
+                        await setLogSheetIds({
                           onError,
                           logSheetId: mainSheetId,
                           logSheetIds: {
@@ -400,6 +427,30 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                             ...sheetMap,
                           },
                         });
+                      }
+
+                      // 5. sync log fields and entries
+                      sheetMap = {
+                        ...existingLogSheetIds,
+                        ...sheetMap,
+                      }
+                      for (const logId of Object.keys(sheetMap)) {
+                        // define local log
+                        const thisLog = localLogs.find(
+                          (log) => log.id === logId
+                        );
+                        // sync local log with google sheet
+                        const thisNewLog = await syncLogSheet({
+                          onError,
+                          logSheetId: sheetMap[logId],
+                          log: thisLog,
+                        });
+                        console.log("thisNewLog", thisNewLog)
+                        if (!thisLog) {
+                          store.dispatch(addLog({ log: thisNewLog }));
+                        } else {
+                          store.dispatch(updateLog({ logId: thisNewLog.id, log: thisNewLog }));
+                        }
                       }
                     })
                     .then(() => {
@@ -409,7 +460,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       throw onError(err);
                     });
                 }}
-              >{"Sync Logs"}</Button>
+              >{"Connect Logs to Data Sync"}</Button>
 
             </Tab.Pane>
 
