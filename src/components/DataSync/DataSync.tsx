@@ -17,7 +17,7 @@ import { listFiles, listFolders } from "../GoogleApi";
 
 import "./DataSync.scss";
 import { connectDataSync, getLogSheetIds, initDataSync, setLogsToSync } from "../../services/DataSync";
-import { addLog,  Log, updateLog, useGetLogsArray } from "../../store/Log";
+import { addLog,  addLogEntry,  addLogField,  Log, updateLog, updateLogEntry, updateLogField, useGetLogsArray } from "../../store/Log";
 import { initNewLogSheet, setLogSheetIds, syncLogSheet } from "../../services/DataSync/DataSync";
 
 export interface DataSyncProps {
@@ -375,90 +375,118 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
 
               <Button
                 variant={PRIMARY}
-                onClick={() => {
+                onClick={async () => {
                   setActiveTab(DataSyncTabs.IN_PROGRESS);
-                  setLogsToSync({
+                  await setLogsToSync({
                     onError,
                     folderId: selectedFolder,
                     logSheetId: mainSheetId,
                     syncId,
                     logs: selectedLogs,
-                  })
-                    .then(async () => {
-                      // 1. get existing log sheets
-                      const existingLogSheetIds = await getLogSheetIds({
-                        onError,
-                        logSheetId: mainSheetId,
-                      });
-                      console.log('existingLogSheetIds', existingLogSheetIds)
-                      // setRemoteLogs(Object.keys(existingLogSheetIds).map((id:string) => id));
+                  }).catch((err: any) => {
+                    throw onError(err);
+                  });
 
-                      // 2. get logs to sync
-                      const sheetsToCreate = selectedLogs.filter(
-                        (logId) => !existingLogSheetIds[logId]
+                  // 1. get existing log sheets
+                  const existingLogSheetIds = await getLogSheetIds({
+                    onError,
+                    logSheetId: mainSheetId,
+                  });
+
+                  // 2. get logs to sync
+                  const sheetsToCreate = selectedLogs.filter(
+                    (logId) => !existingLogSheetIds[logId]
+                  );
+                  
+                  // 3. create new log sheets for logs when needed
+                  let sheetMap:any = {};
+                  if (sheetsToCreate.length) {
+                    for (const logId of sheetsToCreate) {
+                      const thisLog = localLogs.find(
+                        (log) => log.id === logId
                       );
-                      
-                      // 3. create new log sheets for logs when needed
-                      let sheetMap:any = {};
-                      if (sheetsToCreate.length) {
-                        for (const logId of sheetsToCreate) {
-                          const thisLog = localLogs.find(
-                            (log) => log.id === logId
-                          );
-                          if (thisLog) {
-                            await initNewLogSheet({
-                              onError,
-                              syncId,
-                              log: thisLog,
-                              folderId: selectedFolder,
-                            }).then((sheetId:{id:string}) => {
-                              sheetMap[logId] = sheetId.id;
-                              store.dispatch(addGoogleDriveLogSheet({ [logId]: sheetId.id }));
-                            });
-                          }
-                        }
-
-                        // 4. update log sheet ids in main sheet
-                        await setLogSheetIds({
+                      if (thisLog) {
+                        await initNewLogSheet({
                           onError,
-                          logSheetId: mainSheetId,
-                          logSheetIds: {
-                            ...existingLogSheetIds,
-                            ...sheetMap,
-                          },
+                          syncId,
+                          log: thisLog,
+                          folderId: selectedFolder,
+                        }).then((sheetId:{id:string}) => {
+                          sheetMap[logId] = sheetId.id;
+                          store.dispatch(addGoogleDriveLogSheet({ [logId]: sheetId.id }));
                         });
                       }
+                    }
 
-                      // 5. sync log fields and entries
-                      sheetMap = {
+                    // 4. update log sheet ids in main sheet
+                    await setLogSheetIds({
+                      onError,
+                      logSheetId: mainSheetId,
+                      logSheetIds: {
                         ...existingLogSheetIds,
                         ...sheetMap,
-                      }
-                      for (const logId of Object.keys(sheetMap)) {
-                        // define local log
-                        const thisLog = localLogs.find(
-                          (log) => log.id === logId
-                        );
-                        // sync local log with google sheet
-                        const thisNewLog = await syncLogSheet({
-                          onError,
-                          logSheetId: sheetMap[logId],
-                          log: thisLog,
-                        });
-                        console.log("thisNewLog", thisNewLog)
-                        if (!thisLog) {
-                          store.dispatch(addLog({ log: thisNewLog }));
-                        } else {
-                          store.dispatch(updateLog({ logId: thisNewLog.id, log: thisNewLog }));
-                        }
-                      }
-                    })
-                    .then(() => {
-                      setActiveTab(DataSyncTabs.CONFIG);
-                    })
-                    .catch((err: any) => {
-                      throw onError(err);
+                      },
                     });
+                  }
+
+                  // 4. sync log fields and entries
+                  sheetMap = {
+                    ...existingLogSheetIds,
+                    ...sheetMap,
+                  }
+                  for (const logId of Object.keys(sheetMap)) {
+                    // define local log
+                    const thisLog = localLogs.find(
+                      (log) => log.id === logId
+                    );
+                    // sync local log with google sheet
+                    const {
+                      metadata,
+                      entries:updatedEntries,
+                      fields:updatedFields
+                    } = await syncLogSheet({
+                      onError,
+                      logSheetId: sheetMap[logId],
+                      log: thisLog,
+                    });
+
+                    // 5. update local log
+                    const newLog = {
+                      ...metadata,
+                      fields: {},
+                      entries: {},
+                    } as Log;
+                    for (const updatedEntry of updatedEntries) {
+                      if (thisLog &&
+                        JSON.stringify(thisLog.entries[updatedEntry.id]?.values) !== JSON.stringify(updatedEntry.values)
+                      ) {
+                        store.dispatch(updateLogEntry({ logId: logId, entryId: updatedEntry.id, entry: updatedEntry }));
+                      } else if (thisLog) {
+                        store.dispatch(addLogEntry({ logId: logId, entry: updatedEntry }));
+                      } else {
+                        newLog.entries[updatedEntry.id] = updatedEntry;
+                      }
+                    }
+                    for (const updatedField of updatedFields) {
+                      if (thisLog &&
+                        JSON.stringify(thisLog.fields[updatedField.id]) !== JSON.stringify(updatedField)
+                      ) {
+                        store.dispatch(updateLogField({ logId: logId, fieldId: updatedField.id, field: updatedField }));
+                      } else if (thisLog) {
+                        store.dispatch(addLogField({ logId: logId
+                          , field: updatedField }));
+                      } else {
+                        newLog.fields[updatedField.id] = updatedField;
+                      }
+                    }
+                    if (!thisLog) {
+                      store.dispatch(addLog({ log: newLog }));
+                    } else {
+                      store.dispatch(updateLog({ logId: logId, log: metadata }));
+                    }
+                  }
+
+                  setActiveTab(DataSyncTabs.CONFIG);
                 }}
               >{"Connect Logs to Data Sync"}</Button>
 
