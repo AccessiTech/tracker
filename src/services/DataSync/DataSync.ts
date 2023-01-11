@@ -637,10 +637,44 @@ export const syncLogSheet = async ({
   logSheetId,
   log,
 }: SyncLogSheetProps): Promise<Log> => {
+  const newMetadata:any = await syncLogMetadata({
+    onError,
+    logSheetId,
+    log,
+  });
+  const newEntries = await syncLogEntries({
+    onError,
+    logSheetId,
+    log,
+  });
+  const newFields = await syncLogFields({
+    onError,
+    logSheetId,
+    log,
+  });
   
-  // 1. get data from both sources (local and sheet)
+  // return log entries and fields that were updated
+  return {
+    ...newMetadata,
+    recurrence: newMetadata.recurrence ? JSON.parse(newMetadata.recurrence) : undefined,
+    entries: newEntries,
+    fields: newFields,
+  } as Log;
+}
+
+/** ***** Sync Log Metadata ***** */
+export interface SyncLogMetadataOptions {
+  onError: (error: Error) => void;
+  logSheetId: string;
+  log?: Log;
+}
+export const syncLogMetadata = async ({
+  onError,
+  logSheetId,
+  log,
+}: SyncLogMetadataOptions): Promise<Partial<Log>> => {
   //get log metadata from sheet
-  const existingMetadata = await getSheetValues({
+  const existingMetadata: any = await getSheetValues({
     sheetId: logSheetId,
     range: "Metadata!A:B",
   }).then((result: any[]) => {
@@ -648,86 +682,32 @@ export const syncLogSheet = async ({
     for (const row of result) {
       metadata[row[0]] = row[1];
     }
-    return metadata;
-  });
-  // get existing log entries from sheet
-  const existingEntries = await getLogEntries({
-    onError,
-    logSheetId,
-  }).then((entries) => {
-    const entryMap = {} as { [key: string]: LogEntry };
-    for (const entry of entries) {
-      entryMap[entry.id] = entry;
-    }
-    return entryMap;
+    return metadata as Partial<Log>;
   });
 
-  // get existing log fields from sheet
-  const existingFields = await getLogFields({
-    onError,
-    logSheetId,
-  }).then((fields) => {
-    const fieldMap = {} as { [key: string]: LogFields };
-    for (const field of fields) {
-      fieldMap[field.id] = field;
-    }
-    return fieldMap;
-  });
-
-  // if there is no local log, return existing data from sheet
+  // if there is no local log, return existing metadata from sheet
   if (!log) {
-    return {
-      ...existingMetadata,
-      entries: existingEntries,
-      fields: existingFields,
-    } as Log;
+    return existingMetadata as Partial<Log>;
   }
 
-  // get entries from local log
-  const localEntries = { ...log.entries };
-
-  // get fields from local log
-  const localFields = { ...log.fields };
-
   // get metadata from local log
-  const localMetadata:any = {};
+  const localMetadata: any = {};
   for (const prop of Object.keys(log)) {
     if (prop !== "entries" && prop !== "fields") {
       localMetadata[prop] = (log as any)[prop];
     }
   }
 
-  // 2. compare data from both sources
-  // get all unique entry ids from sheet and local log
-  const entryIds = Array.from(new Set([
-    ...(Object.keys(existingEntries)),
-    ...(Object.keys(localEntries)),
-  ]));
-
-  // get all unique field ids from sheet and local log
-  const fieldIds = Array.from(new Set([
-    ...(Object.keys(existingFields)),
-    ...(Object.keys(localFields)),
-  ]));
-
-  // get log entries with different data in local log and sheet
-  const updatedEntryIds = entryIds.filter((id) => (
-      JSON.stringify(existingEntries[id]) !== JSON.stringify(localEntries[id])
-  ));
-
-  // get log fields with different data in local log and sheet
-  const updatedFieldIds = fieldIds.filter((id) => (
-      JSON.stringify(existingFields[id]) !== JSON.stringify(localFields[id])
-  ));
-
-  // 3. reconcile data from both sources
   // create new log metadata
   const newMetadata = {} as { [key: string]: string };
   for (const prop of Object.keys(localMetadata)) {
     // if metadata exists in both local log and sheet
     if (existingMetadata[prop] && localMetadata[prop]) {
       // if metadata is different in local log and sheet
-      if (JSON.stringify(existingMetadata[prop]) !== JSON.stringify(localMetadata[prop])) {
+      if (
+        JSON.stringify(existingMetadata[prop]) !==
+        JSON.stringify(localMetadata[prop])
+      ) {
         // if local log metadata is newer or has been updated more recently
         if (localMetadata.updatedAt > existingMetadata.updatedAt) {
           // use local log data
@@ -755,32 +735,62 @@ export const syncLogSheet = async ({
     newMetadata.recurrence = JSON.stringify(newMetadata.recurrence);
   }
 
-  // create new log entries
-  const newEntries = {} as { [key: string]: LogEntry };
-  for (const id of entryIds) {
-    // if entry exists in both local log and sheet
-    if (existingEntries[id] && localEntries[id]) {
-      // if entry data is different in local log and sheet
-      if (updatedEntryIds.includes(id)) {
-        // if local log entry is newer or has been updated more recently
-        if (localEntries[id].updatedAt > existingEntries[id].updatedAt) {
-          // use local log data
-          newEntries[id] = localEntries[id];
-        } else {
-          // use sheet data
-          newEntries[id] = existingEntries[id];
-        }
-      }
-    } else if (existingEntries[id] && !localEntries[id]) {
-      // if entry only exists in sheet
-      // use sheet data
-      newEntries[id] = existingEntries[id];
-    } else if (!existingEntries[id] && localEntries[id]) {
-      // if entry only exists in local log
-      // use local log data
-      newEntries[id] = localEntries[id];
-    }
+  // update log metadata
+  try {
+    await setSheetValues({
+      sheetId: logSheetId,
+      range: "Metadata!A:B",
+      values: Object.entries(newMetadata),
+    });
+  } catch (error:any) {
+    onError(error);
   }
+
+  // return log metadata that was updated
+  return newMetadata as Partial<Log>;
+};
+
+/** ***** Sync Log Fields ***** */
+export interface SyncLogFieldsOptions {
+  onError: (error: Error) => void;
+  logSheetId: string;
+  log?: Log;
+}
+export const syncLogFields = async ({
+  onError,
+  logSheetId,
+  log,
+}: SyncLogFieldsOptions): Promise<{[fieldId:string]:LogFields}> => {
+  // get existing log fields from sheet
+  const existingFields: any = await getLogFields({
+    onError,
+    logSheetId,
+  }).then((fields) => {
+    const fieldMap = {} as { [key: string]: LogFields };
+    for (const field of fields) {
+      fieldMap[field.id] = field;
+    }
+    return fieldMap;
+  });
+
+  // if there is no local log, return existing data from sheet
+  if (!log) {
+    return existingFields as { [fieldId: string]: LogFields };
+  }
+
+  // get fields from local log
+  const localFields = { ...log.fields };
+
+  // get all unique field ids from sheet and local log
+  const fieldIds = Array.from(
+    new Set([...Object.keys(existingFields), ...Object.keys(localFields)])
+  );
+
+  // get log fields with different data in local log and sheet
+  const updatedFieldIds = fieldIds.filter(
+    (id) =>
+      JSON.stringify(existingFields[id]) !== JSON.stringify(localFields[id])
+  );
 
   // create new log fields
   const newFields = {} as { [key: string]: LogFields };
@@ -809,28 +819,102 @@ export const syncLogSheet = async ({
     }
   }
 
-  // update log metadata, fields, entries
-  await setSheetValues({
-    sheetId: logSheetId,
-    range: "Metadata!A:B",
-    values: Object.entries(newMetadata),
-  });
-  await setLogFields({
-    onError,
-    logSheetId,
-    logFields: newFields,
-  });
-  await setLogEntries({
-    onError,
-    logSheetId,
-    logEntries: newEntries,
-  });
-  
-  // return log entries and fields that were updated
-  return {
-    ...newMetadata,
-    recurrence: newMetadata.recurrence ? JSON.parse(newMetadata.recurrence) : undefined,
-    entries: newEntries,
-    fields: newFields,
-  } as Log;
+  // update log fields
+  try {
+    await setLogFields({
+      onError,
+      logSheetId,
+      logFields: newFields,
+    });
+  } catch (error:any) {
+    onError(error);
+  }
+
+  // return log fields that were updated
+  return newFields as { [fieldId: string]: LogFields };
+};
+
+
+/** ***** Sync Log Entries ***** */
+export interface SyncLogEntriesOptions {
+  onError: (error: Error) => void;
+  logSheetId: string;
+  log?: Log;
 }
+export const syncLogEntries = async ({
+  onError,
+  logSheetId,
+  log,
+}: SyncLogEntriesOptions): Promise<{[entryId:string]:LogEntry}> => {
+  // get existing log entries from sheet
+  const existingEntries = await getLogEntries({
+    onError,
+    logSheetId,
+  }).then((entries) => {
+    const entryMap = {} as { [key: string]: LogEntry };
+    for (const entry of entries) {
+      entryMap[entry.id] = entry;
+    }
+    return entryMap;
+  });
+
+  // if there is no local log, return existing data from sheet
+  if (!log) {
+    return existingEntries as { [entryId: string]: LogEntry };
+  }
+
+  // get entries from local log
+  const localEntries = { ...log.entries };
+
+  // get all unique entry ids from sheet and local log
+  const entryIds = Array.from(
+    new Set([...Object.keys(existingEntries), ...Object.keys(localEntries)])
+  );
+
+  // get log entries with different data in local log and sheet
+  const updatedEntryIds = entryIds.filter(
+    (id) =>
+      JSON.stringify(existingEntries[id]) !== JSON.stringify(localEntries[id])
+  );
+
+  // create new log entries
+  const newEntries = {} as { [key: string]: LogEntry };
+  for (const id of entryIds) {
+    // if entry exists in both local log and sheet
+    if (existingEntries[id] && localEntries[id]) {
+      // if entry data is different in local log and sheet
+      if (updatedEntryIds.includes(id)) {
+        // if local log entry is newer or has been updated more recently
+        if (localEntries[id].updatedAt > existingEntries[id].updatedAt) {
+          // use local log data
+          newEntries[id] = localEntries[id];
+        } else {
+          // use sheet data
+          newEntries[id] = existingEntries[id];
+        }
+      }
+    } else if (existingEntries[id] && !localEntries[id]) {
+      // if entry only exists in sheet
+      // use sheet data
+      newEntries[id] = existingEntries[id];
+    } else if (!existingEntries[id] && localEntries[id]) {
+      // if entry only exists in local log
+      // use local log data
+      newEntries[id] = localEntries[id];
+    }
+  }
+
+  // update log entries
+  try {
+    await setLogEntries({
+      onError,
+      logSheetId,
+      logEntries: newEntries,
+    });
+  } catch (error:any) {
+    onError(error);
+  }
+
+  // return log entries that were updated
+  return newEntries as { [entryId: string]: LogEntry };
+};
