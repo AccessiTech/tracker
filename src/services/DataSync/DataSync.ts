@@ -544,7 +544,6 @@ export interface GetLogEntriesProps {
   onError: (error: any) => void;
   logSheetId: string;
 }
-
 export const getLogEntries = async ({
   onError,
   logSheetId,
@@ -637,7 +636,6 @@ export interface SyncLogSheetResponse {
   entries: LogEntry[];
   fields: LogFields[];
 }
-
 export const syncLogSheet = async ({
   onError,
   logSheetId,
@@ -705,41 +703,13 @@ export const syncLogMetadata = async ({
     }
   }
 
-  // create new log metadata
-  const newMetadata = {} as { [key: string]: string };
-  for (const prop of Object.keys(localMetadata)) {
-    // if metadata exists in both local log and sheet
-    if (existingMetadata[prop] && localMetadata[prop]) {
-      // if metadata is different in local log and sheet
-      if (
-        JSON.stringify(existingMetadata[prop]) !==
-        JSON.stringify(localMetadata[prop])
-      ) {
-        // if local log metadata is newer or has been updated more recently
-        if (localMetadata.updatedAt > existingMetadata.updatedAt) {
-          // use local log data
-          newMetadata[prop] = localMetadata[prop];
-        } else {
-          // use sheet data
-          newMetadata[prop] = existingMetadata[prop];
-        }
-      } else {
-        // if metadata is the same in local log and sheet
-        // use sheet data
-        newMetadata[prop] = existingMetadata[prop];
-      }
-    } else if (existingMetadata[prop] && !localMetadata[prop]) {
-      // if metadata only exists in sheet
-      // use sheet data
-      newMetadata[prop] = existingMetadata[prop];
-    } else if (!existingMetadata[prop] && localMetadata[prop]) {
-      // if metadata only exists in local log
-      // use local log data
-      newMetadata[prop] = localMetadata[prop];
-    }
-  }
-  if (newMetadata.recurrence) {
-    newMetadata.recurrence = JSON.stringify(newMetadata.recurrence);
+  const { updatedData } = syncData({
+    localData: localMetadata,
+    sheetData: existingMetadata,
+  })
+
+  if (updatedData.recurrence) {
+    updatedData.recurrence = JSON.stringify(updatedData.recurrence);
   }
 
   // update log metadata
@@ -747,14 +717,14 @@ export const syncLogMetadata = async ({
     await setSheetValues({
       sheetId: logSheetId,
       range: "Metadata!A:B",
-      values: Object.entries(newMetadata),
+      values: Object.entries(updatedData),
     });
   } catch (error:any) {
     onError(error);
   }
 
   // return log metadata that was updated
-  return newMetadata as Partial<Log>;
+  return updatedData as Partial<Log>;
 };
 
 /** ***** Sync Log Fields ***** */
@@ -763,7 +733,6 @@ export interface SyncLogFieldsOptions {
   logSheetId: string;
   log?: Log;
 }
-
 export const syncLogFields = async ({
   onError,
   logSheetId,
@@ -786,60 +755,24 @@ export const syncLogFields = async ({
     return Object.values(existingFields);
   }
 
-  // get fields from local log
-  const localFields = { ...log.fields };
-
-  // get all unique field ids from sheet and local log
-  const fieldIds = Array.from(
-    new Set([...Object.keys(existingFields), ...Object.keys(localFields)])
-  );
-
-  // get log fields with different data in local log and sheet
-  const updatedFieldIds = fieldIds.filter(
-    (id) =>
-      JSON.stringify(existingFields[id]) !== JSON.stringify(localFields[id])
-  );
-
-  // create new log fields
-  const newFields = {} as { [key: string]: LogFields };
-  for (const id of fieldIds) {
-    // if field exists in both local log and sheet
-    if (existingFields[id] && localFields[id]) {
-      // if field data is different in local log and sheet
-      if (updatedFieldIds.includes(id)) {
-        // if local log field is newer or has been updated more recently
-        if (localFields[id].updatedAt > existingFields[id].updatedAt) {
-          // use local log data
-          newFields[id] = localFields[id];
-        } else {
-          // use sheet data
-          newFields[id] = existingFields[id];
-        }
-      }
-    } else if (existingFields[id] && !localFields[id]) {
-      // if field only exists in sheet
-      // use sheet data
-      newFields[id] = existingFields[id];
-    } else if (!existingFields[id] && localFields[id]) {
-      // if field only exists in local log
-      // use local log data
-      newFields[id] = localFields[id];
-    }
-  }
+  const { updatedData, updatedIds } = syncData({
+    localData: log.fields,
+    sheetData: existingFields,
+  })
 
   // update log fields
   try {
     await setLogFields({
       onError,
       logSheetId,
-      logFields: newFields,
+      logFields: updatedData,
     });
   } catch (error: any) {
     onError(error);
   }
 
   // return log fields that were updated
-  return updatedFieldIds.map((id) => newFields[id]);
+  return updatedIds.map((id) => updatedData[id]);
 };
 
 
@@ -871,58 +804,80 @@ export const syncLogEntries = async ({
     return Object.values(existingEntries);
   }
 
-  // get entries from local log
-  const localEntries = { ...log.entries };
-
-  // get all unique entry ids from sheet and local log
-  const entryIds = Array.from(
-    new Set([...Object.keys(existingEntries), ...Object.keys(localEntries)])
-  );
-
-  // get log entries with different data in local log and sheet
-  const updatedEntryIds = entryIds.filter(
-    (id) =>
-      JSON.stringify(existingEntries[id]) !== JSON.stringify(localEntries[id])
-  );
-
-  // create new log entries
-  const newEntries = {} as { [key: string]: LogEntry };
-  for (const id of entryIds) {
-    // if entry exists in both local log and sheet
-    if (existingEntries[id] && localEntries[id]) {
-      // if entry data is different in local log and sheet
-      if (updatedEntryIds.includes(id)) {
-        // if local log entry is newer or has been updated more recently
-        if (localEntries[id].updatedAt > existingEntries[id].updatedAt) {
-          // use local log data
-          newEntries[id] = localEntries[id];
-        } else {
-          // use sheet data
-          newEntries[id] = existingEntries[id];
-        }
-      }
-    } else if (existingEntries[id] && !localEntries[id]) {
-      // if entry only exists in sheet
-      // use sheet data
-      newEntries[id] = existingEntries[id];
-    } else if (!existingEntries[id] && localEntries[id]) {
-      // if entry only exists in local log
-      // use local log data
-      newEntries[id] = localEntries[id];
-    }
-  }
+  const { updatedIds, updatedData } = syncData({
+    localData: log.entries,
+    sheetData: existingEntries,
+  });
 
   // update log entries
   try {
     await setLogEntries({
       onError,
       logSheetId,
-      logEntries: newEntries,
+      logEntries: updatedData,
     });
   } catch (error:any) {
     onError(error);
   }
 
   // return log entries that were updated
-  return updatedEntryIds.map((id) => newEntries[id]);
+  return updatedIds.map((id) => updatedData[id]);
+};
+
+/** ***** Sync Data ***** */
+export interface SyncDataOptions {
+  localData: { [key: string]: any };
+  sheetData: { [key: string]: any };
+}
+export interface SyncDataResponse {
+  updatedData: { [key: string]: any };
+  updatedIds: string[];
+}
+export const syncData = ({
+  localData,
+  sheetData,
+}: SyncDataOptions): SyncDataResponse => {
+  // get all unique entry ids from sheet and local log
+  const dataIds = Array.from(
+    new Set([...Object.keys(localData), ...Object.keys(sheetData)])
+  );
+
+  // get log entries with different data in local log and sheet
+  const updatedIds = dataIds.filter(
+    (id) => JSON.stringify(localData[id]) !== JSON.stringify(sheetData[id])
+  );
+
+  // create updated data
+  const updatedData = {} as { [key: string]: any };
+  for (const id of dataIds) {
+    // if data exists in both local and sheet data
+    if (localData[id] && sheetData[id]) {
+      // if data is different in local and sheet data
+      if (updatedIds.includes(id)) {
+        // if local data is newer or has been updated more recently
+        const localDate = localData[id].updatedAt || localData[id].createdAt;
+        const sheetDate = sheetData[id].updatedAt || sheetData[id].createdAt;
+        if (localDate > sheetDate) {
+          // use local data
+          updatedData[id] = localData[id];
+        } else {
+          // use sheet data
+          updatedData[id] = sheetData[id];
+        }
+      }
+    } else if (sheetData[id] && !localData[id]) {
+      // if data only exists in sheet
+      // use sheet data
+      updatedData[id] = sheetData[id];
+    } else if (!sheetData[id] && localData[id]) {
+      // if data only exists in local data
+      // use local data
+      updatedData[id] = localData[id];
+    }
+  }
+
+  return {
+    updatedIds,
+    updatedData,
+  }
 };
