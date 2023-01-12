@@ -405,8 +405,8 @@ export const initNewLogSheet = async ({
   const newSheetData = {
     ...log,
     syncId,
-    dateCreated: new Date().toISOString(),
-    dateUpdated: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   } as any;
 
   const newSheetValues = [];
@@ -704,10 +704,20 @@ export const syncLogMetadata = async ({
     }
   }
 
-  const { updatedData } = syncData({
-    localData: localMetadata,
-    sheetData: existingMetadata,
-  })
+  let updatedData = {} as any;
+  const localDate = localMetadata.updatedAt || localMetadata.createdAt;
+  const sheetDate = existingMetadata.updatedAt || existingMetadata.createdAt;
+  if (localDate > sheetDate) {
+    updatedData = {
+      ...existingMetadata,
+      ...localMetadata,
+    }
+  } else {
+    updatedData = {
+      ...localMetadata,
+      ...existingMetadata,
+    }
+  }
 
   if (updatedData.recurrence) {
     updatedData.recurrence = JSON.stringify(updatedData.recurrence);
