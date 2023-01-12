@@ -34,5 +34,5 @@ export {
   useGoogleDriveLogSheets,
 } from "./reducer";
 
-export type { DataSyncState } from "./reducer";
+export type { DataSyncState, LogSheet } from "./reducer";
 

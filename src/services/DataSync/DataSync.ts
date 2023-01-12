@@ -6,6 +6,7 @@ import {
   setSheetName,
   setSheetValues,
 } from "../../components/GoogleApi";
+import { LogSheet } from "../../store/DataSync";
 import { Log, LogEntry, LogFields } from "../../store/Log";
 
 /** ***** Initialize New Data Sync ****** */
@@ -299,7 +300,7 @@ export interface GetLogSheetIdsProps {
 export const getLogSheetIds = async ({
   onError,
   logSheetId,
-}: GetLogSheetIdsProps): Promise<{[key:string] : string}> => {
+}: GetLogSheetIdsProps): Promise<{[key:string] : LogSheet}> => {
   return getSheetValues({
     sheetId: logSheetId,
     range: "Metadata!A:B",
@@ -322,7 +323,7 @@ export const getLogSheetIds = async ({
 export interface SetLogSheetIdsProps {
   onError: (error: any) => void;
   logSheetId: string;
-  logSheetIds: { [key: string]: string };
+  logSheetIds: { [logId: string]: LogSheet };
 }
 export const setLogSheetIds = async ({
   onError,

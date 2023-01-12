@@ -7,6 +7,10 @@ export const dataSyncSliceName = "dataSync";
 export const GOOGLE_DRIVE = "googleDrive";
 
 // State Interfaces
+export interface LogSheet {
+  id: string;
+  name: string;
+}
 
 export interface DataSyncState {
   syncEnabled: boolean;
@@ -15,7 +19,7 @@ export interface DataSyncState {
   googleDrive: {
     folderId: string;
     logSheetId: string;
-    logSheets: { [key: string]: string };
+    logSheets: { [logId: string]: LogSheet };
   };
 }
 
@@ -150,12 +154,12 @@ export const useGoogleDriveLogSheetId = (): string => {
   return googleDrive.logSheetId;
 };
 
-export const useGoogleDriveLogSheets = (): { [key: string]: string } => {
+export const useGoogleDriveLogSheets = (): { [logId: string]: LogSheet } => {
   const googleDrive = useGoogleDrive();
   return googleDrive.logSheets;
 };
 
-export const useGoogleDriveLogSheet = (id: string): string => {
-  const googleDrive = useGoogleDrive();
-  return googleDrive.logSheets[id] || EMPTY;
+export const useGoogleDriveLogSheet = (id: string): LogSheet => {
+  const { logSheets } = useGoogleDriveLogSheets();
+  return (logSheets as any)[id] || {};
 };

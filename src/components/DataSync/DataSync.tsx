@@ -3,6 +3,7 @@ import { Button, Col, Form, Modal, Nav, Row, Tab, Table } from "react-bootstrap"
 import store from "../../store/store";
 import {
   addGoogleDriveLogSheet,
+  LogSheet,
   resetSync,
   setEnableSync,
   setGoogleDriveFolderId,
@@ -139,10 +140,11 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
       getLogSheetIds({
         onError,
         logSheetId: mainSheetId,
-      }).then((sheetIds: {[key:string]: string}) => {
-        setRemoteLogs(Object.keys(sheetIds).map((key) => ({
-          id: key,
-          name: sheetIds[key],
+      }).then((sheetIds: {[logId:string]: LogSheet}) => {
+        setRemoteLogs(Object.keys(sheetIds).map((logId) => ({
+          // id: sheetIds[logId]?.id,
+          id: logId,
+          name: sheetIds[logId]?.name || "Untitled Log",
         })));
       });
     }
@@ -314,9 +316,9 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                         onError,
                         logSheetId: mainSheetId,
                       });
-                      setRemoteLogs(Object.keys(logSheetIds).map((key) => ({
-                        id: key,
-                        name: logSheetIds[key],
+                      setRemoteLogs(Object.keys(logSheetIds).map((logId) => ({
+                        id: logId,
+                        name: logSheetIds[logId]?.name || "Unknown Log",
                       })));
                     }}
                   >
@@ -411,9 +413,13 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                           syncId,
                           log: thisLog,
                           folderId: selectedFolder,
-                        }).then((sheetId:{id:string}) => {
-                          sheetMap[logId] = sheetId.id;
-                          store.dispatch(addGoogleDriveLogSheet({ [logId]: sheetId.id }));
+                        }).then((sheetId:any) => {
+                          if (!sheetMap[logId]) {
+                            sheetMap[logId] = {};
+                          }
+                          sheetMap[logId].id = sheetId.id;
+                          sheetMap[logId].name = thisLog.name || "Unknown Log";
+                          store.dispatch(addGoogleDriveLogSheet({ [logId]: sheetMap[logId] }));
                         });
                       }
                     }
@@ -446,7 +452,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       fields:updatedFields
                     } = await syncLogSheet({
                       onError,
-                      logSheetId: sheetMap[logId],
+                      logSheetId: sheetMap[logId].id,
                       log: thisLog,
                     });
 
