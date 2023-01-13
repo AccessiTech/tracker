@@ -29,6 +29,8 @@ export interface Log extends CrudState {
   labelOption?: "date" | "text" | string;
   fields: { [fieldId: string]: LogFields };
   entries: { [entryId: string]: LogEntry };
+  deletedFields: string[];
+  deletedEntries: string[];
   sort?: string;
   order?: "asc" | "desc";
   recurrence?: LogRecurrence;
@@ -48,6 +50,8 @@ export const initialLogState: Log = {
   user: "",
   fields: {},
   entries: {},
+  deletedFields: [],
+  deletedEntries: [],
   ...initialCRUDState,
 };
 

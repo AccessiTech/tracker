@@ -51,6 +51,7 @@ export const logSlice: Slice<any, SliceCaseReducers<any>, string> = createSlice(
       [REMOVE_LOG_ENTRY_ACTION]: (state, action) => {
         const { logId, entryId } = action.payload;
         delete state[logId].entries[entryId];
+        state[logId].deletedEntries.push(entryId);
       },
       [UPDATE_LOG_ENTRY_ACTION]: (state, action) => {
         const { logId, entryId, entry } = action.payload;
@@ -68,6 +69,7 @@ export const logSlice: Slice<any, SliceCaseReducers<any>, string> = createSlice(
       [REMOVE_LOG_FIELD_ACTION]: (state, action) => {
         const { logId, fieldId } = action.payload;
         delete state[logId].fields[fieldId];
+        state[logId].deletedFields.push(fieldId);
       },
       [UPDATE_LOG_FIELD_ACTION]: (state, action) => {
         const { logId, fieldId, field } = action.payload;
