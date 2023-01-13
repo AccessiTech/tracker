@@ -465,6 +465,141 @@ export const initNewLogSheet = async ({
   return Promise.resolve({id: sheetId});
 }
 
+/** ***** Get Log Metadata from a Log Sheet ****** */
+export interface GetLogMetadataProps {
+  onError: (error: any) => void;
+  logSheetId: string;
+}
+export const getLogMetadata = async ({
+  onError,
+  logSheetId,
+}: GetLogMetadataProps): Promise<{[key:string]: any}> => {
+  return getSheetValues({
+    sheetId: logSheetId,
+    range: "Metadata!A:B",
+  }).then((result: any[]) => {
+    const data = {} as any;
+    for (const row of result) {
+      try {
+        data[row[0]] = JSON.parse(row[1]);
+      } catch {
+        data[row[0]] = row[1];
+      }
+    }
+    return data;
+  }).catch((err: any) => {
+    console.log("Error getting Log metadata: ");
+    throw onError(err?.result?.error);
+  });
+}
+
+/** ***** Set Log Metadata to a Log Sheet ****** */
+export interface SetLogMetadataProps {
+  onError: (error: any) => void;
+  logSheetId: string;
+  log: Log;
+}
+export const setLogMetadata = async ({
+  onError,
+  logSheetId,
+  log,
+}: SetLogMetadataProps): Promise<{[key:string]: any}> => {
+  const newSheetData = {
+    ...log,
+    updatedAt: new Date().toISOString(),
+  } as any;
+
+  const newSheetValues = [];
+  for (const prop in newSheetData) {
+    if (prop === "fields" || prop === "entries") continue;
+    if (Object.prototype.hasOwnProperty.call(newSheetData, prop)) {
+      const newValue = Array.isArray((newSheetData as any)[prop]) || typeof (newSheetData as any)[prop] === "object"
+            ? JSON.stringify(newSheetData[prop])
+            : newSheetData[prop]
+      newSheetValues.push([prop, newValue]);
+    }
+  }
+
+  return setSheetValues({
+    sheetId: logSheetId,
+    range: "Metadata!A1",
+    values: newSheetValues,
+  }).then((result: any) => {
+    return result;
+  }).catch((err: any) => {
+    console.log("Error setting Log metadata: ");
+    throw onError(err?.result?.error);
+  });
+}
+
+/** ***** Get Log Metadata Prop from a Log Sheet ****** */
+export interface GetLogMetadataPropProps {
+  onError: (error: any) => void;
+  logSheetId: string;
+  prop: string;
+}
+export const getLogMetadataProp = async ({
+  onError,
+  logSheetId,
+  prop,
+}: GetLogMetadataPropProps): Promise<any> => {
+  return getLogMetadata({
+    onError,
+    logSheetId,
+  }).then((result: any) => {
+    return result[prop];
+  }).catch((err: any) => {
+    console.log("Error getting Log metadata prop: ");
+    throw onError(err?.result?.error);
+  });
+}
+
+/** ***** Set Log Metadata Prop to a Log Sheet ****** */
+export interface SetLogMetadataPropProps {
+  onError: (error: any) => void;
+  logSheetId: string;
+  prop: string;
+  value: any;
+}
+export const setLogMetadataProp = async ({
+  onError,
+  logSheetId,
+  prop,
+  value,
+}: SetLogMetadataPropProps): Promise<any> => {
+  const newValue = Array.isArray(value) || typeof value === "object"
+        ? JSON.stringify(value)
+        : value;
+  const existingMetadata = await getLogMetadata({
+    onError,
+    logSheetId,
+  });
+  const newMetadata = {
+    ...existingMetadata,
+    [prop]: newValue,
+    updatedAt: new Date().toISOString(),
+  } as any;
+
+  const newSheetValues = [];
+  for (const prop in newMetadata) {
+    if (prop === "fields" || prop === "entries") continue;
+    if (Object.prototype.hasOwnProperty.call(newMetadata, prop)) {
+      newSheetValues.push([prop, newMetadata[prop]]);
+    }
+  }
+
+  return setLogMetadata({
+    onError,
+    logSheetId,
+    log: newMetadata,
+  }).then((result: any) => {
+    return result;
+  }).catch((err: any) => {
+    console.log("Error setting Log metadata prop: ");
+    throw onError(err?.result?.error);
+  });
+}
+
 /** ***** Get Log Fields from a Log Sheet ****** */
 export interface GetLogFieldsProps {
   onError: (error: any) => void;
@@ -647,15 +782,18 @@ export const syncLogSheet = async ({
     logSheetId,
     log,
   });
+  const { deletedEntries, deletedFields } = newMetadata;
   const newEntries = await syncLogEntries({
     onError,
     logSheetId,
     log,
+    deletedEntries: deletedEntries || [],
   });
   const newFields = await syncLogFields({
     onError,
     logSheetId,
     log,
+    deletedFields: deletedFields || [],
   });
 
   return  {
@@ -680,15 +818,9 @@ export const syncLogMetadata = async ({
   log,
 }: SyncLogMetadataOptions): Promise<Partial<Log>> => {
   //get log metadata from sheet
-  const existingMetadata: any = await getSheetValues({
-    sheetId: logSheetId,
-    range: "Metadata!A:B",
-  }).then((result: any[]) => {
-    const metadata = {} as { [key: string]: string };
-    for (const row of result) {
-      metadata[row[0]] = row[1];
-    }
-    return metadata as Partial<Log>;
+  const existingMetadata: any = await getLogMetadata({
+    onError,
+    logSheetId,
   });
 
   // if there is no local log, return existing metadata from sheet
@@ -719,16 +851,12 @@ export const syncLogMetadata = async ({
     }
   }
 
-  if (updatedData.recurrence) {
-    updatedData.recurrence = JSON.stringify(updatedData.recurrence);
-  }
-
   // update log metadata
   try {
-    await setSheetValues({
-      sheetId: logSheetId,
-      range: "Metadata!A:B",
-      values: Object.entries(updatedData),
+    await setLogMetadata({
+      onError,
+      logSheetId,
+      log: updatedData,
     });
   } catch (error:any) {
     onError(error);
@@ -743,11 +871,13 @@ export interface SyncLogFieldsOptions {
   onError: (error: Error) => void;
   logSheetId: string;
   log?: Log;
+  deletedFields: string[];
 }
 export const syncLogFields = async ({
   onError,
   logSheetId,
   log,
+  deletedFields,
 }: SyncLogFieldsOptions): Promise<LogFields[]> => {
   // get existing log fields from sheet
   const existingFields: any = await getLogFields({
@@ -756,6 +886,7 @@ export const syncLogFields = async ({
   }).then((fields) => {
     const fieldMap = {} as { [key: string]: LogFields };
     for (const field of fields) {
+      if (deletedFields.includes(field.id)) continue;
       fieldMap[field.id] = field;
     }
     return fieldMap;
@@ -765,11 +896,18 @@ export const syncLogFields = async ({
   if (!log) {
     return Object.values(existingFields);
   }
+  
+  // get log fields from local log
+  const localFields = {} as { [key: string]: LogFields };
+  for (const field of Object.values(log.fields)) {
+    if (deletedFields.includes(field.id)) continue;
+    localFields[field.id] = field;
+  }
 
   const { updatedData, updatedIds } = syncData({
-    localData: log.fields,
+    localData: localFields,
     sheetData: existingFields,
-  })
+  });
 
   // update log fields
   try {
@@ -792,11 +930,13 @@ export interface SyncLogEntriesOptions {
   onError: (error: Error) => void;
   logSheetId: string;
   log?: Log;
+  deletedEntries: string[];
 }
 export const syncLogEntries = async ({
   onError,
   logSheetId,
   log,
+  deletedEntries,
 }: SyncLogEntriesOptions): Promise<LogEntry[]> => {
   // get existing log entries from sheet
   const existingEntries = await getLogEntries({
@@ -805,6 +945,7 @@ export const syncLogEntries = async ({
   }).then((entries) => {
     const entryMap = {} as { [key: string]: LogEntry };
     for (const entry of entries) {
+      if (deletedEntries.includes(entry.id)) continue;
       entryMap[entry.id] = entry;
     }
     return entryMap;
@@ -815,8 +956,15 @@ export const syncLogEntries = async ({
     return Object.values(existingEntries);
   }
 
+  // get log entries from local log
+  const localEntries = {} as { [key: string]: LogEntry };
+  for (const entry of Object.values(log.entries)) {
+    if (deletedEntries.includes(entry.id)) continue;
+    localEntries[entry.id] = entry;
+  }
+
   const { updatedIds, updatedData } = syncData({
-    localData: log.entries,
+    localData: localEntries,
     sheetData: existingEntries,
   });
 
@@ -890,5 +1038,269 @@ export const syncData = ({
   return {
     updatedIds,
     updatedData,
+  }
+};
+
+/** ***** Add Log Entry ***** */
+export interface AddLogEntryOptions {
+  onError: (error: Error) => void;
+  logSheetId: string;
+  logEntry: LogEntry;
+}
+export const addLogEntry = async ({
+  onError,
+  logSheetId,
+  logEntry,
+}: AddLogEntryOptions): Promise<LogEntry> => {
+  // get existing log entries from sheet
+  const existingEntries = await getLogEntries({
+    onError,
+    logSheetId,
+  }).then((entries) => {
+    const entryMap = {} as { [key: string]: LogEntry };
+    for (const entry of entries) {
+      entryMap[entry.id] = entry;
+    }
+    return entryMap;
+  });
+
+  // add new log entry
+  existingEntries[logEntry.id] = logEntry;
+
+  // update log entries
+  try {
+    await setLogEntries({
+      onError,
+      logSheetId,
+      logEntries: existingEntries,
+    });
+  } catch (error:any) {
+    onError(error);
+  }
+
+  // return new log entry
+  return logEntry;
+};
+
+/** ***** Update Log Entry ***** */
+export interface UpdateLogEntryOptions {
+  onError: (error: Error) => void;
+  logSheetId: string;
+  logEntry: LogEntry;
+}
+export const updateLogEntry = async ({
+  onError,
+  logSheetId,
+  logEntry,
+}: UpdateLogEntryOptions): Promise<LogEntry> => {
+  // get existing log entries from sheet
+  const existingEntries = await getLogEntries({
+    onError,
+    logSheetId,
+  }).then((entries) => {
+    const entryMap = {} as { [key: string]: LogEntry };
+    for (const entry of entries) {
+      entryMap[entry.id] = entry;
+    }
+    return entryMap;
+  });
+
+  // update log entry
+  existingEntries[logEntry.id] = logEntry;
+
+  // update log entries
+  try {
+    await setLogEntries({
+      onError,
+      logSheetId,
+      logEntries: existingEntries,
+    });
+  } catch (error:any) {
+    onError(error);
+  }
+
+  // return updated log entry
+  return logEntry;
+};
+
+/** ***** Delete Log Entry ***** */
+export interface DeleteLogEntryOptions {
+  onError: (error: Error) => void;
+  logSheetId: string;
+  logEntryId: string;
+}
+export const deleteLogEntry = async ({
+  onError,
+  logSheetId,
+  logEntryId,
+}: DeleteLogEntryOptions): Promise<void> => {
+  // get existing log entries from sheet
+  const existingEntries = await getLogEntries({
+    onError,
+    logSheetId,
+  }).then((entries) => {
+    const entryMap = {} as { [key: string]: LogEntry };
+    for (const entry of entries) {
+      entryMap[entry.id] = entry;
+    }
+    return entryMap;
+  });
+  const existingDeletedEntries = await getLogMetadataProp({
+    onError,
+    logSheetId,
+    prop: 'deletedEntries',
+  }) || [];
+
+  // delete log entry
+  delete existingEntries[logEntryId];
+  existingDeletedEntries.push(logEntryId);
+
+  // update log entries
+  try {
+    await setLogEntries({
+      onError,
+      logSheetId,
+      logEntries: existingEntries,
+    });
+    await setLogMetadataProp({
+      onError,
+      logSheetId,
+      prop: 'deletedEntries',
+      value: existingDeletedEntries,
+    });
+  } catch (error:any) {
+    onError(error);
+  }
+};
+
+/** ***** Add Log Field ***** */
+export interface AddLogFieldOptions {
+  onError: (error: Error) => void;
+  logSheetId: string;
+  logField: LogFields;
+}
+export const addLogField = async ({
+  onError,
+  logSheetId,
+  logField,
+}: AddLogFieldOptions): Promise<LogFields> => {
+  // get existing log fields from sheet
+  const existingFields = await getLogFields({
+    onError,
+    logSheetId,
+  }).then((fields) => {
+    const fieldMap = {} as { [key: string]: LogFields };
+    for (const field of fields) {
+      fieldMap[field.id] = field;
+    }
+    return fieldMap;
+  });
+
+  // add new log field
+  existingFields[logField.id] = logField;
+
+  // update log fields
+  try {
+    await setLogFields({
+      onError,
+      logSheetId,
+      logFields: existingFields,
+    });
+  } catch (error:any) {
+    onError(error);
+  }
+
+  // return new log field
+  return logField;
+};
+
+/** ***** Update Log Field ***** */
+export interface UpdateLogFieldOptions {
+  onError: (error: Error) => void;
+  logSheetId: string;
+  logField: LogFields;
+}
+export const updateLogField = async ({
+  onError,
+  logSheetId,
+  logField,
+}: UpdateLogFieldOptions): Promise<LogFields> => {
+  // get existing log fields from sheet
+  const existingFields = await getLogFields({
+    onError,
+    logSheetId,
+  }).then((fields) => {
+    const fieldMap = {} as { [key: string]: LogFields };
+    for (const field of fields) {
+      fieldMap[field.id] = field;
+    }
+    return fieldMap;
+  });
+
+  // update log field
+  existingFields[logField.id] = logField;
+
+  // update log fields
+  try {
+    await setLogFields({
+      onError,
+      logSheetId,
+      logFields: existingFields,
+    });
+  } catch (error: any) {
+    onError(error);
+  }
+
+  // return updated log field
+  return logField;
+};
+
+/** ***** Delete Log Field ***** */
+export interface DeleteLogFieldOptions {
+  onError: (error: Error) => void;
+  logSheetId: string;
+  logFieldId: string;
+}
+export const deleteLogField = async ({
+  onError,
+  logSheetId,
+  logFieldId,
+}: DeleteLogFieldOptions): Promise<void> => {
+  // get existing log fields from sheet
+  const existingFields = await getLogFields({
+    onError,
+    logSheetId,
+  }).then((fields) => {
+    const fieldMap = {} as { [key: string]: LogFields };
+    for (const field of fields) {
+      fieldMap[field.id] = field;
+    }
+    return fieldMap;
+  });
+  const existingDeletedFields = await getLogMetadataProp({
+    onError,
+    logSheetId,
+    prop: 'deletedFields',
+  }) || [];
+
+  // delete log field
+  delete existingFields[logFieldId];
+  existingDeletedFields.push(logFieldId);
+
+  // update log fields
+  try {
+    await setLogFields({
+      onError,
+      logSheetId,
+      logFields: existingFields,
+    });
+    await setLogMetadataProp({
+      onError,
+      logSheetId,
+      prop: 'deletedFields',
+      value: existingDeletedFields,
+    });
+  } catch (error:any) {
+    onError(error);
   }
 };
