@@ -17,7 +17,7 @@ import {
   useDataSync,
 } from "../../store/DataSync";
 
-import { OUTLINE_SECONDARY, PRIMARY, RESET, SECONDARY, SUBMIT } from "../../strings";
+import { OUTLINE_SECONDARY, PRIMARY, RESET, SUBMIT } from "../../strings";
 import { listFiles, listFolders } from "../GoogleApi";
 
 import "./DataSync.scss";
@@ -542,7 +542,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
               <h4>{"Sync Settings"}</h4>
               <p>{"Configure how often you want to sync your data."}</p>
               {/* todo: move form into sub component */}
-              <Form>
+              <Form><Row><Col>
                 {/* Form group for sync event settings: on log in, before sign out, on log view, on log edit view */}
                 <Form.Group>
                   <Form.Label>{"Sync automatically on:"}</Form.Label>
@@ -579,6 +579,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     }}
                   />
                 </Form.Group>
+                </Col><Col>
                 {/* Form Group for user initiated sync events: on add new log, on edit log, on add entry, on edit entry, on add field, on edit field */}
                 <Form.Group>
                   <Form.Label>{"Sync on user interactions:"}</Form.Label>
@@ -631,9 +632,10 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     }}
                   />
                 </Form.Group>
+                </Col><Col>
                 {/* Form Group for sync frequency: hourly, every x hours, daily, weekly, custom */}
                 <Form.Group>
-                  <Form.Label>{"Sync Frequency"}</Form.Label>
+                  <Form.Label>{"Sync Frequency:"}</Form.Label>
                   <Form.Check
                     type="radio"
                     label="Hourly"
@@ -685,8 +687,10 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     />
                   )}
                 </Form.Group>
+                </Col></Row>
+                
                 <Button
-                  variant={SECONDARY}
+                  variant={OUTLINE_SECONDARY}
                   type={RESET}
                   onClick={() => {
                     const {
@@ -718,6 +722,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     store.dispatch(resetSyncSettings(""))
                   }}
                 >{"Reset to Default"}</Button>
+                &nbsp;
                 <Button
                   variant={PRIMARY}
                   type={SUBMIT}
@@ -748,7 +753,9 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
         <Modal.Footer>
           <Nav variant="pills" className="flex-row">
             <Nav.Item>
-              <Nav.Link eventKey={DataSyncTabs.SPLASH}
+              <Nav.Link
+                eventKey={DataSyncTabs.SPLASH}
+                disabled={activeTab === DataSyncTabs.IN_PROGRESS}
                 onClick={() => {
                   setActiveTab(DataSyncTabs.SPLASH)
                 }}>
@@ -758,7 +765,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
             <Nav.Item>
               <Nav.Link
                 eventKey={DataSyncTabs.SELECT_LOGS}
-                disabled={!syncEnabled}
+                disabled={!syncEnabled || activeTab === DataSyncTabs.IN_PROGRESS}
                 onClick={() => {
                   setActiveTab(DataSyncTabs.SELECT_LOGS)
                 }}
@@ -767,14 +774,20 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
             <Nav.Item>
               <Nav.Link 
                 eventKey={DataSyncTabs.CONFIG}
-                disabled={!syncEnabled}
+                disabled={!syncEnabled || activeTab === DataSyncTabs.IN_PROGRESS}
                 onClick={() => {
                   setActiveTab(DataSyncTabs.CONFIG)
                 }}
               >{"Configure"}</Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link eventKey={DataSyncTabs.SUCCESS} disabled>{"Complete"}</Nav.Link>
+              <Nav.Link
+                eventKey={DataSyncTabs.SUCCESS}
+                disabled={activeTab !== DataSyncTabs.SUCCESS}
+                onClick={() => {
+                  setShowModal(false);
+                }}
+              >{"Complete"}</Nav.Link>
             </Nav.Item>
           </Nav>
         </Modal.Footer>
