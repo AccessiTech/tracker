@@ -105,7 +105,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   const [localLogs] = React.useState(useGetLogsArray());
   const [allLogs, setAllLogs] = React.useState([] as any[]);
   const [remoteLogs, setRemoteLogs] = React.useState([] as any[]);
-  const [selectedLogs, setSelectedLogs] = React.useState([] as string[]);
+  const [selectedLogs, setSelectedLogs] = React.useState(logSheets ? Object.keys(logSheets) : [] as string[]);
 
   const [syncOnLogIn, setSyncOnLogIn] = React.useState(syncSettings?.onLogin || false);
   const [syncOnLogOut, setSyncOnLogOut] = React.useState(syncSettings?.onLogout || false);
