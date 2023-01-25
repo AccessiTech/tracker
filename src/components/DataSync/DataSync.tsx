@@ -528,7 +528,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
 
             {/* ***** SUCCESS TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.SUCCESS}>
-              <p>{"Success"}</p>
+              <h4>{"Success!"}</h4>
+              <p>{"Your logs have been synced with Google Sheets. Global sync settings can be configured here and log specific sync settings can be configured in the Log settings to override the global sync settings."}</p>
             </Tab.Pane>
 
             {/* ***** ERROR TAB ***** */}
@@ -737,6 +738,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       customSyncFrequency,
                     };
                     store.dispatch(editSyncSettings(syncSettings));
+                    setActiveTab(DataSyncTabs.SUCCESS)
                   }}
                 >{"Save"}</Button>
               </Form>
@@ -746,12 +748,33 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
         <Modal.Footer>
           <Nav variant="pills" className="flex-row">
             <Nav.Item>
-              <Nav.Link eventKey={DataSyncTabs.SPLASH}>
+              <Nav.Link eventKey={DataSyncTabs.SPLASH}
+                onClick={() => {
+                  setActiveTab(DataSyncTabs.SPLASH)
+                }}>
                 {"Get Started"}
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link eventKey={DataSyncTabs.CONFIG}>{"Complete"}</Nav.Link>
+              <Nav.Link
+                eventKey={DataSyncTabs.SELECT_LOGS}
+                disabled={!syncEnabled}
+                onClick={() => {
+                  setActiveTab(DataSyncTabs.SELECT_LOGS)
+                }}
+              >{"Select Logs"}</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link 
+                eventKey={DataSyncTabs.CONFIG}
+                disabled={!syncEnabled}
+                onClick={() => {
+                  setActiveTab(DataSyncTabs.CONFIG)
+                }}
+              >{"Configure"}</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey={DataSyncTabs.SUCCESS} disabled>{"Complete"}</Nav.Link>
             </Nav.Item>
           </Nav>
         </Modal.Footer>

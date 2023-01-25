@@ -28,4 +28,11 @@
   .modal__select_folder {
     margin-top: calc($spacer / 2);
   }
+
+  .modal-footer {
+    .nav.flex-row {
+      justify-content: space-between;
+      flex-grow: 1;
+    }
+  }
 }
