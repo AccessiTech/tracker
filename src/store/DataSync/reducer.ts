@@ -100,8 +100,7 @@ export const dataSyncSlice: Slice<
   initialState,
   reducers: {
     [SET_ENABLE_SYNC]: (state, action) => {
-      const { syncEnabled } = action.payload;
-      state.syncEnabled = syncEnabled;
+      state.syncEnabled = action.payload;
     },
     [RESET_SYNC]: (state) => {
       const { syncEnabled, syncMethod, syncId, googleDrive } = initialState;
