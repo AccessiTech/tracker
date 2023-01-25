@@ -3,21 +3,26 @@ import { Button, Col, Form, Modal, Nav, Row, Tab, Table } from "react-bootstrap"
 import store from "../../store/store";
 import {
   addGoogleDriveLogSheet,
+  defaultSyncSettings,
+  editSyncSettings,
   LogSheet,
   resetSync,
+  resetSyncSettings,
   setEnableSync,
   setGoogleDriveFolderId,
   setGoogleDriveLogSheetId,
   setSyncId,
+  SyncFrequency,
+  SyncSettings,
   useDataSync,
 } from "../../store/DataSync";
 
-import { OUTLINE_SECONDARY, PRIMARY } from "../../strings";
+import { OUTLINE_SECONDARY, PRIMARY, RESET, SECONDARY, SUBMIT } from "../../strings";
 import { listFiles, listFolders } from "../GoogleApi";
 
 import "./DataSync.scss";
 import { connectDataSync, getLogSheetIds, initDataSync, setLogsToSync } from "../../services/DataSync";
-import { addLog,  addLogEntry,  addLogField,  Log, updateLog, updateLogEntry, updateLogField, useGetLogsArray } from "../../store/Log";
+import { addLog, addLogEntry, addLogField, Log, updateLog, updateLogEntry, updateLogField, useGetLogsArray } from "../../store/Log";
 import { initNewLogSheet, setLogSheetIds, syncLogSheet } from "../../services/DataSync/DataSync";
 
 export interface DataSyncProps {
@@ -83,9 +88,11 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   setShowModal,
   onError,
 }): ReactElement => {
-  const { googleDrive, syncId, syncEnabled } = useDataSync();
-  const { folderId, logSheetId } = googleDrive;
-  const _activeTab = syncEnabled ? DataSyncTabs.SELECT_LOGS : DataSyncTabs.SPLASH;
+  const { googleDrive, syncId, syncEnabled, syncSettings } = useDataSync();
+  const { folderId, logSheetId, logSheets } = googleDrive;
+  const _activeTab = syncEnabled
+    ? Object.keys(logSheets).length ? DataSyncTabs.CONFIG : DataSyncTabs.SELECT_LOGS
+    : DataSyncTabs.SPLASH;
   const [selectFolder, setSelectFolder] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState(_activeTab);
   const [folders, setFolders] = React.useState([] as DriveFolder[]);
@@ -100,6 +107,19 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   const [remoteLogs, setRemoteLogs] = React.useState([] as any[]);
   const [selectedLogs, setSelectedLogs] = React.useState([] as string[]);
 
+  const [syncOnLogIn, setSyncOnLogIn] = React.useState(syncSettings?.onLogin || false);
+  const [syncOnLogOut, setSyncOnLogOut] = React.useState(syncSettings?.onLogout || false);
+  const [syncOnLogView, setSyncOnLogView] = React.useState(syncSettings?.onLogView || false);
+  const [syncOnLogEditView, setSyncOnLogEditView] = React.useState(syncSettings?.onLogEditView || false);
+  const [syncOnAddNewLog, setSyncOnAddNewLog] = React.useState(syncSettings?.onAddNewLog || false);
+  const [syncOnEditLog, setSyncOnEditLog] = React.useState(syncSettings?.onEditLog || false);
+  const [syncOnAddEntry, setSyncOnAddEntry] = React.useState(syncSettings?.onAddEntry || false);
+  const [syncOnEditEntry, setSyncOnEditEntry] = React.useState(syncSettings?.onEditEntry || false);
+  const [syncOnAddField, setSyncOnAddField] = React.useState(syncSettings?.onAddField || false);
+  const [syncOnEditField, setSyncOnEditField] = React.useState(syncSettings?.onEditField || false);
+  const [syncFrequency, setSyncFrequency] = React.useState(syncSettings?.syncFrequency || false);
+  const [customSyncFrequency, setCustomSyncFrequency] = React.useState(syncSettings?.customSyncFrequency || 1);
+
   // On Mount
   React.useEffect(() => {
     if (!syncEnabled) {
@@ -113,7 +133,6 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
           setActiveTab(DataSyncTabs.ERROR);
         });
     } else {
-      setActiveTab(DataSyncTabs.SELECT_LOGS);
       // todo: get remote logs
       const newRemoteLogs = [] as any[];
       setRemoteLogs(newRemoteLogs);
@@ -139,7 +158,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
       getLogSheetIds({
         onError,
         logSheetId: mainSheetId,
-      }).then((sheetIds: {[logId:string]: LogSheet}) => {
+      }).then((sheetIds: { [logId: string]: LogSheet }) => {
         setRemoteLogs(Object.keys(sheetIds).map((logId) => ({
           // id: sheetIds[logId]?.id,
           id: logId,
@@ -152,7 +171,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   // on local and remote logs change
   React.useEffect(() => {
     const allLogsSet = new Set([...(localLogs.map((l) => l.id)), ...(remoteLogs.map((l) => l.id))]);
-    const allLogs = Array.from(allLogsSet).map((id) => 
+    const allLogs = Array.from(allLogsSet).map((id) =>
       localLogs.find((l) => l.id === id) || remoteLogs.find((l) => l.id === id)
     ).filter((l) => l);
     setAllLogs(allLogs);
@@ -174,9 +193,9 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
         if (e.target.parentElement?.classList.contains('existing_sync')) {
           listFiles({
             parents: [e.target.value],
-          }).then((files:any[]) => {
+          }).then((files: any[]) => {
             setFilesToSelect(files);
-          }).catch((err:any) => {
+          }).catch((err: any) => {
             onError(err?.result?.error);
             setActiveTab(DataSyncTabs.ERROR);
           });
@@ -309,8 +328,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                           onError(err);
                           setActiveTab(DataSyncTabs.ERROR);
                         });
-                      
-                      const logSheetIds:any = await getLogSheetIds({
+
+                      const logSheetIds: any = await getLogSheetIds({
                         onError,
                         logSheetId: mainSheetId,
                       });
@@ -409,7 +428,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   }
 
                   // 3. create new log sheets for logs when needed
-                  let sheetMap:any = {};
+                  let sheetMap: any = {};
                   if (sheetsToCreate.length) {
                     for (const logId of sheetsToCreate) {
                       const thisLog = localLogs.find(
@@ -421,7 +440,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                           syncId,
                           log: thisLog,
                           folderId: selectedFolder,
-                        }).then((sheetId:any) => {
+                        }).then((sheetId: any) => {
                           if (!sheetMap[logId]) {
                             sheetMap[logId] = {};
                           }
@@ -456,8 +475,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     // sync local log with google sheet
                     const {
                       metadata,
-                      entries:updatedEntries,
-                      fields:updatedFields
+                      entries: updatedEntries,
+                      fields: updatedFields
                     } = await syncLogSheet({
                       onError,
                       logSheetId: sheetMap[logId].id,
@@ -487,8 +506,9 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       ) {
                         store.dispatch(updateLogField({ logId: logId, fieldId: updatedField.id, field: updatedField }));
                       } else if (thisLog) {
-                        store.dispatch(addLogField({ logId: logId
-                          , field: updatedField }));
+                        store.dispatch(addLogField({
+                          logId, field: updatedField
+                        }));
                       } else {
                         newLog.fields[updatedField.id] = updatedField;
                       }
@@ -518,7 +538,208 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
 
             {/* ***** CONFIG TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.CONFIG}>
-              <p>{"Config"}</p>
+              <h4>{"Sync Settings"}</h4>
+              <p>{"Configure how often you want to sync your data."}</p>
+              {/* todo: move form into sub component */}
+              <Form>
+                {/* Form group for sync event settings: on log in, before sign out, on log view, on log edit view */}
+                <Form.Group>
+                  <Form.Label>{"Sync automatically on:"}</Form.Label>
+                  <Form.Check
+                    type="checkbox"
+                    label="Log In"
+                    checked={syncOnLogIn}
+                    onChange={(e: any) => {
+                      setSyncOnLogIn(e.target.checked);
+                    }}
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    label="Log Out"
+                    checked={syncOnLogOut}
+                    onChange={(e: any) => {
+                      setSyncOnLogOut(e.target.checked);
+                    }}
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    label="Log View"
+                    checked={syncOnLogView}
+                    onChange={(e: any) => {
+                      setSyncOnLogView(e.target.checked);
+                    }}
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    label="Log Edit View"
+                    checked={syncOnLogEditView}
+                    onChange={(e: any) => {
+                      setSyncOnLogEditView(e.target.checked);
+                    }}
+                  />
+                </Form.Group>
+                {/* Form Group for user initiated sync events: on add new log, on edit log, on add entry, on edit entry, on add field, on edit field */}
+                <Form.Group>
+                  <Form.Label>{"Sync on user interactions:"}</Form.Label>
+                  <Form.Check
+                    type="checkbox"
+                    label="Add New Log"
+                    checked={syncOnAddNewLog}
+                    onChange={(e: any) => {
+                      setSyncOnAddNewLog(e.target.checked);
+                    }}
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    label="Edit Log"
+                    checked={syncOnEditLog}
+                    onChange={(e: any) => {
+                      setSyncOnEditLog(e.target.checked);
+                    }}
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    label="Add Entry"
+                    checked={syncOnAddEntry}
+                    onChange={(e: any) => {
+                      setSyncOnAddEntry(e.target.checked);
+                    }}
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    label="Edit Entry"
+                    checked={syncOnEditEntry}
+                    onChange={(e: any) => {
+                      setSyncOnEditEntry(e.target.checked);
+                    }}
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    label="Add Field"
+                    checked={syncOnAddField}
+                    onChange={(e: any) => {
+                      setSyncOnAddField(e.target.checked);
+                    }}
+                  />
+                  <Form.Check
+                    type="checkbox"
+                    label="Edit Field"
+                    checked={syncOnEditField}
+                    onChange={(e: any) => {
+                      setSyncOnEditField(e.target.checked);
+                    }}
+                  />
+                </Form.Group>
+                {/* Form Group for sync frequency: hourly, every x hours, daily, weekly, custom */}
+                <Form.Group>
+                  <Form.Label>{"Sync Frequency"}</Form.Label>
+                  <Form.Check
+                    type="radio"
+                    label="Hourly"
+                    checked={syncFrequency === SyncFrequency.HOURLY}
+                    onChange={() => {
+                      setSyncFrequency(SyncFrequency.HOURLY);
+                    }}
+                  />
+                  <Form.Check
+                    type="radio"
+                    label="Every 6 Hours"
+                    checked={syncFrequency === SyncFrequency.EVERY_6_HOURS}
+                    onChange={() => {
+                      setSyncFrequency(SyncFrequency.EVERY_6_HOURS);
+                    }}
+                  />
+                  <Form.Check
+                    type="radio"
+                    label="Daily"
+                    checked={syncFrequency === SyncFrequency.DAILY}
+                    onChange={() => {
+                      setSyncFrequency(SyncFrequency.DAILY);
+                    }}
+                  />
+                  <Form.Check
+                    type="radio"
+                    label="Weekly"
+                    checked={syncFrequency === SyncFrequency.WEEKLY}
+                    onChange={() => {
+                      setSyncFrequency(SyncFrequency.WEEKLY);
+                    }}
+                  />
+                  <Form.Check
+                    type="radio"
+                    label="Custom"
+                    checked={syncFrequency === SyncFrequency.CUSTOM}
+                    onChange={() => {
+                      setSyncFrequency(SyncFrequency.CUSTOM);
+                    }}
+                  />
+                  {syncFrequency === SyncFrequency.CUSTOM && (
+                    <Form.Control
+                      type="number"
+                      placeholder="Enter number of hours"
+                      value={customSyncFrequency}
+                      onChange={(e: any) => {
+                        setCustomSyncFrequency(e.target.value);
+                      }}
+                    />
+                  )}
+                </Form.Group>
+                <Button
+                  variant={SECONDARY}
+                  type={RESET}
+                  onClick={() => {
+                    const {
+                      onLogin,
+                      onLogout,
+                      onAddEntry,
+                      onAddField,
+                      onAddNewLog,
+                      onEditEntry,
+                      onEditField,
+                      onEditLog,
+                      onLogEditView,
+                      onLogView,
+                      syncFrequency,
+                      customSyncFrequency,
+                    } = defaultSyncSettings;
+                    setSyncOnLogIn(onLogin);
+                    setSyncOnLogOut(onLogout);
+                    setSyncOnLogView(onLogView);
+                    setSyncOnLogEditView(onLogEditView);
+                    setSyncOnAddNewLog(onAddNewLog);
+                    setSyncOnEditLog(onEditLog);
+                    setSyncOnAddEntry(onAddEntry);
+                    setSyncOnEditEntry(onEditEntry);
+                    setSyncOnAddField(onAddField);
+                    setSyncOnEditField(onEditField);
+                    setSyncFrequency(syncFrequency);
+                    setCustomSyncFrequency(customSyncFrequency);
+                    store.dispatch(resetSyncSettings(""))
+                  }}
+                >{"Reset to Default"}</Button>
+                <Button
+                  variant={PRIMARY}
+                  type={SUBMIT}
+                  onClick={(e: any) => {
+                    e.preventDefault();
+                    const syncSettings: SyncSettings = {
+                      onLogin: syncOnLogIn,
+                      onLogout: syncOnLogOut,
+                      onLogView: syncOnLogView,
+                      onLogEditView: syncOnLogEditView,
+                      onAddNewLog: syncOnAddNewLog,
+                      onEditLog: syncOnEditLog,
+                      onAddEntry: syncOnAddEntry,
+                      onEditEntry: syncOnEditEntry,
+                      onAddField: syncOnAddField,
+                      onEditField: syncOnEditField,
+                      syncFrequency,
+                      customSyncFrequency,
+                    };
+                    store.dispatch(editSyncSettings(syncSettings));
+                  }}
+                >{"Save"}</Button>
+              </Form>
             </Tab.Pane>
           </Tab.Content>
         </Modal.Body>
