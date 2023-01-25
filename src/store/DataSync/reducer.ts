@@ -12,6 +12,44 @@ export interface LogSheet {
   name: string;
 }
 
+export enum SyncFrequency {
+  HOURLY = "HOURLY",
+  EVERY_6_HOURS = "EVERY_6_HOURS",
+  DAILY = "DAILY",
+  WEEKLY = "WEEKLY",
+  CUSTOM = "CUSTOM",
+}
+
+export interface SyncSettings {
+  onLogin: boolean;
+  onLogout: boolean;
+  onLogView: boolean;
+  onLogEditView: boolean;
+  onAddNewLog: boolean;
+  onEditLog: boolean;
+  onAddEntry: boolean;
+  onEditEntry: boolean;
+  onAddField: boolean;
+  onEditField: boolean;
+  syncFrequency: SyncFrequency;
+  customSyncFrequency: number;
+}
+
+export const defaultSyncSettings: SyncSettings = {
+  onLogin: true,
+  onLogout: true,
+  onLogView: true,
+  onLogEditView: true,
+  onAddNewLog: true,
+  onEditLog: true,
+  onAddEntry: true,
+  onEditEntry: true,
+  onAddField: true,
+  onEditField: true,
+  syncFrequency: SyncFrequency.HOURLY,
+  customSyncFrequency: 1,
+};
+
 export interface DataSyncState {
   syncEnabled: boolean;
   syncMethod: typeof GOOGLE_DRIVE;
@@ -21,6 +59,7 @@ export interface DataSyncState {
     logSheetId: string;
     logSheets: { [logId: string]: LogSheet };
   };
+  syncSettings: SyncSettings;
 }
 
 // Initial State
@@ -33,6 +72,7 @@ export const initialState: DataSyncState = {
     logSheetId: EMPTY,
     logSheets: {},
   },
+  syncSettings: defaultSyncSettings,
 };
 
 // Action Types
@@ -45,7 +85,10 @@ export const SET_GOOGLE_DRIVE_LOG_SHEET_ID =
   "dataSync/setGoogleDriveLogSheetId";
 export const SET_GOOGLE_DRIVE_LOG_SHEETS = "dataSync/setGoogleDriveLogSheets";
 export const ADD_GOOGLE_DRIVE_LOG_SHEET = "dataSync/addGoogleDriveLogSheet";
-export const REMOVE_GOOGLE_DRIVE_LOG_SHEET = "dataSync/removeGoogleDriveLogSheet";
+export const REMOVE_GOOGLE_DRIVE_LOG_SHEET =
+  "dataSync/removeGoogleDriveLogSheet";
+export const EDIT_SYNC_SETTINGS = "dataSync/editSyncSettings";
+export const RESET_SYNC_SETTINGS = "dataSync/resetSyncSettings";
 
 // Reducer
 export const dataSyncSlice: Slice<
@@ -68,7 +111,7 @@ export const dataSyncSlice: Slice<
       state.syncId = syncId;
       state.googleDrive.folderId = folderId;
       state.googleDrive.logSheetId = logSheetId;
-      state.googleDrive.logSheets =logSheets;
+      state.googleDrive.logSheets = logSheets;
     },
     [SET_SYNC_METHOD]: (state, action) => {
       const { syncMethod } = action.payload;
@@ -99,7 +142,13 @@ export const dataSyncSlice: Slice<
     [REMOVE_GOOGLE_DRIVE_LOG_SHEET]: (state, action) => {
       const { logSheetId } = action.payload;
       delete state.googleDrive.logSheets[logSheetId];
-    }
+    },
+    [EDIT_SYNC_SETTINGS]: (state, action) => {
+      state.syncSettings = action.payload;
+    },
+    [RESET_SYNC_SETTINGS]: (state) => {
+      state.syncSettings = defaultSyncSettings;
+    },
   },
 });
 
@@ -118,7 +167,8 @@ export const addGoogleDriveLogSheet =
   dataSyncSlice.actions[ADD_GOOGLE_DRIVE_LOG_SHEET];
 export const removeGoogleDriveLogSheet =
   dataSyncSlice.actions[REMOVE_GOOGLE_DRIVE_LOG_SHEET];
-
+export const editSyncSettings = dataSyncSlice.actions[EDIT_SYNC_SETTINGS];
+export const resetSyncSettings = dataSyncSlice.actions[RESET_SYNC_SETTINGS];
 
 // Hooks
 export const useDataSync = (): DataSyncState => {
@@ -162,4 +212,9 @@ export const useGoogleDriveLogSheets = (): { [logId: string]: LogSheet } => {
 export const useGoogleDriveLogSheet = (id: string): LogSheet => {
   const { logSheets } = useGoogleDriveLogSheets();
   return (logSheets as any)[id] || {};
+};
+
+export const useSyncSettings = (): SyncSettings => {
+  const dataSync = useDataSync();
+  return dataSync.syncSettings;
 };
