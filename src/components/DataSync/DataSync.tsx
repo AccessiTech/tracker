@@ -8,7 +8,6 @@ import {
   setEnableSync,
   setGoogleDriveFolderId,
   setGoogleDriveLogSheetId,
-  setGoogleDriveLogSheets,
   setSyncId,
   useDataSync,
 } from "../../store/DataSync";
@@ -199,11 +198,10 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
     </Form.Select>
   );
 
-  const onInitSuccess = ({ syncId, folderId, logSheetId, sheets }: any) => {
+  const onInitSuccess = ({ syncId, folderId, logSheetId }: any) => {
     store.dispatch(setEnableSync(true));
     store.dispatch(setGoogleDriveFolderId({ folderId }));
     store.dispatch(setGoogleDriveLogSheetId({ logSheetId }));
-    store.dispatch(setGoogleDriveLogSheets({ logSheets: sheets }));
     store.dispatch(setSyncId({ syncId }));
     setActiveTab(DataSyncTabs.SELECT_LOGS);
   };
@@ -396,10 +394,20 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   });
 
                   // 2. get logs to sync
-                  const sheetsToCreate = selectedLogs.filter(
-                    (logId) => !existingLogSheetIds[logId]
-                  );
-                  
+                  const sheetsToCreate = [];
+                  for (const logId of selectedLogs) {
+                    if (existingLogSheetIds[logId]) {
+                      store.dispatch(addGoogleDriveLogSheet({
+                        [logId]: {
+                          id: existingLogSheetIds[logId].id,
+                          name: existingLogSheetIds[logId].name,
+                        }
+                      }));
+                    } else {
+                      sheetsToCreate.push(logId);
+                    }
+                  }
+
                   // 3. create new log sheets for logs when needed
                   let sheetMap:any = {};
                   if (sheetsToCreate.length) {
