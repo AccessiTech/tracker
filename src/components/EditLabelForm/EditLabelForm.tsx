@@ -2,6 +2,9 @@ import React, { FC, ReactElement } from "react";
 import { Formik } from "formik";
 import { InputGroup, Form, Button } from "react-bootstrap";
 import { Log, LogFields } from "../../store/Log";
+import { OnUpdateLogParams } from "../../containers/Edit";
+import { useAuthenticated } from "../../store/Session";
+import { useDataSync } from "../../store/DataSync";
 import {
   DATE,
   DATE_LABEL,
@@ -20,7 +23,7 @@ export const ENTRY_LABEL = "Entry Label";
 
 export interface EditLabelFormProps {
   log: Log;
-  onSubmit: (log: Log, values: any) => void;
+  onSubmit: (params: OnUpdateLogParams) => void;
 }
 
 export const EditLabelForm: FC<EditLabelFormProps> = ({
@@ -32,10 +35,12 @@ export const EditLabelForm: FC<EditLabelFormProps> = ({
     labelOption: log.labelOption || DATE,
   } as Log & { [key: string]: string };
   const logFields: LogFields[] = Object.values(fields || {});
+  const authenticated = useAuthenticated();
+  const dataSyncState = useDataSync();
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values) => onSubmit(log, values)}
+      onSubmit={(values: any) => onSubmit({ log, values, authenticated, dataSyncState })}
     >
       {(formikProps) => {
         return (

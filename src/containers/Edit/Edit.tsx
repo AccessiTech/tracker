@@ -42,6 +42,10 @@ import {
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
 import { EditSortForm } from "../../components/EditSortForm";
+import { DataSyncState } from "../../store/DataSync";
+import { handleError, updateLocalLog } from "../../components/DataSync";
+import { syncLogSheet } from "../../services/DataSync";
+import { SyncLogSheetResponse } from "../../services/DataSync/DataSync";
 // import { EditRecurrenceForm } from "../../components/EditRecurrenceForm";
 
 export const EDIT_HEADER = "Edit: ";
@@ -52,17 +56,49 @@ export const LOG_SETTINGS = "Log Settings";
 export const DELETE_LOG = "Delete Log";
 export const FIELD_SETTINGS = "Field Settings";
 
+
+export interface OnUpdateLogParams {
+  log: Log;
+  values: any;
+  authenticated?: boolean;
+  dataSyncState?: DataSyncState;
+}
+
 /**
  * Edit log callback
  * @param {Log} log - log to edit
  * @param {any} values - values to update
+ * @param {boolean} authenticated - optional authenticated state
+ * @param {DataSyncState} dataSyncState - optional data sync state
  */
-export const onUpdateLog = (log: Log, values: any): void => {
+export const onUpdateLog = ({
+  log,
+  values,
+  authenticated,
+  dataSyncState,
+}: OnUpdateLogParams): void => {
   const updatedLog: Log = {
     ...log,
     ...values,
   };
   store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
+  if (authenticated && dataSyncState?.syncEnabled) {
+    const { syncSettings } = dataSyncState;
+    if (syncSettings?.onEditLog) {
+      const sync = dataSyncState[dataSyncState.syncMethod];
+      if (sync?.logSheets && sync?.logSheets[log.id]) {
+        syncLogSheet({
+          log,
+          logSheetId: sync.logSheets[log.id].id,
+          onError: handleError,
+        }).then((updates: SyncLogSheetResponse) =>
+          updateLocalLog({ log, updates, store })
+        ).catch((error) => {
+          console.error('Error syncing onUpdateLog: ', error);
+        });
+      }
+    }
+  }
 };
 
 /**
@@ -284,5 +320,3 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
     </>
   );
 };
-
-export default Edit;

@@ -23,7 +23,7 @@ import { listFiles, listFolders } from "../GoogleApi";
 import "./DataSync.scss";
 import { connectDataSync, getLogSheetIds, initDataSync, setLogsToSync } from "../../services/DataSync";
 import { addLog, addLogEntry, addLogField, Log, updateLog, updateLogEntry, updateLogField, useGetLogsArray } from "../../store/Log";
-import { initNewLogSheet, setLogSheetIds, syncLogSheet } from "../../services/DataSync/DataSync";
+import { initNewLogSheet, setLogSheetIds, syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync/DataSync";
 
 export interface DataSyncProps {
   authenticated: boolean;
@@ -473,53 +473,19 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       (log) => log.id === logId
                     );
                     // sync local log with google sheet
-                    const {
-                      metadata,
-                      entries: updatedEntries,
-                      fields: updatedFields
-                    } = await syncLogSheet({
+                    const updates = await syncLogSheet({
                       onError,
                       logSheetId: sheetMap[logId].id,
                       log: thisLog,
                     });
 
                     // 5. update local log
-                    const newLog = {
-                      ...metadata,
-                      fields: {},
-                      entries: {},
-                    } as Log;
-                    for (const updatedEntry of updatedEntries) {
-                      if (thisLog &&
-                        JSON.stringify(thisLog.entries[updatedEntry.id]?.values) !== JSON.stringify(updatedEntry.values)
-                      ) {
-                        store.dispatch(updateLogEntry({ logId: logId, entryId: updatedEntry.id, entry: updatedEntry }));
-                      } else if (thisLog) {
-                        store.dispatch(addLogEntry({ logId: logId, entry: updatedEntry }));
-                      } else {
-                        newLog.entries[updatedEntry.id] = updatedEntry;
-                      }
-                    }
-                    for (const updatedField of updatedFields) {
-                      if (thisLog &&
-                        JSON.stringify(thisLog.fields[updatedField.id]) !== JSON.stringify(updatedField)
-                      ) {
-                        store.dispatch(updateLogField({ logId: logId, fieldId: updatedField.id, field: updatedField }));
-                      } else if (thisLog) {
-                        store.dispatch(addLogField({
-                          logId, field: updatedField
-                        }));
-                      } else {
-                        newLog.fields[updatedField.id] = updatedField;
-                      }
-                    }
-                    if (!thisLog) {
-                      store.dispatch(addLog({ log: newLog }));
-                    } else {
-                      store.dispatch(updateLog({ logId: logId, log: metadata }));
-                    }
+                    updateLocalLog({
+                      log: thisLog,
+                      updates,
+                      store,
+                    });
                   }
-
                   setActiveTab(DataSyncTabs.CONFIG);
                 }}
               >{"Connect Logs to Data Sync"}</Button>
@@ -795,3 +761,56 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
     </Modal>
   );
 };
+
+export interface UpdateLocalLogParams {
+  log?: Log;
+  updates: SyncLogSheetResponse;
+  store: any;
+}
+
+export const updateLocalLog = ({
+  log,
+  updates,
+  store,
+}: UpdateLocalLogParams):void => {
+  const {
+    metadata,
+    entries: updatedEntries,
+    fields: updatedFields
+  } = updates;
+
+  const newLog = {
+    ...metadata,
+    fields: {},
+    entries: {},
+  } as Log;
+  for (const updatedEntry of updatedEntries) {
+    if (log &&
+      JSON.stringify(log.entries[updatedEntry.id]?.values) !== JSON.stringify(updatedEntry.values)
+    ) {
+      store.dispatch(updateLogEntry({ logId: log.id, entryId: updatedEntry.id, entry: updatedEntry }));
+    } else if (log) {
+      store.dispatch(addLogEntry({ logId: log.id, entry: updatedEntry }));
+    } else {
+      newLog.entries[updatedEntry.id] = updatedEntry;
+    }
+  }
+  for (const updatedField of updatedFields) {
+    if (log &&
+      JSON.stringify(log.fields[updatedField.id]) !== JSON.stringify(updatedField)
+    ) {
+      store.dispatch(updateLogField({ logId: log.id, fieldId: updatedField.id, field: updatedField }));
+    } else if (log) {
+      store.dispatch(addLogField({
+        logId: log.id, field: updatedField
+      }));
+    } else {
+      newLog.fields[updatedField.id] = updatedField;
+    }
+  }
+  if (!log) {
+    store.dispatch(addLog({ log: newLog }));
+  } else {
+    store.dispatch(updateLog({ logId: log.id, log: metadata }));
+  }
+}

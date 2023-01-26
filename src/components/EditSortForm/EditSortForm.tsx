@@ -3,6 +3,9 @@ import { Formik } from "formik";
 import { InputGroup, Form, Button, Row, Col } from "react-bootstrap";
 import { Log, LogFields } from "../../store/Log";
 import { CREATED_AT, FIELDS, ORDER, PRIMARY, SAVE, SELECT, SORT, SORT_ASC, SORT_DESC, SUBMIT } from "../../strings";
+import { OnUpdateLogParams } from "../../containers/Edit";
+import { useAuthenticated } from "../../store/Session";
+import { useDataSync } from "../../store/DataSync";
 
 // A component to edit the label of a log entry using Formik.
 
@@ -12,7 +15,7 @@ export const DATE_CREATED = "Date Created";
 
 export interface EditSortFormProps {
   log: Log;
-  onSubmit: (log: Log, values: any) => void;
+  onSubmit: (params: OnUpdateLogParams) => void;
 }
 
 export const EditSortForm: FC<EditSortFormProps> = ({
@@ -25,10 +28,12 @@ export const EditSortForm: FC<EditSortFormProps> = ({
     order: log.order || SORT_DESC,
   } as Log & { [key: string]: string };
   const logFields: LogFields[] = Object.values(fields || {});
+  const authenticated = useAuthenticated();
+  const dataSyncState = useDataSync();
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values) => onSubmit(log, values)}
+      onSubmit={(values: any) => onSubmit({ log, values, authenticated, dataSyncState })}
     >
       {(formikProps) => {
         return (
