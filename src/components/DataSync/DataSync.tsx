@@ -12,7 +12,7 @@ import {
   setGoogleDriveFolderId,
   setGoogleDriveLogSheetId,
   setSyncId,
-  SyncFrequency,
+  // SyncFrequency,
   SyncSettings,
   useDataSync,
 } from "../../store/DataSync";
@@ -117,8 +117,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   const [syncOnEditEntry, setSyncOnEditEntry] = React.useState(syncSettings?.onEditEntry || false);
   const [syncOnAddField, setSyncOnAddField] = React.useState(syncSettings?.onAddField || false);
   const [syncOnEditField, setSyncOnEditField] = React.useState(syncSettings?.onEditField || false);
-  const [syncFrequency, setSyncFrequency] = React.useState(syncSettings?.syncFrequency || false);
-  const [customSyncFrequency, setCustomSyncFrequency] = React.useState(syncSettings?.customSyncFrequency || 1);
+  // const [syncFrequency, setSyncFrequency] = React.useState(syncSettings?.syncFrequency || false);
+  // const [customSyncFrequency, setCustomSyncFrequency] = React.useState(syncSettings?.customSyncFrequency || 1);
 
   // On Mount
   React.useEffect(() => {
@@ -600,7 +600,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                 </Form.Group>
                 </Col><Col>
                 {/* Form Group for sync frequency: hourly, every x hours, daily, weekly, custom */}
-                <Form.Group>
+                {/* <Form.Group>
                   <Form.Label>{"Sync Frequency:"}</Form.Label>
                   <Form.Check
                     type="radio"
@@ -652,7 +652,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       }}
                     />
                   )}
-                </Form.Group>
+                </Form.Group> */}
                 </Col></Row>
                 
                 <Button
@@ -670,8 +670,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       onEditLog,
                       onLogEditView,
                       onLogView,
-                      syncFrequency,
-                      customSyncFrequency,
+                      // syncFrequency,
+                      // customSyncFrequency,
                     } = defaultSyncSettings;
                     setSyncOnLogIn(onLogin);
                     setSyncOnLogOut(onLogout);
@@ -683,8 +683,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     setSyncOnEditEntry(onEditEntry);
                     setSyncOnAddField(onAddField);
                     setSyncOnEditField(onEditField);
-                    setSyncFrequency(syncFrequency);
-                    setCustomSyncFrequency(customSyncFrequency);
+                    // setSyncFrequency(syncFrequency);
+                    // setCustomSyncFrequency(customSyncFrequency);
                     store.dispatch(resetSyncSettings(""))
                   }}
                 >{"Reset to Default"}</Button>
@@ -705,8 +705,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       onEditEntry: syncOnEditEntry,
                       onAddField: syncOnAddField,
                       onEditField: syncOnEditField,
-                      syncFrequency,
-                      customSyncFrequency,
+                      // syncFrequency,
+                      // customSyncFrequency,
                     };
                     store.dispatch(editSyncSettings(syncSettings));
                     setActiveTab(DataSyncTabs.SUCCESS)

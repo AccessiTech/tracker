@@ -31,8 +31,8 @@ export interface SyncSettings {
   onEditEntry: boolean;
   onAddField: boolean;
   onEditField: boolean;
-  syncFrequency: SyncFrequency;
-  customSyncFrequency: number;
+  // syncFrequency: SyncFrequency;
+  // customSyncFrequency: number;
 }
 
 export const defaultSyncSettings: SyncSettings = {
@@ -46,8 +46,8 @@ export const defaultSyncSettings: SyncSettings = {
   onEditEntry: true,
   onAddField: true,
   onEditField: true,
-  syncFrequency: SyncFrequency.HOURLY,
-  customSyncFrequency: 1,
+  // syncFrequency: SyncFrequency.HOURLY,
+  // customSyncFrequency: 1,
 };
 
 export interface DataSyncState {
