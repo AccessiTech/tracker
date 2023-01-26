@@ -87,6 +87,7 @@ export const onUpdateLog = ({
     if (syncSettings?.onEditLog) {
       const sync = dataSyncState[dataSyncState.syncMethod];
       if (sync?.logSheets && sync?.logSheets[log.id]) {
+        // todo: only sync log metadata on update log
         syncLogSheet({
           log,
           logSheetId: sync.logSheets[log.id].id,
@@ -107,6 +108,7 @@ export const onUpdateLog = ({
  * @param {Log} log - log to delete
  */
 export const onDeleteLog = (log: Log) => {
+  // todo: remove log from data sync state
   store.dispatch(removeLog({ logId: log.id }));
 };
 
@@ -116,6 +118,7 @@ export const onDeleteLog = (log: Log) => {
  * @param {string} fieldId - id of field to delete
  */
 export const onDeleteField = (log: Log, fieldId: string) => {
+  // todo: updated deleted fields in log sheet metadata; sync log fields
   store.dispatch(removeLogField({ logId: log.id, fieldId }));
 };
 
@@ -142,6 +145,10 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   if (!log || id !== log.id || !log.fields) {
     navigate(HOME_URL);
   }
+
+  // React.useEffect(() => {
+  //   // todo: sync log metadata; sync log fields
+  // }, []);
 
   // Modal and Sidebar states
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -171,6 +178,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
     setShowModal(true);
     setModalMode(EDIT);
     setFieldId(field.id);
+    // todo: sync log fields
   };
 
   const onAddField = () => {
@@ -178,6 +186,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
     setShowModal(true);
     setModalMode(ADD);
     setFieldId(EMPTY);
+    // todo: sync log fields
   };
 
   const fields: LogFields[] = Object.values(log.fields);

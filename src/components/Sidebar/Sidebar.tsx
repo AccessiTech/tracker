@@ -43,7 +43,8 @@ export const Sidebar: FC<SidebarProps> = ({
     setAuthenticated(isAuthenticated);
   }, [isAuthenticated]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // todo: await sync logs
     setAuthenticated(false);
     store.dispatch(deauthenticate(""));
     clearLogoutTimer();
@@ -64,6 +65,7 @@ export const Sidebar: FC<SidebarProps> = ({
       // autoRefresh: rememberMe,
       sessionData: credentials,
     });
+    // todo: sync logs
   };
 
   return (

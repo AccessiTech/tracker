@@ -85,6 +85,7 @@ export const onLogEntrySubmit = (
       entry: newEntry,
     })
   );
+  // todo: sync log entries
 };
 
 /**
@@ -94,6 +95,7 @@ export const onLogEntrySubmit = (
  */
 export const onLogEntryDelete = (entry: LogEntryType, log: Log) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId: entry.id }));
+  // todo: update log sheet metadata; sync log entries
 };
 
 /**
