@@ -30,6 +30,7 @@ export type {
   GetLogEntriesProps,
   SetLogEntriesProps,
   SyncLogSheetProps,
+  SyncLogSheetResponse,
   SyncDataOptions,
   SyncDataResponse,
 } from "./DataSync";

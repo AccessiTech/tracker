@@ -12,7 +12,10 @@ import {
   useSession,
 } from "../../store/Session";
 import { clearLogoutTimer, TokenResponse } from "../GoogleApi";
-import { DataSync } from "../DataSync";
+import { DataSync, handleError, updateLocalLog } from "../DataSync";
+import { useDataSync } from "../../store/DataSync";
+import { useGetLogs } from "../../store/Log";
+import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
 
 /**
  * Sidebar Component
@@ -38,6 +41,9 @@ export const Sidebar: FC<SidebarProps> = ({
   const [authenticated, setAuthenticated] = useState(isAuthenticated);
   // const [rememberMe, setRememberMe] = useState(autoRefresh);
   const [showAbout, setShowAbout] = useState(false) as any;
+
+  const dataSyncState = useDataSync();
+  const logs = useGetLogs();
 
   useEffect(() => {
     setAuthenticated(isAuthenticated);
@@ -66,6 +72,28 @@ export const Sidebar: FC<SidebarProps> = ({
       sessionData: credentials,
     });
     // todo: sync logs
+    if (dataSyncState?.syncEnabled) {
+      const { syncSettings } = dataSyncState;
+      if (syncSettings?.onLogin) {
+        const sync = dataSyncState[dataSyncState.syncMethod];
+        if (sync?.logSheets && Object.keys(sync?.logSheets).length) {
+          const { logSheets } = sync;
+          const logIds = Object.keys(logSheets);
+          for (const logId of logIds) {
+            const log = logs[logId];
+            syncLogSheet({
+              log,
+              logSheetId: logSheets[logId]?.id,
+              onError: handleError,
+            }).then((updates: SyncLogSheetResponse) => {
+              updateLocalLog({ log, updates, store });
+            }).catch((error) => {
+              console.error('Error syncing onLogIn: ', error);
+            });
+          }
+        }
+      }
+    }
   };
 
   return (
