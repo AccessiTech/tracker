@@ -102,13 +102,13 @@ export const authenticateUser = (
   tokenClient.requestAccessToken({ prompt });
 };
 
-export const deauthenticateUser = (
+export const deauthenticateUser = async (
   signOutCallback: () => void,
   tokenData?: TokenResponse,
 ) => {
+  await signOutCallback();
   const token = tokenData || gapi.client.getToken();
   google.accounts.oauth2.revoke(token.access_token);
-  signOutCallback();
 };
 
 export const getTokenClient = () => {

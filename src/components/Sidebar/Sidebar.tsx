@@ -51,6 +51,26 @@ export const Sidebar: FC<SidebarProps> = ({
 
   const handleLogout = async () => {
     // todo: await sync logs
+    if (dataSyncState?.syncEnabled && dataSyncState?.syncSettings?.onLogout) {
+      const sync = dataSyncState[dataSyncState.syncMethod];
+      if (sync?.logSheets && Object.keys(sync?.logSheets).length) {
+        const { logSheets } = sync;
+        const logIds = Object.keys(logSheets);
+        for (const logId of logIds) {
+          const log = logs[logId];
+          await syncLogSheet({
+            log,
+            logSheetId: logSheets[logId]?.id,
+            onError: handleError,
+          }).then((updates: SyncLogSheetResponse) => {
+            updateLocalLog({ log, updates, store });
+          }).catch((error) => {
+            console.error('Error syncing onLogIn: ', error);
+          });
+        }
+      }
+    }
+
     setAuthenticated(false);
     store.dispatch(deauthenticate(""));
     clearLogoutTimer();
