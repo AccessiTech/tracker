@@ -725,12 +725,15 @@ export interface SetLogEntriesProps {
   onError: (error: any) => void;
   logSheetId: string;
   logEntries: { [entryId: string]: LogEntry };
+  logFields?: { [fieldId: string]: LogFields };
 }
 export const setLogEntries = async ({
   onError,
   logSheetId,
   logEntries,
+  logFields,
 }: SetLogEntriesProps): Promise<any> => {
+  // get existing header row
   const headerRow:string[] = await getSheetValues({
     sheetId: logSheetId,
     range: "Entries!A1:ZZ1",
@@ -740,13 +743,36 @@ export const setLogEntries = async ({
     console.log("Error getting existing sheet data: ");
     throw onError(err?.result?.error);
   });
+
+  // if logFields are provided, update header row to match
+  let newHeaderRow = headerRow;
+  if (logFields) {
+    const fieldIds = Object.keys(logFields);
+    const newNameRow = newHeaderRow.map((id) => logFields[id]?.name || id);
+    for (const fieldId of fieldIds) {
+      const field = logFields[fieldId];
+      if (!newHeaderRow.includes(field.id)) {
+        newHeaderRow.push(field.id);
+        newNameRow.push(field.name);
+      }
+    }
+
+    // update header rows
+    await setSheetValues({
+      sheetId: logSheetId,
+      range: "Entries!1:2",
+      values: [newHeaderRow, newNameRow],
+    });
+  }
+
+  // update sheet entries
   const entries = Object.keys(logEntries).map((entryId) => {
     const { values } = logEntries[entryId];
-    return headerRow.map((prop) => {
-      const nextValue = (values as any)[prop] || (logEntries[entryId] as any)[prop] || ""
+    return newHeaderRow.map((prop) => {
+      const nextValue = (values as any)[prop] || (logEntries[entryId] as any)[prop] || "";
       return Array.isArray(nextValue) || typeof nextValue === "object"
         ? JSON.stringify(nextValue) : nextValue;
-  });
+    });
   });
 
   return Promise.all([
@@ -783,23 +809,28 @@ export const syncLogSheet = async ({
     log,
   });
   const { deletedEntries, deletedFields } = newMetadata;
-  const newEntries = await syncLogEntries({
-    onError,
-    logSheetId,
-    log,
-    deletedEntries: deletedEntries || [],
-  });
   const newFields = await syncLogFields({
     onError,
     logSheetId,
     log,
     deletedFields: deletedFields || [],
   });
-
+  const newEntries = await syncLogEntries({
+    onError,
+    logSheetId,
+    log,
+    deletedEntries: deletedEntries || [],
+  });
+  const recurrence =
+    newMetadata.recurrence &&
+    typeof newMetadata.recurrence === "string" &&
+    (newMetadata.recurrence[0] === "{" || newMetadata.recurrence[0] === "[")
+      ? JSON.parse(newMetadata.recurrence)
+      : undefined;
   return  {
     metadata: {
       ...newMetadata,
-      recurrence: newMetadata.recurrence ? JSON.parse(newMetadata.recurrence) : undefined,
+      recurrence,
     } as Partial<Log>,
     entries: newEntries,
     fields: newFields,
@@ -974,6 +1005,7 @@ export const syncLogEntries = async ({
       onError,
       logSheetId,
       logEntries: updatedData,
+      logFields: log.fields,
     });
   } catch (error:any) {
     onError(error);
