@@ -496,7 +496,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
             {/* ***** SUCCESS TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.SUCCESS}>
               <h4>{"Success!"}</h4>
-              <p>{"Your logs have been synced with Google Sheets. Global sync settings can be configured here and log specific sync settings can be configured in the Log settings to override the global sync settings."}</p>
+              <p>{"Your logs have been synced with Google Sheets, and sync settings can be configured here in the future."}</p>
             </Tab.Pane>
 
             {/* ***** ERROR TAB ***** */}
