@@ -23,8 +23,8 @@ export enum SyncFrequency {
 export interface SyncSettings {
   onLogin: boolean;
   onLogout: boolean;
-  onLogView: boolean;
-  onLogEditView: boolean;
+  // onLogView: boolean;
+  // onLogEditView: boolean;
   onAddNewLog: boolean;
   onEditLog: boolean;
   onAddEntry: boolean;
@@ -38,8 +38,8 @@ export interface SyncSettings {
 export const defaultSyncSettings: SyncSettings = {
   onLogin: true,
   onLogout: true,
-  onLogView: true,
-  onLogEditView: true,
+  // onLogView: true,
+  // onLogEditView: true,
   onAddNewLog: true,
   onEditLog: true,
   onAddEntry: true,

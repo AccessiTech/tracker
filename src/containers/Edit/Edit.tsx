@@ -178,7 +178,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
     setShowModal(true);
     setModalMode(EDIT);
     setFieldId(field.id);
-    // todo: sync log fields
+    
   };
 
   const onAddField = () => {
@@ -187,6 +187,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
     setModalMode(ADD);
     setFieldId(EMPTY);
     // todo: sync log fields
+
   };
 
   const fields: LogFields[] = Object.values(log.fields);

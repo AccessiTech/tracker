@@ -47,6 +47,10 @@ import {
   UPDATE_LABEL,
 } from "../../strings";
 import { SetToast } from "../Toaster";
+import { useAuthenticated } from "../../store/Session";
+import { DataSyncState, useDataSync } from "../../store/DataSync";
+import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
+import { handleError, updateLocalLog } from "../DataSync";
 
 export const NAME = "name";
 export const REQUIRED = "required";
@@ -58,10 +62,21 @@ export const FIELD_TYPE_LABEL = "Field Type";
 export const FIELD_TYPE_HELP_TEXT = "What type of field is this?";
 export const FIELD_REQUIRED_HELP_TEXT = "Is this field required?";
 
-export interface HandleFieldsFunction {
-  (values: { [key: string]: string }, log: Log, field: LogFields): void;
+
+export interface HandleFieldsParams {
+  values: { [key: string]: string };
+  log: Log;
+  field: LogFields;
+  authenticated?: boolean;
+  dataSyncState?: DataSyncState;
 }
-export const onHandleField: HandleFieldsFunction = (values, log, field) => {
+export const onHandleField = ({
+  values,
+  log,
+  field,
+  authenticated,
+  dataSyncState,
+}: HandleFieldsParams) => {
   const { id, type } = values;
   const prevField = {
     ...(field.type === type
@@ -81,6 +96,38 @@ export const onHandleField: HandleFieldsFunction = (values, log, field) => {
     );
   } else {
     store.dispatch(addLogField({ logId: log.id, field: newField }));
+  }
+  // todo: sync log fields
+  if (authenticated && dataSyncState?.syncEnabled) {
+    const sync = dataSyncState[dataSyncState.syncMethod];
+    if (sync?.logSheets && sync?.logSheets[log.id]) {
+      const { syncSettings } = dataSyncState;
+      if (syncSettings?.onAddField || syncSettings?.onEditField) {
+        const nextField = {
+          ...newField,
+          updatedAt: new Date().toISOString(),
+        };
+        if (!id) { 
+          nextField.createdAt = nextField.updatedAt;
+        }
+        const nextLog = {
+          ...log,
+          fields: {
+            ...log.fields,
+            [nextField.id]: nextField,
+          }
+        };
+        syncLogSheet({
+          log: nextLog,
+          logSheetId: sync.logSheets[log.id].id,
+          onError: handleError,
+        }).then((updates: SyncLogSheetResponse) =>
+          updateLocalLog({ log: nextLog, updates, store })
+        ).catch((error) => {
+          console.error('Error syncing onEditField: ', error);
+        });
+      }
+    }
   }
 };
 
@@ -102,6 +149,8 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
   resetModal,
   setToast,
 }): ReactElement => {
+  const authenticated = useAuthenticated();
+  const dataSyncState = useDataSync();
   const fieldState: EditFieldFormValues = fieldId
     ? log.fields[fieldId]
     : { ...initialTextFieldState };
@@ -120,7 +169,13 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
         }),
       })}
       onSubmit={(values: { [key: string]: string }) => {
-        onHandleField(values, log, fieldState as LogFields);
+        onHandleField({
+          values,
+          log,
+          field: fieldState as LogFields,
+          authenticated,
+          dataSyncState,
+        });
         setToast({
           show: true,
           context: isNewField ? ADD_LOG_FIELD_ACTION : UPDATE_LOG_FIELD_ACTION,
