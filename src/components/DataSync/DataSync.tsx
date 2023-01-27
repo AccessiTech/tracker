@@ -109,8 +109,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
 
   const [syncOnLogIn, setSyncOnLogIn] = React.useState(syncSettings?.onLogin || false);
   const [syncOnLogOut, setSyncOnLogOut] = React.useState(syncSettings?.onLogout || false);
-  const [syncOnLogView, setSyncOnLogView] = React.useState(syncSettings?.onLogView || false);
-  const [syncOnLogEditView, setSyncOnLogEditView] = React.useState(syncSettings?.onLogEditView || false);
+  // const [syncOnLogView, setSyncOnLogView] = React.useState(syncSettings?.onLogView || false);
+  // const [syncOnLogEditView, setSyncOnLogEditView] = React.useState(syncSettings?.onLogEditView || false);
   const [syncOnAddNewLog, setSyncOnAddNewLog] = React.useState(syncSettings?.onAddNewLog || false);
   const [syncOnEditLog, setSyncOnEditLog] = React.useState(syncSettings?.onEditLog || false);
   const [syncOnAddEntry, setSyncOnAddEntry] = React.useState(syncSettings?.onAddEntry || false);
@@ -403,6 +403,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     syncId,
                     logs: selectedLogs,
                   }).catch((err: any) => {
+                    setActiveTab(DataSyncTabs.ERROR);
                     throw onError(err);
                   });
 
@@ -528,7 +529,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       setSyncOnLogOut(e.target.checked);
                     }}
                   />
-                  <Form.Check
+                  {/* <Form.Check
                     type="checkbox"
                     label="Log View"
                     checked={syncOnLogView}
@@ -543,20 +544,12 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     onChange={(e: any) => {
                       setSyncOnLogEditView(e.target.checked);
                     }}
-                  />
+                  /> */}
                 </Form.Group>
                 </Col><Col>
                 {/* Form Group for user initiated sync events: on add new log, on edit log, on add entry, on edit entry, on add field, on edit field */}
                 <Form.Group>
                   <Form.Label>{"Sync on user interactions:"}</Form.Label>
-                  <Form.Check
-                    type="checkbox"
-                    label="Add New Log"
-                    checked={syncOnAddNewLog}
-                    onChange={(e: any) => {
-                      setSyncOnAddNewLog(e.target.checked);
-                    }}
-                  />
                   <Form.Check
                     type="checkbox"
                     label="Edit Log"
@@ -668,15 +661,15 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       onEditEntry,
                       onEditField,
                       onEditLog,
-                      onLogEditView,
-                      onLogView,
+                      // onLogEditView,
+                      // onLogView,
                       // syncFrequency,
                       // customSyncFrequency,
                     } = defaultSyncSettings;
                     setSyncOnLogIn(onLogin);
                     setSyncOnLogOut(onLogout);
-                    setSyncOnLogView(onLogView);
-                    setSyncOnLogEditView(onLogEditView);
+                    // setSyncOnLogView(onLogView);
+                    // setSyncOnLogEditView(onLogEditView);
                     setSyncOnAddNewLog(onAddNewLog);
                     setSyncOnEditLog(onEditLog);
                     setSyncOnAddEntry(onAddEntry);
@@ -697,8 +690,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     const syncSettings: SyncSettings = {
                       onLogin: syncOnLogIn,
                       onLogout: syncOnLogOut,
-                      onLogView: syncOnLogView,
-                      onLogEditView: syncOnLogEditView,
+                      // onLogView: syncOnLogView,
+                      // onLogEditView: syncOnLogEditView,
                       onAddNewLog: syncOnAddNewLog,
                       onEditLog: syncOnEditLog,
                       onAddEntry: syncOnAddEntry,
