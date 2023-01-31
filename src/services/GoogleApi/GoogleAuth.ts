@@ -1,8 +1,13 @@
-import { EmptyFunction } from "./GoogleAuthButton";
+export type EmptyFunction = () => void;
 
-export const DISCOVERY_DOC =
-  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
-export const SCOPES = ["https://www.googleapis.com/auth/drive"];
+export const DISCOVERY_DOCS = [
+  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
+  "https://sheets.googleapis.com/$discovery/rest?version=v4",
+];
+export const SCOPES = [
+  "https://www.googleapis.com/auth/drive",
+  "https://www.googleapis.com/auth/spreadsheets",
+];
 
 let apiInitialized = false;
 let googleInitialized = false;
@@ -48,11 +53,10 @@ export interface InitGoogleAuthParams {
   discoveryDocs?: string[];
 }
 
-export const initGoogleAuth = ({
-  apiKey,
-  clientId,
-  discoveryDocs = [DISCOVERY_DOC],
-}: InitGoogleAuthParams, callback?:EmptyFunction): void => {
+export const initGoogleAuth = (
+  { apiKey, clientId, discoveryDocs = DISCOVERY_DOCS }: InitGoogleAuthParams,
+  callback?: EmptyFunction
+): void => {
   if (!apiInitialized) {
     const gapiScript = document.createElement("script");
     gapiScript.src = "https://apis.google.com/js/api.js";
@@ -97,13 +101,13 @@ export const authenticateUser = (
   tokenClient.requestAccessToken({ prompt });
 };
 
-export const deauthenticateUser = (
+export const deauthenticateUser = async (
   signOutCallback: () => void,
-  tokenData?: TokenResponse,
+  tokenData?: TokenResponse
 ) => {
+  await signOutCallback();
   const token = tokenData || gapi.client.getToken();
   google.accounts.oauth2.revoke(token.access_token);
-  signOutCallback();
 };
 
 export const getTokenClient = () => {
@@ -161,4 +165,3 @@ LogoutTimerProps) => {
     }, timeout);
   }
 };
-

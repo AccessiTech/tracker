@@ -2,6 +2,7 @@ import React, { FC, ReactElement } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Accordion, Button, Col, Modal, Row } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
+
 import store from "../../store/store";
 import {
   useGetLog,
@@ -12,13 +13,25 @@ import {
   LogFields,
   REMOVE_LOG_ACTION,
 } from "../../store/Log";
-import "./Edit.scss";
+import { DataSyncState } from "../../store/DataSync";
+
+import { syncLogSheet } from "../../services/DataSync";
+import { SyncLogSheetResponse } from "../../services/DataSync";
+
 import { LogNameForm } from "../../components/LogNameForm";
-import { EditFieldsTable } from "../../components/EditFieldsTable/EditFieldsTable";
+import { EditFieldsTable } from "../../components/EditFieldsTable";
 import { EditFieldForm } from "../../components/EditFieldForm";
 import { EditLabelForm } from "../../components/EditLabelForm";
 import { Sidebar } from "../../components/Sidebar";
 import { Header } from "../../components/Header";
+
+import { SetToast } from "../../components/Toaster";
+import { EditSortForm } from "../../components/EditSortForm";
+import { handleError, updateLocalLog } from "../../components/DataSync";
+// import { EditRecurrenceForm } from "../../components/EditRecurrenceForm";
+
+import "./Edit.scss";
+
 import {
   ADD,
   ADD_ENTRY,
@@ -40,9 +53,6 @@ import {
   SUBMIT,
   VIEW_LOG,
 } from "../../strings";
-import { SetToast } from "../../components/Toaster";
-import { EditSortForm } from "../../components/EditSortForm";
-// import { EditRecurrenceForm } from "../../components/EditRecurrenceForm";
 
 export const EDIT_HEADER = "Edit: ";
 export const LOG_FIELDS = "Log Fields";
@@ -52,17 +62,51 @@ export const LOG_SETTINGS = "Log Settings";
 export const DELETE_LOG = "Delete Log";
 export const FIELD_SETTINGS = "Field Settings";
 
+export interface OnUpdateLogParams {
+  log: Log;
+  values: any;
+  authenticated?: boolean;
+  dataSyncState?: DataSyncState;
+}
+
 /**
  * Edit log callback
  * @param {Log} log - log to edit
  * @param {any} values - values to update
+ * @param {boolean} authenticated - optional authenticated state
+ * @param {DataSyncState} dataSyncState - optional data sync state
  */
-export const onUpdateLog = (log: Log, values: any): void => {
+export const onUpdateLog = ({
+  log,
+  values,
+  authenticated,
+  dataSyncState,
+}: OnUpdateLogParams): void => {
   const updatedLog: Log = {
     ...log,
     ...values,
   };
   store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
+  if (authenticated && dataSyncState?.syncEnabled) {
+    const { syncSettings } = dataSyncState;
+    if (syncSettings?.onEditLog) {
+      const sync = dataSyncState[dataSyncState.syncMethod];
+      if (sync?.logSheets && sync?.logSheets[log.id]) {
+        // todo: only sync log metadata on update log
+        syncLogSheet({
+          log,
+          logSheetId: sync.logSheets[log.id].id,
+          onError: handleError,
+        })
+          .then((updates: SyncLogSheetResponse) =>
+            updateLocalLog({ log, updates, store })
+          )
+          .catch((error) => {
+            console.error("Error syncing onUpdateLog: ", error);
+          });
+      }
+    }
+  }
 };
 
 /**
@@ -71,6 +115,7 @@ export const onUpdateLog = (log: Log, values: any): void => {
  * @param {Log} log - log to delete
  */
 export const onDeleteLog = (log: Log) => {
+  // todo: remove log from data sync state
   store.dispatch(removeLog({ logId: log.id }));
 };
 
@@ -80,6 +125,7 @@ export const onDeleteLog = (log: Log) => {
  * @param {string} fieldId - id of field to delete
  */
 export const onDeleteField = (log: Log, fieldId: string) => {
+  // todo: updated deleted fields in log sheet metadata; sync log fields
   store.dispatch(removeLogField({ logId: log.id, fieldId }));
 };
 
@@ -106,6 +152,10 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   if (!log || id !== log.id || !log.fields) {
     navigate(HOME_URL);
   }
+
+  // React.useEffect(() => {
+  //   // todo: sync log metadata; sync log fields
+  // }, []);
 
   // Modal and Sidebar states
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -142,6 +192,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
     setShowModal(true);
     setModalMode(ADD);
     setFieldId(EMPTY);
+    // todo: sync log fields
   };
 
   const fields: LogFields[] = Object.values(log.fields);
@@ -284,5 +335,3 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
     </>
   );
 };
-
-export default Edit;

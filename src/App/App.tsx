@@ -9,7 +9,7 @@ import { EDIT_URL, EMPTY, ENTRY_EDIT_URL, ENTRY_URL, FIELD_URL, HOME_URL, LOG_ID
 import { Toaster, ToastType } from "../components/Toaster";
 import { deauthenticate, useSession } from "../store/Session/reducer";
 import store from "../store/store";
-import { authenticateUser, deauthenticateUser, initGoogleAuth, setLogoutTimer } from "../components/GoogleApi";
+import { authenticateUser, deauthenticateUser, initGoogleAuth, setLogoutTimer } from "../services/GoogleApi";
 
 export const App: FC = (): ReactElement => {
   const apiKey = process.env.REACT_APP_G_API_KEY as string;

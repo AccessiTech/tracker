@@ -2,7 +2,9 @@ import React, { FC, ReactElement } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
-import "./logEntry.scss";
+import { Formik } from "formik";
+
+import store from "../../store/store";
 import {
   addLogEntry,
   ADD_LOG_ENTRY_ACTION,
@@ -16,8 +18,11 @@ import {
   useGetLog,
   useGetLogEntry,
 } from "../../store/Log";
-import { Formik } from "formik";
-import store from "../../store/store";
+import { DataSyncState, useDataSync } from "../../store/DataSync";
+import { useAuthenticated } from "../../store/Session";
+
+import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
+
 import { Sidebar } from "../../components/Sidebar";
 import { Header } from "../../components/Header";
 import { FieldText } from "../../components/FieldText";
@@ -25,6 +30,10 @@ import { FieldNumber } from "../../components/FieldNumber";
 import { FieldDate } from "../../components/FieldDate";
 import { FieldBoolean } from "../../components/FieldBoolean";
 import { FieldSelect } from "../../components/FieldSelect";
+import { SetToast } from "../../components/Toaster";
+import { handleError, updateLocalLog } from "../../components/DataSync";
+
+// import { getTimestamp, notify } from "../../utils";
 import {
   BOOLEAN,
   CANCEL,
@@ -43,8 +52,7 @@ import {
   TEXT,
   WARNING,
 } from "../../strings";
-import { SetToast } from "../../components/Toaster";
-// import { getTimestamp, notify } from "../../utils";
+import "./logEntry.scss";
 
 // Magic strings
 export const LABEL = "label";
@@ -58,15 +66,21 @@ export const ENTRY_NOT_UPDATED = "Entry not updated";
 
 /**
  * Log Entry Submission Callback
- * @param {ant} values - values to submit
- * @param {Log} log - log to submit entry to
- * @param {LogEntryType} entry - entry to update
  */
-export const onLogEntrySubmit = (
-  values: { [fieldId: string]: FieldValue; label: string },
-  log: Log,
-  entry: LogEntryType
-) => {
+export interface OnLogEntrySubmitParams {
+  values: { [fieldId: string]: FieldValue; label: string };
+  log: Log;
+  entry: LogEntryType;
+  authenticated?: boolean;
+  dataSyncState?: DataSyncState;
+}
+export const onLogEntrySubmit = ({
+  values,
+  log,
+  entry,
+  authenticated,
+  dataSyncState,
+}: OnLogEntrySubmitParams) => {
   const entryId: string = entry && entry.id ? entry.id : uuidv4();
   const newValues = {
     ...values,
@@ -85,6 +99,42 @@ export const onLogEntrySubmit = (
       entry: newEntry,
     })
   );
+  // sync log entries
+  if (authenticated && dataSyncState?.syncSettings) {
+    const sync = dataSyncState[dataSyncState.syncMethod];
+    if (sync?.logSheets && sync.logSheets[log.id]) {
+      const { onAddEntry, onEditEntry } = dataSyncState.syncSettings;
+      if (onAddEntry || onEditEntry) {
+        const nextEntry = {
+          ...(log.entries[entryId] || {}),
+          ...newEntry,
+          updatedAt: new Date().toISOString(),
+        };
+        if (!entry) {
+          nextEntry.createdAt = nextEntry.updatedAt;
+        }
+
+        const newLog = {
+          ...log,
+          entries: {
+            ...log.entries,
+            [entryId]: nextEntry,
+          },
+        };
+        console.log('nextEntry: ', newLog.entries[entryId])
+        syncLogSheet({
+          log: newLog,
+          logSheetId: sync.logSheets[log.id].id,
+          onError: handleError,
+        }).then((updates: SyncLogSheetResponse) => {
+          updateLocalLog({ log: newLog, updates, store })
+        }).catch((error) => {
+          const syncMethod = entry ? 'onEditEntry' : 'onAddEntry';
+          console.error(`Error syncing ${syncMethod}: `, error);
+        });
+      }
+    }
+  }
 };
 
 /**
@@ -94,6 +144,7 @@ export const onLogEntrySubmit = (
  */
 export const onLogEntryDelete = (entry: LogEntryType, log: Log) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId: entry.id }));
+  // todo: sync log sheet
 };
 
 /**
@@ -114,6 +165,8 @@ export const LogEntry: FC<LogEntryProps> = ({
   setToast,
 }): ReactElement | null => {
   const navigate = useNavigate();
+  const authenticated = useAuthenticated();
+  const dataSyncState = useDataSync();
 
   // Get log and entry from store
   const { id: logId, entry: entryId } = useParams() as {
@@ -193,7 +246,7 @@ export const LogEntry: FC<LogEntryProps> = ({
             //     tag: log.id,
             //   });
             // }
-            onLogEntrySubmit(values, log, entry);
+            onLogEntrySubmit({ values, log, entry, authenticated, dataSyncState, });
             setToast({
               show: true,
               name: log.name,

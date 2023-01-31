@@ -30,6 +30,7 @@ export const logSlice: Slice<any, SliceCaseReducers<any>, string> = createSlice(
         const { log } = action.payload;
         state[log.id] = log;
         state[log.id].createdAt = new Date().toISOString();
+        state[log.id].updatedAt = state[log.id].createdAt;
       },
       [REMOVE_LOG_ACTION]: (state, action) => {
         const { logId } = action.payload;
@@ -47,10 +48,15 @@ export const logSlice: Slice<any, SliceCaseReducers<any>, string> = createSlice(
         const { logId, entry } = action.payload;
         state[logId].entries[entry.id] = { ...entry };
         state[logId].entries[entry.id].createdAt = new Date().toISOString();
+        state[logId].entries[entry.id].updatedAt = state[logId].entries[entry.id].createdAt;
       },
       [REMOVE_LOG_ENTRY_ACTION]: (state, action) => {
         const { logId, entryId } = action.payload;
         delete state[logId].entries[entryId];
+        if (!state[logId].deletedEntries) {
+          state[logId].deletedEntries = [];
+        }
+        state[logId].deletedEntries.push(entryId);
       },
       [UPDATE_LOG_ENTRY_ACTION]: (state, action) => {
         const { logId, entryId, entry } = action.payload;
@@ -64,10 +70,15 @@ export const logSlice: Slice<any, SliceCaseReducers<any>, string> = createSlice(
         const { logId, field } = action.payload;
         state[logId].fields[field.id] = field;
         state[logId].fields[field.id].createdAt = new Date().toISOString();
+        state[logId].fields[field.id].updatedAt = state[logId].fields[field.id].createdAt;
       },
       [REMOVE_LOG_FIELD_ACTION]: (state, action) => {
         const { logId, fieldId } = action.payload;
         delete state[logId].fields[fieldId];
+        if (!state[logId].deletedFields) {
+          state[logId].deletedFields = [];
+        }
+        state[logId].deletedFields.push(fieldId);
       },
       [UPDATE_LOG_FIELD_ACTION]: (state, action) => {
         const { logId, fieldId, field } = action.payload;

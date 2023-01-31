@@ -1,6 +1,6 @@
 import React, { FC, ReactElement } from "react";
 import { Button } from "react-bootstrap";
-import { authenticateUser, deauthenticateUser, TokenResponse } from "./GoogleAuth";
+import { authenticateUser, deauthenticateUser, TokenResponse } from "../../services/GoogleApi";
 
 export type EmptyFunction = () => void;
 export type GoogleLoginSuccess = (tokenResponse: TokenResponse) => void;

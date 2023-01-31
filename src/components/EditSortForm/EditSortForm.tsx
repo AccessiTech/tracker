@@ -1,10 +1,25 @@
 import React, { FC, ReactElement } from "react";
 import { Formik } from "formik";
 import { InputGroup, Form, Button, Row, Col } from "react-bootstrap";
-import { Log, LogFields } from "../../store/Log";
-import { CREATED_AT, FIELDS, ORDER, PRIMARY, SAVE, SELECT, SORT, SORT_ASC, SORT_DESC, SUBMIT } from "../../strings";
 
-// A component to edit the label of a log entry using Formik.
+import { Log, LogFields } from "../../store/Log";
+import { useAuthenticated } from "../../store/Session";
+import { useDataSync } from "../../store/DataSync";
+
+import { OnUpdateLogParams } from "../../containers/Edit";
+
+import {
+  CREATED_AT,
+  FIELDS,
+  ORDER,
+  PRIMARY,
+  SAVE,
+  SELECT,
+  SORT,
+  SORT_ASC,
+  SORT_DESC,
+  SUBMIT,
+} from "../../strings";
 
 export const SORT_BY = "Sort By";
 export const SORT_ORDER = "Sort Order";
@@ -12,7 +27,7 @@ export const DATE_CREATED = "Date Created";
 
 export interface EditSortFormProps {
   log: Log;
-  onSubmit: (log: Log, values: any) => void;
+  onSubmit: (params: OnUpdateLogParams) => void;
 }
 
 export const EditSortForm: FC<EditSortFormProps> = ({
@@ -25,10 +40,14 @@ export const EditSortForm: FC<EditSortFormProps> = ({
     order: log.order || SORT_DESC,
   } as Log & { [key: string]: string };
   const logFields: LogFields[] = Object.values(fields || {});
+  const authenticated = useAuthenticated();
+  const dataSyncState = useDataSync();
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values) => onSubmit(log, values)}
+      onSubmit={(values: any) =>
+        onSubmit({ log, values, authenticated, dataSyncState })
+      }
     >
       {(formikProps) => {
         return (
@@ -47,13 +66,20 @@ export const EditSortForm: FC<EditSortFormProps> = ({
                     <option value={CREATED_AT}>{DATE_CREATED}</option>
                     <optgroup label={FIELDS}>
                       {logFields.map((field) => (
-                        <option key={`sort-options-${field.id}`} value={field.id}>
+                        <option
+                          key={`sort-options-${field.id}`}
+                          value={field.id}
+                        >
                           {field.name}
                         </option>
                       ))}
                     </optgroup>
                   </Form.Control>
-                  <Button variant={PRIMARY} type={SUBMIT} disabled={formikProps.values.sort === log.sort}>
+                  <Button
+                    variant={PRIMARY}
+                    type={SUBMIT}
+                    disabled={formikProps.values.sort === log.sort}
+                  >
                     {SAVE}
                   </Button>
                 </InputGroup>
@@ -70,16 +96,19 @@ export const EditSortForm: FC<EditSortFormProps> = ({
                     <option value={SORT_DESC}>Forward</option>
                     <option value={SORT_ASC}>Reversed</option>
                   </Form.Control>
-                  <Button variant={PRIMARY} type={SUBMIT} disabled={formikProps.values.order === log.order} >
+                  <Button
+                    variant={PRIMARY}
+                    type={SUBMIT}
+                    disabled={formikProps.values.order === log.order}
+                  >
                     {SAVE}
                   </Button>
                 </InputGroup>
               </Col>
             </Row>
           </Form>
-
         );
       }}
     </Formik>
   );
-}
+};

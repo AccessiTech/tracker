@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { FC, ReactElement } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
-import { ABOUT_APP_HEADER, END, LINK_SECONDARY, PRIMARY } from "../../strings";
-import "./sidebar.scss";
-import { GoogleAuthButton, listFiles, setLogoutTimer } from "../GoogleApi";
-import { AboutModal } from "../AboutModal";
+
 import store from "../../store/store";
-import {
-  authenticate,
-  deauthenticate,
-  useSession,
-} from "../../store/Session";
-import { clearLogoutTimer, TokenResponse } from "../GoogleApi";
+import { authenticate, deauthenticate, useSession } from "../../store/Session";
+import { useGetLogs } from "../../store/Log";
+import { useDataSync } from "../../store/DataSync";
+
+import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
+import { clearLogoutTimer, TokenResponse, setLogoutTimer  } from "../../services/GoogleApi";
+
+import { AboutModal } from "../AboutModal";
+import { GoogleAuthButton} from "../GoogleAuthButton";
+import { DataSync, handleError, updateLocalLog } from "../DataSync";
+
+import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
+
+import "./sidebar.scss";
 
 /**
  * Sidebar Component
@@ -38,11 +43,37 @@ export const Sidebar: FC<SidebarProps> = ({
   // const [rememberMe, setRememberMe] = useState(autoRefresh);
   const [showAbout, setShowAbout] = useState(false) as any;
 
+  const dataSyncState = useDataSync();
+  const logs = useGetLogs();
+
   useEffect(() => {
     setAuthenticated(isAuthenticated);
   }, [isAuthenticated]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // await sync logs
+    if (dataSyncState?.syncEnabled && dataSyncState?.syncSettings?.onLogout) {
+      const sync = dataSyncState[dataSyncState.syncMethod];
+      if (sync?.logSheets && Object.keys(sync?.logSheets).length) {
+        const { logSheets } = sync;
+        const logIds = Object.keys(logSheets);
+        for (const logId of logIds) {
+          const log = logs[logId];
+          await syncLogSheet({
+            log,
+            logSheetId: logSheets[logId]?.id,
+            onError: handleError,
+          })
+            .then((updates: SyncLogSheetResponse) => {
+              updateLocalLog({ log, updates, store });
+            })
+            .catch((error) => {
+              console.error("Error syncing onLogIn: ", error);
+            });
+        }
+      }
+    }
+
     setAuthenticated(false);
     store.dispatch(deauthenticate(""));
     clearLogoutTimer();
@@ -63,6 +94,31 @@ export const Sidebar: FC<SidebarProps> = ({
       // autoRefresh: rememberMe,
       sessionData: credentials,
     });
+    // todo: sync logs
+    if (dataSyncState?.syncEnabled) {
+      const { syncSettings } = dataSyncState;
+      if (syncSettings?.onLogin) {
+        const sync = dataSyncState[dataSyncState.syncMethod];
+        if (sync?.logSheets && Object.keys(sync?.logSheets).length) {
+          const { logSheets } = sync;
+          const logIds = Object.keys(logSheets);
+          for (const logId of logIds) {
+            const log = logs[logId];
+            syncLogSheet({
+              log,
+              logSheetId: logSheets[logId]?.id,
+              onError: handleError,
+            })
+              .then((updates: SyncLogSheetResponse) => {
+                updateLocalLog({ log, updates, store });
+              })
+              .catch((error) => {
+                console.error("Error syncing onLogIn: ", error);
+              });
+          }
+        }
+      }
+    }
   };
 
   return (
@@ -101,26 +157,8 @@ export const Sidebar: FC<SidebarProps> = ({
         </Button>
       </Offcanvas.Header>
       <Offcanvas.Body className="sidebar__body_container">
-        
-        <Button
-          variant={PRIMARY}
-          className="sidebar__button"
-          onClick={() => {
-            listFiles();
-            // const client = getOauth2Client({
-            //   clientId: process.env.REACT_APP_CLIENT_ID as string,
-            //   clientSecret: process.env.REACT_APP_CLIENT_SECRET as string,
-            //   redirectUri: process.env.REACT_APP_REDIRECT_URI as string,
-            // });
-            // console.log(client);
+        <DataSync authenticated={authenticated} />
 
-            // initGoogleAuth({
-            //   apiKey: process.env.REACT_APP_G_API_KEY as string,
-            //   clientId: process.env.REACT_APP_G_CLIENT_ID as string,
-            // })
-          }}
-        >Test!!</Button>
-        
         <AboutModal show={showAbout} onHide={() => setShowAbout(false)} />
       </Offcanvas.Body>
       <p className="sidebar__p_version text-muted">
