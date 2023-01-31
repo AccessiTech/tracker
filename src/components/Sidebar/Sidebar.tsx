@@ -8,10 +8,10 @@ import { useGetLogs } from "../../store/Log";
 import { useDataSync } from "../../store/DataSync";
 
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
-import { GoogleAuthButton, setLogoutTimer } from "../GoogleApi";
-import { clearLogoutTimer, TokenResponse } from "../GoogleApi";
+import { clearLogoutTimer, TokenResponse, setLogoutTimer  } from "../../services/GoogleApi";
 
 import { AboutModal } from "../AboutModal";
+import { GoogleAuthButton} from "../GoogleAuthButton";
 import { DataSync, handleError, updateLocalLog } from "../DataSync";
 
 import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";

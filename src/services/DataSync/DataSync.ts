@@ -9,7 +9,7 @@ import {
   getSheetValues,
   setSheetName,
   setSheetValues,
-} from "../../components/GoogleApi";
+} from "../GoogleApi";
 
 /** ***** Initialize New Data Sync ****** */
 export interface InitDataSyncProps {

@@ -12,7 +12,7 @@ import {
 
 import store from "../../store/store";
 
-import { listFiles, listFolders } from "../GoogleApi";
+import { listFiles, listFolders } from "../../services/GoogleApi";
 
 import {
   addGoogleDriveLogSheet,
