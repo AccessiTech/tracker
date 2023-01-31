@@ -50,7 +50,7 @@ export const setSheetName = async ({
   const { sheets } = getApiClient();
   const requests = Array.isArray(sheetName)
     ? sheetName.map((name, index) => {
-        const thisRequest:any = {};
+        const thisRequest: any = {};
         if (!index) {
           thisRequest.updateSheetProperties = {
             properties: {
@@ -59,7 +59,7 @@ export const setSheetName = async ({
               index,
             },
             fields: "title",
-          }
+          };
         } else {
           thisRequest.addSheet = {
             properties: {
@@ -80,7 +80,7 @@ export const setSheetName = async ({
               index: 0,
             },
             fields: "title",
-          }
+          },
         },
       ];
 

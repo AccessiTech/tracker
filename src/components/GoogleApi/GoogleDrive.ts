@@ -9,7 +9,9 @@ export const listFiles = async ({ pageSize, parents }: ListProps) => {
   const response = await drive.files.list({
     pageSize: pageSize,
     fields: "nextPageToken, files(id, name)",
-    q: parents ? `'${parents[0]}' in parents and trashed=false` : "trashed=false",
+    q: parents
+      ? `'${parents[0]}' in parents and trashed=false`
+      : "trashed=false",
   });
   const { result } = response;
   return result.files;
@@ -48,7 +50,11 @@ export interface CreateFileProps {
   mimeType: string;
   parents: string[];
 }
-export const createFile = async ({ name, mimeType, parents }: CreateFileProps) => {
+export const createFile = async ({
+  name,
+  mimeType,
+  parents,
+}: CreateFileProps) => {
   const { drive } = getApiClient();
   return drive.files.create({
     resource: {

@@ -1,4 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
+
+import { LogSheet } from "../../store/DataSync";
+import { Log, LogEntry, LogFields } from "../../store/Log";
+
 import {
   createFolder,
   createSpreadsheet,
@@ -6,8 +10,6 @@ import {
   setSheetName,
   setSheetValues,
 } from "../../components/GoogleApi";
-import { LogSheet } from "../../store/DataSync";
-import { Log, LogEntry, LogFields } from "../../store/Log";
 
 /** ***** Initialize New Data Sync ****** */
 export interface InitDataSyncProps {
@@ -24,7 +26,7 @@ export const initDataSync = async ({
   onError,
   selectedFolder,
   selectedLogSheet,
-}: InitDataSyncProps):Promise<InitDataSyncResponse> => {
+}: InitDataSyncProps): Promise<InitDataSyncResponse> => {
   const newFolderId =
     selectedFolder ||
     (await createFolder({
@@ -43,7 +45,6 @@ export const initDataSync = async ({
   if (!newFolderId) {
     throw new Error("Error creating folder");
   }
-  
 
   const spreadsheetId =
     selectedLogSheet ||
@@ -64,7 +65,6 @@ export const initDataSync = async ({
   if (!spreadsheetId) {
     throw new Error("Error creating log spreadsheet");
   }
-  
 
   let syncId = selectedLogSheet
     ? await getSheetValues({
@@ -80,7 +80,7 @@ export const initDataSync = async ({
     const newSheetData = {
       syncId,
       dateCreated: new Date().toISOString(),
-      logsToSync: '[]',
+      logsToSync: "[]",
     } as any;
 
     const newSheetValues = [];
@@ -93,11 +93,10 @@ export const initDataSync = async ({
     const renameResponse = await setSheetName({
       sheetId: spreadsheetId,
       sheetName: "Metadata",
-    })
-      .catch((err: any) => {
-        console.log("Error renaming sheet: ");
-        onError(err?.result?.error);
-      });
+    }).catch((err: any) => {
+      console.log("Error renaming sheet: ");
+      onError(err?.result?.error);
+    });
     if (!renameResponse) {
       throw new Error("Error renaming sheet");
     }
@@ -118,7 +117,7 @@ export const initDataSync = async ({
         onError(err?.result?.error);
       });
   }
-  
+
   return {
     folderId: newFolderId,
     logSheetId: spreadsheetId,
@@ -142,11 +141,12 @@ export const connectDataSync = async ({
   const syncId = await getSheetValues({
     sheetId: logSheetId,
     range: "Metadata!B1",
-  }).then((result: any) => result[0][0])
-  .catch((err: any) => {
-    console.log("Error getting syncId: ");
-    onError(err?.result?.error);
-  });
+  })
+    .then((result: any) => result[0][0])
+    .catch((err: any) => {
+      console.log("Error getting syncId: ");
+      onError(err?.result?.error);
+    });
   if (!syncId) throw new Error("Error getting syncId");
   return {
     folderId,
@@ -197,7 +197,7 @@ export const updateDataSync = async ({
       console.log("Error updating sheet: ");
       onError(err?.result?.error);
     });
-}
+};
 
 /** ***** Set Logs in a Data Sync ****** */
 export interface SetLogsToSyncProps {
@@ -214,20 +214,21 @@ export const setLogsToSync = async ({
   syncId,
   logs,
 }: SetLogsToSyncProps): Promise<void> => {
-
   const existingSheetData = await getSheetValues({
     sheetId: logSheetId,
     range: "Metadata!A:B",
-  }).then((result: []) => {
-    const data = {};
-    for (const row of result) {
-      data[row[0]] = row[1];
-    }
-    return data;
-  }).catch((err: any) => {
-    console.log("Error getting existing sheet data: ");
-    throw onError(err?.result?.error);
-  });
+  })
+    .then((result: []) => {
+      const data = {};
+      for (const row of result) {
+        data[row[0]] = row[1];
+      }
+      return data;
+    })
+    .catch((err: any) => {
+      console.log("Error getting existing sheet data: ");
+      throw onError(err?.result?.error);
+    });
 
   // if (existingSheetData.syncId !== syncId) throw new Error("Sync ID mismatch");
 
@@ -274,23 +275,24 @@ export const getLogsToSync = async ({
   const existingSheetData = await getSheetValues({
     sheetId: logSheetId,
     range: "Metadata!A:B",
-  }).then((result: []) => {
-    const data = {};
-    for (const row of result) {
-      data[row[0]] = row[1];
-    }
-    return data as any;
-  }).catch((err: any) => {
-    console.log("Error getting existing sheet data: ");
-    throw onError(err?.result?.error);
-  });
+  })
+    .then((result: []) => {
+      const data = {};
+      for (const row of result) {
+        data[row[0]] = row[1];
+      }
+      return data as any;
+    })
+    .catch((err: any) => {
+      console.log("Error getting existing sheet data: ");
+      throw onError(err?.result?.error);
+    });
 
   // if (existingSheetData.syncId !== syncId) throw new Error("Sync ID mismatch");
 
   const logs = JSON.parse(existingSheetData.logsToSync) || [];
   return logs;
-}
-
+};
 
 /** ***** Get Log Sheet IDs from Data Sync ****** */
 export interface GetLogSheetIdsProps {
@@ -300,24 +302,26 @@ export interface GetLogSheetIdsProps {
 export const getLogSheetIds = async ({
   onError,
   logSheetId,
-}: GetLogSheetIdsProps): Promise<{[key:string] : LogSheet}> => {
+}: GetLogSheetIdsProps): Promise<{ [key: string]: LogSheet }> => {
   return getSheetValues({
     sheetId: logSheetId,
     range: "Metadata!A:B",
-  }).then((result: []) => {
-    const data = {};
-    for (const row of result) {
-      data[row[0]] = row[1];
-    }
-    return data as any;
-  }).then((existingSheetData: any) => {
-    return JSON.parse(existingSheetData.logSheetIds || '{}');
   })
-  .catch((err: any) => {
-    console.log("Error getting existing sheet data: ");
-    throw onError(err?.result?.error);
-  });
-}
+    .then((result: []) => {
+      const data = {};
+      for (const row of result) {
+        data[row[0]] = row[1];
+      }
+      return data as any;
+    })
+    .then((existingSheetData: any) => {
+      return JSON.parse(existingSheetData.logSheetIds || "{}");
+    })
+    .catch((err: any) => {
+      console.log("Error getting existing sheet data: ");
+      throw onError(err?.result?.error);
+    });
+};
 
 /** ***** Set Log Sheet IDs in a Data Sync ****** */
 export interface SetLogSheetIdsProps {
@@ -330,56 +334,57 @@ export const setLogSheetIds = async ({
   logSheetId,
   logSheetIds,
 }: SetLogSheetIdsProps): Promise<void> => {
-  
-    const existingSheetData = await getSheetValues({
-      sheetId: logSheetId,
-      range: "Metadata!A:B",
-    }).then((result: []) => {
+  const existingSheetData = await getSheetValues({
+    sheetId: logSheetId,
+    range: "Metadata!A:B",
+  })
+    .then((result: []) => {
       const data = {};
       for (const row of result) {
         data[row[0]] = row[1];
       }
       return data;
-    }).catch((err: any) => {
+    })
+    .catch((err: any) => {
       console.log("Error getting existing sheet data: ");
       throw onError(err?.result?.error);
     });
-  
-    // if (existingSheetData.syncId !== syncId) throw new Error("Sync ID mismatch");
-  
-    const newSheetData = {
-      ...existingSheetData,
-      dateUpdated: new Date().toISOString(),
-      logSheetIds: JSON.stringify(logSheetIds),
-    } as any;
-  
-    const newSheetValues = [];
-    for (const key in newSheetData) {
-      if (Object.prototype.hasOwnProperty.call(newSheetData, key)) {
-        newSheetValues.push([key, newSheetData[key]]);
-      }
+
+  // if (existingSheetData.syncId !== syncId) throw new Error("Sync ID mismatch");
+
+  const newSheetData = {
+    ...existingSheetData,
+    dateUpdated: new Date().toISOString(),
+    logSheetIds: JSON.stringify(logSheetIds),
+  } as any;
+
+  const newSheetValues = [];
+  for (const key in newSheetData) {
+    if (Object.prototype.hasOwnProperty.call(newSheetData, key)) {
+      newSheetValues.push([key, newSheetData[key]]);
     }
-  
-    return setSheetValues({
-      sheetId: logSheetId,
-      range: "Metadata!A1",
-      values: newSheetValues,
-    })
-      .then(() => ({
-        logSheetId,
-        logSheetIds: JSON.stringify(logSheetIds),
-      }))
-      .catch((err: any) => {
-        console.log("Error updating sheet: ");
-        throw onError(err?.result?.error);
-      });
-}
+  }
+
+  return setSheetValues({
+    sheetId: logSheetId,
+    range: "Metadata!A1",
+    values: newSheetValues,
+  })
+    .then(() => ({
+      logSheetId,
+      logSheetIds: JSON.stringify(logSheetIds),
+    }))
+    .catch((err: any) => {
+      console.log("Error updating sheet: ");
+      throw onError(err?.result?.error);
+    });
+};
 
 /** ***** Init New Log Sheet ****** */
 export interface InitNewLogSheetProps {
   onError: (error: any) => void;
   folderId: string;
-  log: Log,
+  log: Log;
   syncId: string;
 }
 export const initNewLogSheet = async ({
@@ -387,7 +392,7 @@ export const initNewLogSheet = async ({
   folderId,
   log,
   syncId,
-}: InitNewLogSheetProps): Promise<{id:string}> => {
+}: InitNewLogSheetProps): Promise<{ id: string }> => {
   const sheetId = await createSpreadsheet({
     parents: [folderId],
     name: log.name,
@@ -435,11 +440,25 @@ export const initNewLogSheet = async ({
   const fieldNames = fieldIds.map((id) => log.fields[id].name);
   const fieldHeaders = [
     // basic field info
-    "id", "name", "type", "required", "option", "typeOptions", "typeOptionStrings", "defaultValue",
+    "id",
+    "name",
+    "type",
+    "required",
+    "option",
+    "typeOptions",
+    "typeOptionStrings",
+    "defaultValue",
     // field specific info
-    "min", "max", "step", "unit", "trueLabel", "falseLabel", "options",
+    "min",
+    "max",
+    "step",
+    "unit",
+    "trueLabel",
+    "falseLabel",
+    "options",
     // CRUD info
-    "createdAt", "updatedAt"
+    "createdAt",
+    "updatedAt",
   ];
 
   await setSheetValues({
@@ -447,7 +466,7 @@ export const initNewLogSheet = async ({
     range: "Metadata!A1",
     values: newSheetValues,
   });
-  
+
   await setSheetValues({
     sheetId,
     range: "Fields!A1",
@@ -462,8 +481,8 @@ export const initNewLogSheet = async ({
       [...fieldNames, "id", "createdAt", "updatedAt"],
     ],
   });
-  return Promise.resolve({id: sheetId});
-}
+  return Promise.resolve({ id: sheetId });
+};
 
 /** ***** Get Log Metadata from a Log Sheet ****** */
 export interface GetLogMetadataProps {
@@ -473,25 +492,27 @@ export interface GetLogMetadataProps {
 export const getLogMetadata = async ({
   onError,
   logSheetId,
-}: GetLogMetadataProps): Promise<{[key:string]: any}> => {
+}: GetLogMetadataProps): Promise<{ [key: string]: any }> => {
   return getSheetValues({
     sheetId: logSheetId,
     range: "Metadata!A:B",
-  }).then((result: any[]) => {
-    const data = {} as any;
-    for (const row of result) {
-      try {
-        data[row[0]] = JSON.parse(row[1]);
-      } catch {
-        data[row[0]] = row[1];
+  })
+    .then((result: any[]) => {
+      const data = {} as any;
+      for (const row of result) {
+        try {
+          data[row[0]] = JSON.parse(row[1]);
+        } catch {
+          data[row[0]] = row[1];
+        }
       }
-    }
-    return data;
-  }).catch((err: any) => {
-    console.log("Error getting Log metadata: ");
-    throw onError(err?.result?.error);
-  });
-}
+      return data;
+    })
+    .catch((err: any) => {
+      console.log("Error getting Log metadata: ");
+      throw onError(err?.result?.error);
+    });
+};
 
 /** ***** Set Log Metadata to a Log Sheet ****** */
 export interface SetLogMetadataProps {
@@ -503,7 +524,7 @@ export const setLogMetadata = async ({
   onError,
   logSheetId,
   log,
-}: SetLogMetadataProps): Promise<{[key:string]: any}> => {
+}: SetLogMetadataProps): Promise<{ [key: string]: any }> => {
   const newSheetData = {
     ...log,
     updatedAt: new Date().toISOString(),
@@ -513,9 +534,11 @@ export const setLogMetadata = async ({
   for (const prop in newSheetData) {
     if (prop === "fields" || prop === "entries") continue;
     if (Object.prototype.hasOwnProperty.call(newSheetData, prop)) {
-      const newValue = Array.isArray((newSheetData as any)[prop]) || typeof (newSheetData as any)[prop] === "object"
-            ? JSON.stringify(newSheetData[prop])
-            : newSheetData[prop]
+      const newValue =
+        Array.isArray((newSheetData as any)[prop]) ||
+        typeof (newSheetData as any)[prop] === "object"
+          ? JSON.stringify(newSheetData[prop])
+          : newSheetData[prop];
       newSheetValues.push([prop, newValue]);
     }
   }
@@ -524,13 +547,15 @@ export const setLogMetadata = async ({
     sheetId: logSheetId,
     range: "Metadata!A1",
     values: newSheetValues,
-  }).then((result: any) => {
-    return result;
-  }).catch((err: any) => {
-    console.log("Error setting Log metadata: ");
-    throw onError(err?.result?.error);
-  });
-}
+  })
+    .then((result: any) => {
+      return result;
+    })
+    .catch((err: any) => {
+      console.log("Error setting Log metadata: ");
+      throw onError(err?.result?.error);
+    });
+};
 
 /** ***** Get Log Metadata Prop from a Log Sheet ****** */
 export interface GetLogMetadataPropProps {
@@ -546,13 +571,15 @@ export const getLogMetadataProp = async ({
   return getLogMetadata({
     onError,
     logSheetId,
-  }).then((result: any) => {
-    return result[prop];
-  }).catch((err: any) => {
-    console.log("Error getting Log metadata prop: ");
-    throw onError(err?.result?.error);
-  });
-}
+  })
+    .then((result: any) => {
+      return result[prop];
+    })
+    .catch((err: any) => {
+      console.log("Error getting Log metadata prop: ");
+      throw onError(err?.result?.error);
+    });
+};
 
 /** ***** Set Log Metadata Prop to a Log Sheet ****** */
 export interface SetLogMetadataPropProps {
@@ -567,9 +594,10 @@ export const setLogMetadataProp = async ({
   prop,
   value,
 }: SetLogMetadataPropProps): Promise<any> => {
-  const newValue = Array.isArray(value) || typeof value === "object"
-        ? JSON.stringify(value)
-        : value;
+  const newValue =
+    Array.isArray(value) || typeof value === "object"
+      ? JSON.stringify(value)
+      : value;
   const existingMetadata = await getLogMetadata({
     onError,
     logSheetId,
@@ -592,13 +620,15 @@ export const setLogMetadataProp = async ({
     onError,
     logSheetId,
     log: newMetadata,
-  }).then((result: any) => {
-    return result;
-  }).catch((err: any) => {
-    console.log("Error setting Log metadata prop: ");
-    throw onError(err?.result?.error);
-  });
-}
+  })
+    .then((result: any) => {
+      return result;
+    })
+    .catch((err: any) => {
+      console.log("Error setting Log metadata prop: ");
+      throw onError(err?.result?.error);
+    });
+};
 
 /** ***** Get Log Fields from a Log Sheet ****** */
 export interface GetLogFieldsProps {
@@ -612,27 +642,29 @@ export const getLogFields = async ({
   return getSheetValues({
     sheetId: logSheetId,
     range: "Fields!A:ZZ",
-  }).then((result: any[]) => {
-    const headerRow = result[0];
-    const data = [] as any;
-    for (let i = 1; i < result.length; i++) {
-      const row = result[i];
-      const field = {} as any;
-      for (const prop of headerRow) {
-        try {
-          field[prop] = JSON.parse(row[headerRow.indexOf(prop)]);
-        } catch {
-          field[prop] = row[headerRow.indexOf(prop)];
+  })
+    .then((result: any[]) => {
+      const headerRow = result[0];
+      const data = [] as any;
+      for (let i = 1; i < result.length; i++) {
+        const row = result[i];
+        const field = {} as any;
+        for (const prop of headerRow) {
+          try {
+            field[prop] = JSON.parse(row[headerRow.indexOf(prop)]);
+          } catch {
+            field[prop] = row[headerRow.indexOf(prop)];
+          }
         }
+        data.push(field);
       }
-      data.push(field);
-    }
-    return data as LogFields[];
-  }).catch((err: any) => {
-    console.log("Error getting existing sheet fields: ");
-    throw onError(err?.result?.error);
-  });
-}
+      return data as LogFields[];
+    })
+    .catch((err: any) => {
+      console.log("Error getting existing sheet fields: ");
+      throw onError(err?.result?.error);
+    });
+};
 
 /** ***** Set Log Fields in a Log Sheet ****** */
 export interface SetLogFieldsProps {
@@ -649,18 +681,35 @@ export const setLogFields = async ({
 
   const fieldHeaders = [
     // basic field info
-    "id", "name", "type", "required", "option", "typeOption", "typeOptionStrings", "defaultValue",
+    "id",
+    "name",
+    "type",
+    "required",
+    "option",
+    "typeOption",
+    "typeOptionStrings",
+    "defaultValue",
     // field specific info
-    "min", "max", "step", "unit", "trueLabel", "falseLabel", "options",
+    "min",
+    "max",
+    "step",
+    "unit",
+    "trueLabel",
+    "falseLabel",
+    "options",
     // CRUD info
-    "createdAt", "updatedAt"
+    "createdAt",
+    "updatedAt",
   ];
 
   const fields = fieldIds.map((id) => {
     const field = logFields[id];
-    return fieldHeaders.map((prop) => Array.isArray((field as any)[prop]) || typeof (field as any)[prop] === "object"
-      ? JSON.stringify((field as any)[prop])
-      : (field as any)[prop])
+    return fieldHeaders.map((prop) =>
+      Array.isArray((field as any)[prop]) ||
+      typeof (field as any)[prop] === "object"
+        ? JSON.stringify((field as any)[prop])
+        : (field as any)[prop]
+    );
   });
 
   return Promise.all([
@@ -673,7 +722,7 @@ export const setLogFields = async ({
     console.log("Error updating log sheet fields: ");
     throw onError(err?.result?.error);
   });
-}
+};
 
 /** ***** Get Log Entries from a Log Sheet ****** */
 export interface GetLogEntriesProps {
@@ -687,38 +736,40 @@ export const getLogEntries = async ({
   return getSheetValues({
     sheetId: logSheetId,
     range: "Entries!A:ZZ",
-  }).then((result: any[]) => {
-    const headerRow = result[0];
-    const data = [] as LogEntry[];
-    for (let i = 2; i < result.length; i++) {
-      const row = result[i];
-      const entry = {
-        id: row[headerRow.indexOf("id")],
-        user: "",
-        createdAt: row[headerRow.indexOf("createdAt")],
-        updatedAt: row[headerRow.indexOf("updatedAt")],
-      } as LogEntry;
-      const newValues = {} as any;
-      for (const h in headerRow) {
-        const prop = headerRow[h];
-        if (prop === "id" || prop === "createdAt" || prop === "updatedAt") {
-          continue;
+  })
+    .then((result: any[]) => {
+      const headerRow = result[0];
+      const data = [] as LogEntry[];
+      for (let i = 2; i < result.length; i++) {
+        const row = result[i];
+        const entry = {
+          id: row[headerRow.indexOf("id")],
+          user: "",
+          createdAt: row[headerRow.indexOf("createdAt")],
+          updatedAt: row[headerRow.indexOf("updatedAt")],
+        } as LogEntry;
+        const newValues = {} as any;
+        for (const h in headerRow) {
+          const prop = headerRow[h];
+          if (prop === "id" || prop === "createdAt" || prop === "updatedAt") {
+            continue;
+          }
+          try {
+            newValues[prop] = JSON.parse(row[h]);
+          } catch (e) {
+            newValues[prop] = row[h];
+          }
         }
-        try {
-          newValues[prop] = JSON.parse(row[h]);
-        } catch (e) {
-          newValues[prop] = row[h];
-        }
+        entry.values = newValues;
+        data.push(entry);
       }
-      entry.values = newValues;
-      data.push(entry);
-    }
-    return data;
-  }).catch((err: any) => {
-    console.log("Error getting existing sheet entries: ");
-    throw onError(err?.result?.error);
-  });
-}
+      return data;
+    })
+    .catch((err: any) => {
+      console.log("Error getting existing sheet entries: ");
+      throw onError(err?.result?.error);
+    });
+};
 
 /** ***** Set Log Entries in a Log Sheet ****** */
 export interface SetLogEntriesProps {
@@ -734,15 +785,17 @@ export const setLogEntries = async ({
   logFields,
 }: SetLogEntriesProps): Promise<any> => {
   // get existing header row
-  const headerRow:string[] = await getSheetValues({
+  const headerRow: string[] = await getSheetValues({
     sheetId: logSheetId,
     range: "Entries!A1:ZZ1",
-  }).then((result: any[]) => {
-    return result[0];
-  }).catch((err: any) => {
-    console.log("Error getting existing sheet data: ");
-    throw onError(err?.result?.error);
-  });
+  })
+    .then((result: any[]) => {
+      return result[0];
+    })
+    .catch((err: any) => {
+      console.log("Error getting existing sheet data: ");
+      throw onError(err?.result?.error);
+    });
 
   // if logFields are provided, update header row to match
   let newHeaderRow = headerRow;
@@ -769,9 +822,11 @@ export const setLogEntries = async ({
   const entries = Object.keys(logEntries).map((entryId) => {
     const { values } = logEntries[entryId];
     return newHeaderRow.map((prop) => {
-      const nextValue = (values as any)[prop] || (logEntries[entryId] as any)[prop] || "";
+      const nextValue =
+        (values as any)[prop] || (logEntries[entryId] as any)[prop] || "";
       return Array.isArray(nextValue) || typeof nextValue === "object"
-        ? JSON.stringify(nextValue) : nextValue;
+        ? JSON.stringify(nextValue)
+        : nextValue;
     });
   });
 
@@ -785,7 +840,7 @@ export const setLogEntries = async ({
     console.log("Error updating log sheet entries: ");
     throw onError(err?.result?.error);
   });
-}
+};
 
 /** ***** Sync Log Sheet ****** */
 export interface SyncLogSheetProps {
@@ -827,7 +882,7 @@ export const syncLogSheet = async ({
     (newMetadata.recurrence[0] === "{" || newMetadata.recurrence[0] === "[")
       ? JSON.parse(newMetadata.recurrence)
       : undefined;
-  return  {
+  return {
     metadata: {
       ...newMetadata,
       recurrence,
@@ -874,12 +929,12 @@ export const syncLogMetadata = async ({
     updatedData = {
       ...existingMetadata,
       ...localMetadata,
-    }
+    };
   } else {
     updatedData = {
       ...localMetadata,
       ...existingMetadata,
-    }
+    };
   }
 
   // update log metadata
@@ -889,7 +944,7 @@ export const syncLogMetadata = async ({
       logSheetId,
       log: updatedData,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     onError(error);
   }
 
@@ -927,7 +982,7 @@ export const syncLogFields = async ({
   if (!log) {
     return Object.values(existingFields);
   }
-  
+
   // get log fields from local log
   const localFields = {} as { [key: string]: LogFields };
   for (const field of Object.values(log.fields)) {
@@ -954,7 +1009,6 @@ export const syncLogFields = async ({
   // return log fields that were updated
   return updatedIds.map((id) => updatedData[id]);
 };
-
 
 /** ***** Sync Log Entries ***** */
 export interface SyncLogEntriesOptions {
@@ -1007,7 +1061,7 @@ export const syncLogEntries = async ({
       logEntries: updatedData,
       logFields: log.fields,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     onError(error);
   }
 
@@ -1070,7 +1124,7 @@ export const syncData = ({
   return {
     updatedIds,
     updatedData,
-  }
+  };
 };
 
 /** ***** Add Log Entry ***** */
@@ -1106,7 +1160,7 @@ export const addLogEntry = async ({
       logSheetId,
       logEntries: existingEntries,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     onError(error);
   }
 
@@ -1147,7 +1201,7 @@ export const updateLogEntry = async ({
       logSheetId,
       logEntries: existingEntries,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     onError(error);
   }
 
@@ -1177,11 +1231,12 @@ export const deleteLogEntry = async ({
     }
     return entryMap;
   });
-  const existingDeletedEntries = await getLogMetadataProp({
-    onError,
-    logSheetId,
-    prop: 'deletedEntries',
-  }) || [];
+  const existingDeletedEntries =
+    (await getLogMetadataProp({
+      onError,
+      logSheetId,
+      prop: "deletedEntries",
+    })) || [];
 
   // delete log entry
   delete existingEntries[logEntryId];
@@ -1197,10 +1252,10 @@ export const deleteLogEntry = async ({
     await setLogMetadataProp({
       onError,
       logSheetId,
-      prop: 'deletedEntries',
+      prop: "deletedEntries",
       value: existingDeletedEntries,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     onError(error);
   }
 };
@@ -1238,7 +1293,7 @@ export const addLogField = async ({
       logSheetId,
       logFields: existingFields,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     onError(error);
   }
 
@@ -1309,11 +1364,12 @@ export const deleteLogField = async ({
     }
     return fieldMap;
   });
-  const existingDeletedFields = await getLogMetadataProp({
-    onError,
-    logSheetId,
-    prop: 'deletedFields',
-  }) || [];
+  const existingDeletedFields =
+    (await getLogMetadataProp({
+      onError,
+      logSheetId,
+      prop: "deletedFields",
+    })) || [];
 
   // delete log field
   delete existingFields[logFieldId];
@@ -1329,10 +1385,10 @@ export const deleteLogField = async ({
     await setLogMetadataProp({
       onError,
       logSheetId,
-      prop: 'deletedFields',
+      prop: "deletedFields",
       value: existingDeletedFields,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     onError(error);
   }
 };

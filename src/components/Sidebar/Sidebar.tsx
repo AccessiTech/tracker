@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { FC, ReactElement } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
-import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
-import "./sidebar.scss";
-import { GoogleAuthButton, setLogoutTimer } from "../GoogleApi";
-import { AboutModal } from "../AboutModal";
+
 import store from "../../store/store";
-import {
-  authenticate,
-  deauthenticate,
-  useSession,
-} from "../../store/Session";
-import { clearLogoutTimer, TokenResponse } from "../GoogleApi";
-import { DataSync, handleError, updateLocalLog } from "../DataSync";
-import { useDataSync } from "../../store/DataSync";
+import { authenticate, deauthenticate, useSession } from "../../store/Session";
 import { useGetLogs } from "../../store/Log";
+import { useDataSync } from "../../store/DataSync";
+
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
+import { GoogleAuthButton, setLogoutTimer } from "../GoogleApi";
+import { clearLogoutTimer, TokenResponse } from "../GoogleApi";
+
+import { AboutModal } from "../AboutModal";
+import { DataSync, handleError, updateLocalLog } from "../DataSync";
+
+import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
+
+import "./sidebar.scss";
 
 /**
  * Sidebar Component
@@ -50,7 +51,7 @@ export const Sidebar: FC<SidebarProps> = ({
   }, [isAuthenticated]);
 
   const handleLogout = async () => {
-    // todo: await sync logs
+    // await sync logs
     if (dataSyncState?.syncEnabled && dataSyncState?.syncSettings?.onLogout) {
       const sync = dataSyncState[dataSyncState.syncMethod];
       if (sync?.logSheets && Object.keys(sync?.logSheets).length) {
@@ -62,11 +63,13 @@ export const Sidebar: FC<SidebarProps> = ({
             log,
             logSheetId: logSheets[logId]?.id,
             onError: handleError,
-          }).then((updates: SyncLogSheetResponse) => {
-            updateLocalLog({ log, updates, store });
-          }).catch((error) => {
-            console.error('Error syncing onLogIn: ', error);
-          });
+          })
+            .then((updates: SyncLogSheetResponse) => {
+              updateLocalLog({ log, updates, store });
+            })
+            .catch((error) => {
+              console.error("Error syncing onLogIn: ", error);
+            });
         }
       }
     }
@@ -105,11 +108,13 @@ export const Sidebar: FC<SidebarProps> = ({
               log,
               logSheetId: logSheets[logId]?.id,
               onError: handleError,
-            }).then((updates: SyncLogSheetResponse) => {
-              updateLocalLog({ log, updates, store });
-            }).catch((error) => {
-              console.error('Error syncing onLogIn: ', error);
-            });
+            })
+              .then((updates: SyncLogSheetResponse) => {
+                updateLocalLog({ log, updates, store });
+              })
+              .catch((error) => {
+                console.error("Error syncing onLogIn: ", error);
+              });
           }
         }
       }
@@ -152,11 +157,8 @@ export const Sidebar: FC<SidebarProps> = ({
         </Button>
       </Offcanvas.Header>
       <Offcanvas.Body className="sidebar__body_container">
-        
-        <DataSync
-          authenticated={authenticated}
-        />
-        
+        <DataSync authenticated={authenticated} />
+
         <AboutModal show={showAbout} onHide={() => setShowAbout(false)} />
       </Offcanvas.Body>
       <p className="sidebar__p_version text-muted">

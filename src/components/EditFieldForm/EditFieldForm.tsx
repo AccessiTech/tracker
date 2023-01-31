@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Formik, FormikProps } from "formik";
 import * as Yup from "yup";
 import { Form, Button, Row, Col } from "react-bootstrap";
+
 import store from "../../store/store";
 import {
   addLogField,
@@ -14,12 +15,21 @@ import {
   ADD_LOG_FIELD_ACTION,
   UPDATE_LOG_FIELD_ACTION,
 } from "../../store/Log";
+import { useAuthenticated } from "../../store/Session";
+
 import { EditFieldText } from "./EditFieldText";
 import { EditFieldNumber } from "./EditFieldNumber";
 import { EditFieldDate } from "./EditFieldDate";
 import { EditFieldSelect } from "./EditFieldSelect";
 import { EditFieldBoolean } from "./EditFieldBoolean";
+
+import { SetToast } from "../Toaster";
+import { DataSyncState, useDataSync } from "../../store/DataSync";
+import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
+import { handleError, updateLocalLog } from "../DataSync";
+
 import "./editFieldForm.scss";
+
 import {
   ADD,
   BOOLEAN,
@@ -46,11 +56,6 @@ import {
   TYPE,
   UPDATE_LABEL,
 } from "../../strings";
-import { SetToast } from "../Toaster";
-import { useAuthenticated } from "../../store/Session";
-import { DataSyncState, useDataSync } from "../../store/DataSync";
-import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
-import { handleError, updateLocalLog } from "../DataSync";
 
 export const NAME = "name";
 export const REQUIRED = "required";
@@ -61,7 +66,6 @@ export const FIELD_NAME_HELP_TEXT = "What is the name of this field?";
 export const FIELD_TYPE_LABEL = "Field Type";
 export const FIELD_TYPE_HELP_TEXT = "What type of field is this?";
 export const FIELD_REQUIRED_HELP_TEXT = "Is this field required?";
-
 
 export interface HandleFieldsParams {
   values: { [key: string]: string };
@@ -97,7 +101,7 @@ export const onHandleField = ({
   } else {
     store.dispatch(addLogField({ logId: log.id, field: newField }));
   }
-  // todo: sync log fields
+
   if (authenticated && dataSyncState?.syncEnabled) {
     const sync = dataSyncState[dataSyncState.syncMethod];
     if (sync?.logSheets && sync?.logSheets[log.id]) {
@@ -107,7 +111,7 @@ export const onHandleField = ({
           ...newField,
           updatedAt: new Date().toISOString(),
         };
-        if (!id) { 
+        if (!id) {
           nextField.createdAt = nextField.updatedAt;
         }
         const nextLog = {
@@ -115,17 +119,19 @@ export const onHandleField = ({
           fields: {
             ...log.fields,
             [nextField.id]: nextField,
-          }
+          },
         };
         syncLogSheet({
           log: nextLog,
           logSheetId: sync.logSheets[log.id].id,
           onError: handleError,
-        }).then((updates: SyncLogSheetResponse) =>
-          updateLocalLog({ log: nextLog, updates, store })
-        ).catch((error) => {
-          console.error('Error syncing onEditField: ', error);
-        });
+        })
+          .then((updates: SyncLogSheetResponse) =>
+            updateLocalLog({ log: nextLog, updates, store })
+          )
+          .catch((error) => {
+            console.error("Error syncing onEditField: ", error);
+          });
       }
     }
   }

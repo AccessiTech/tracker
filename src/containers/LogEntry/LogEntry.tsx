@@ -2,7 +2,9 @@ import React, { FC, ReactElement } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
-import "./logEntry.scss";
+import { Formik } from "formik";
+
+import store from "../../store/store";
 import {
   addLogEntry,
   ADD_LOG_ENTRY_ACTION,
@@ -16,8 +18,11 @@ import {
   useGetLog,
   useGetLogEntry,
 } from "../../store/Log";
-import { Formik } from "formik";
-import store from "../../store/store";
+import { DataSyncState, useDataSync } from "../../store/DataSync";
+import { useAuthenticated } from "../../store/Session";
+
+import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
+
 import { Sidebar } from "../../components/Sidebar";
 import { Header } from "../../components/Header";
 import { FieldText } from "../../components/FieldText";
@@ -25,6 +30,10 @@ import { FieldNumber } from "../../components/FieldNumber";
 import { FieldDate } from "../../components/FieldDate";
 import { FieldBoolean } from "../../components/FieldBoolean";
 import { FieldSelect } from "../../components/FieldSelect";
+import { SetToast } from "../../components/Toaster";
+import { handleError, updateLocalLog } from "../../components/DataSync";
+
+// import { getTimestamp, notify } from "../../utils";
 import {
   BOOLEAN,
   CANCEL,
@@ -43,12 +52,7 @@ import {
   TEXT,
   WARNING,
 } from "../../strings";
-import { SetToast } from "../../components/Toaster";
-import { DataSyncState, useDataSync } from "../../store/DataSync";
-import { useAuthenticated } from "../../store/Session";
-import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
-import { handleError, updateLocalLog } from "../../components/DataSync";
-// import { getTimestamp, notify } from "../../utils";
+import "./logEntry.scss";
 
 // Magic strings
 export const LABEL = "label";
@@ -95,7 +99,7 @@ export const onLogEntrySubmit = ({
       entry: newEntry,
     })
   );
-  // todo: sync log entries
+  // sync log entries
   if (authenticated && dataSyncState?.syncSettings) {
     const sync = dataSyncState[dataSyncState.syncMethod];
     if (sync?.logSheets && sync.logSheets[log.id]) {
@@ -140,7 +144,7 @@ export const onLogEntrySubmit = ({
  */
 export const onLogEntryDelete = (entry: LogEntryType, log: Log) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId: entry.id }));
-  // todo: update log sheet metadata; sync log entries
+  // todo: sync log sheet
 };
 
 /**
@@ -162,7 +166,7 @@ export const LogEntry: FC<LogEntryProps> = ({
 }): ReactElement | null => {
   const navigate = useNavigate();
   const authenticated = useAuthenticated();
-  const  dataSyncState = useDataSync();
+  const dataSyncState = useDataSync();
 
   // Get log and entry from store
   const { id: logId, entry: entryId } = useParams() as {

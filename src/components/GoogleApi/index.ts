@@ -4,7 +4,6 @@ export {
   DEFAULT_LOGOUT_TEXT,
   DEFAULT_LOGIN_VARIANT,
   DEFAULT_LOGOUT_VARIANT,
-  
 } from "./GoogleAuthButton";
 export type {
   GoogleAuthProps,
@@ -15,23 +14,21 @@ export type {
 export {
   DISCOVERY_DOCS,
   SCOPES,
-
   initGoogleAuth,
   authenticateUser,
   deauthenticateUser,
   getTokenClient,
   getApiClient,
   getGoogle,
-
   setLogoutTimer,
   clearLogoutTimer,
-} from './GoogleAuth';
+} from "./GoogleAuth";
 
 export type {
   ErrorCode,
   TokenResponse,
   InitGoogleAuthParams,
-} from './GoogleAuth';
+} from "./GoogleAuth";
 
 export {
   listFiles,
@@ -39,22 +36,18 @@ export {
   createFolder,
   createFile,
   createSpreadsheet,
-} from './GoogleDrive';
+} from "./GoogleDrive";
 
 export type {
   CreateFolderProps,
   CreateFileProps,
   CreateSpreadsheetProps,
-} from './GoogleDrive';
+} from "./GoogleDrive";
 
-export {
-  setSheetValues,
-  getSheetValues,
-  setSheetName,
-} from './GoogleSheets';
+export { setSheetValues, getSheetValues, setSheetName } from "./GoogleSheets";
 
 export type {
   setSheetValuesProps,
   getSheetValuesProps,
   setSheetNameProps,
-} from './GoogleSheets';
+} from "./GoogleSheets";

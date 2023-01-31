@@ -1,9 +1,11 @@
 export {
   dataSyncSlice,
   dataSyncSliceName,
-  GOOGLE_DRIVE,
+
   initialState,
   defaultSyncSettings,
+  GOOGLE_DRIVE,
+
   SET_ENABLE_SYNC,
   RESET_SYNC,
   SET_SYNC_METHOD,
@@ -15,6 +17,7 @@ export {
   REMOVE_GOOGLE_DRIVE_LOG_SHEET,
   EDIT_SYNC_SETTINGS,
   RESET_SYNC_SETTINGS,
+
   setEnableSync,
   resetSync,
   setSyncMethod,
@@ -26,6 +29,7 @@ export {
   removeGoogleDriveLogSheet,
   editSyncSettings,
   resetSyncSettings,
+
   useDataSync,
   useSyncEnabled,
   useSyncMethod,
@@ -36,11 +40,8 @@ export {
   useGoogleDriveLogSheet,
   useGoogleDriveLogSheets,
   useSyncSettings,
+
   SyncFrequency,
 } from "./reducer";
 
-export type {
-  DataSyncState,
-  LogSheet,
-  SyncSettings,
-} from "./reducer";
+export type { DataSyncState, LogSheet, SyncSettings } from "./reducer";

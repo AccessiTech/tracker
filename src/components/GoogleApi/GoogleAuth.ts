@@ -53,11 +53,10 @@ export interface InitGoogleAuthParams {
   discoveryDocs?: string[];
 }
 
-export const initGoogleAuth = ({
-  apiKey,
-  clientId,
-  discoveryDocs = DISCOVERY_DOCS,
-}: InitGoogleAuthParams, callback?:EmptyFunction): void => {
+export const initGoogleAuth = (
+  { apiKey, clientId, discoveryDocs = DISCOVERY_DOCS }: InitGoogleAuthParams,
+  callback?: EmptyFunction
+): void => {
   if (!apiInitialized) {
     const gapiScript = document.createElement("script");
     gapiScript.src = "https://apis.google.com/js/api.js";
@@ -104,7 +103,7 @@ export const authenticateUser = (
 
 export const deauthenticateUser = async (
   signOutCallback: () => void,
-  tokenData?: TokenResponse,
+  tokenData?: TokenResponse
 ) => {
   await signOutCallback();
   const token = tokenData || gapi.client.getToken();
@@ -166,4 +165,3 @@ LogoutTimerProps) => {
     }, timeout);
   }
 };
-

@@ -65,7 +65,7 @@ export const REVERSED = "Reversed";
  */
 export const onDeleteEntry = (log: LogType, entryId: string) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId }));
-  // todo: update log sheet metadata; sync log entries
+  // todo: sync log sheet
 };
 
 /**

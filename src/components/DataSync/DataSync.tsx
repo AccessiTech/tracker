@@ -1,6 +1,19 @@
 import React, { FC, ReactElement } from "react";
-import { Button, Col, Form, Modal, Nav, Row, Tab, Table } from "react-bootstrap";
+import {
+  Button,
+  Col,
+  Form,
+  Modal,
+  Nav,
+  Row,
+  Tab,
+  Table,
+} from "react-bootstrap";
+
 import store from "../../store/store";
+
+import { listFiles, listFolders } from "../GoogleApi";
+
 import {
   addGoogleDriveLogSheet,
   defaultSyncSettings,
@@ -17,13 +30,34 @@ import {
   useDataSync,
 } from "../../store/DataSync";
 
+import {
+  connectDataSync,
+  getLogSheetIds,
+  initDataSync,
+  setLogsToSync,
+} from "../../services/DataSync";
+
+import {
+  addLog,
+  addLogEntry,
+  addLogField,
+  Log,
+  updateLog,
+  updateLogEntry,
+  updateLogField,
+  useGetLogsArray,
+} from "../../store/Log";
+
+import {
+  initNewLogSheet,
+  setLogSheetIds,
+  syncLogSheet,
+  SyncLogSheetResponse,
+} from "../../services/DataSync/DataSync";
+
 import { OUTLINE_SECONDARY, PRIMARY, RESET, SUBMIT } from "../../strings";
-import { listFiles, listFolders } from "../GoogleApi";
 
 import "./DataSync.scss";
-import { connectDataSync, getLogSheetIds, initDataSync, setLogsToSync } from "../../services/DataSync";
-import { addLog, addLogEntry, addLogField, Log, updateLog, updateLogEntry, updateLogField, useGetLogsArray } from "../../store/Log";
-import { initNewLogSheet, setLogSheetIds, syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync/DataSync";
 
 export interface DataSyncProps {
   authenticated: boolean;
@@ -91,12 +125,16 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   const { googleDrive, syncId, syncEnabled, syncSettings } = useDataSync();
   const { folderId, logSheetId, logSheets } = googleDrive;
   const _activeTab = syncEnabled
-    ? Object.keys(logSheets).length ? DataSyncTabs.CONFIG : DataSyncTabs.SELECT_LOGS
+    ? Object.keys(logSheets).length
+      ? DataSyncTabs.CONFIG
+      : DataSyncTabs.SELECT_LOGS
     : DataSyncTabs.SPLASH;
   const [selectFolder, setSelectFolder] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState(_activeTab);
   const [folders, setFolders] = React.useState([] as DriveFolder[]);
-  const [selectedFolder, setSelectedFolder] = React.useState(folderId as string);
+  const [selectedFolder, setSelectedFolder] = React.useState(
+    folderId as string
+  );
   const [mainSheetId, setMainSheetId] = React.useState(logSheetId as string);
   const [showFileSelect, setShowFileSelect] = React.useState(false);
   const [filesToSelect, setFilesToSelect] = React.useState([] as any[]);
@@ -105,18 +143,36 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   const [localLogs] = React.useState(useGetLogsArray());
   const [allLogs, setAllLogs] = React.useState([] as any[]);
   const [remoteLogs, setRemoteLogs] = React.useState([] as any[]);
-  const [selectedLogs, setSelectedLogs] = React.useState(logSheets ? Object.keys(logSheets) : [] as string[]);
+  const [selectedLogs, setSelectedLogs] = React.useState(
+    logSheets ? Object.keys(logSheets) : ([] as string[])
+  );
 
-  const [syncOnLogIn, setSyncOnLogIn] = React.useState(syncSettings?.onLogin || false);
-  const [syncOnLogOut, setSyncOnLogOut] = React.useState(syncSettings?.onLogout || false);
+  const [syncOnLogIn, setSyncOnLogIn] = React.useState(
+    syncSettings?.onLogin || false
+  );
+  const [syncOnLogOut, setSyncOnLogOut] = React.useState(
+    syncSettings?.onLogout || false
+  );
   // const [syncOnLogView, setSyncOnLogView] = React.useState(syncSettings?.onLogView || false);
   // const [syncOnLogEditView, setSyncOnLogEditView] = React.useState(syncSettings?.onLogEditView || false);
-  const [syncOnAddNewLog, setSyncOnAddNewLog] = React.useState(syncSettings?.onAddNewLog || false);
-  const [syncOnEditLog, setSyncOnEditLog] = React.useState(syncSettings?.onEditLog || false);
-  const [syncOnAddEntry, setSyncOnAddEntry] = React.useState(syncSettings?.onAddEntry || false);
-  const [syncOnEditEntry, setSyncOnEditEntry] = React.useState(syncSettings?.onEditEntry || false);
-  const [syncOnAddField, setSyncOnAddField] = React.useState(syncSettings?.onAddField || false);
-  const [syncOnEditField, setSyncOnEditField] = React.useState(syncSettings?.onEditField || false);
+  const [syncOnAddNewLog, setSyncOnAddNewLog] = React.useState(
+    syncSettings?.onAddNewLog || false
+  );
+  const [syncOnEditLog, setSyncOnEditLog] = React.useState(
+    syncSettings?.onEditLog || false
+  );
+  const [syncOnAddEntry, setSyncOnAddEntry] = React.useState(
+    syncSettings?.onAddEntry || false
+  );
+  const [syncOnEditEntry, setSyncOnEditEntry] = React.useState(
+    syncSettings?.onEditEntry || false
+  );
+  const [syncOnAddField, setSyncOnAddField] = React.useState(
+    syncSettings?.onAddField || false
+  );
+  const [syncOnEditField, setSyncOnEditField] = React.useState(
+    syncSettings?.onEditField || false
+  );
   // const [syncFrequency, setSyncFrequency] = React.useState(syncSettings?.syncFrequency || false);
   // const [customSyncFrequency, setCustomSyncFrequency] = React.useState(syncSettings?.customSyncFrequency || 1);
 
@@ -159,21 +215,30 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
         onError,
         logSheetId: mainSheetId,
       }).then((sheetIds: { [logId: string]: LogSheet }) => {
-        setRemoteLogs(Object.keys(sheetIds).map((logId) => ({
-          // id: sheetIds[logId]?.id,
-          id: logId,
-          name: sheetIds[logId]?.name || "Untitled Log",
-        })));
+        setRemoteLogs(
+          Object.keys(sheetIds).map((logId) => ({
+            // id: sheetIds[logId]?.id,
+            id: logId,
+            name: sheetIds[logId]?.name || "Untitled Log",
+          }))
+        );
       });
     }
   }, [mainSheetId]);
 
   // on local and remote logs change
   React.useEffect(() => {
-    const allLogsSet = new Set([...(localLogs.map((l) => l.id)), ...(remoteLogs.map((l) => l.id))]);
-    const allLogs = Array.from(allLogsSet).map((id) =>
-      localLogs.find((l) => l.id === id) || remoteLogs.find((l) => l.id === id)
-    ).filter((l) => l);
+    const allLogsSet = new Set([
+      ...localLogs.map((l) => l.id),
+      ...remoteLogs.map((l) => l.id),
+    ]);
+    const allLogs = Array.from(allLogsSet)
+      .map(
+        (id) =>
+          localLogs.find((l) => l.id === id) ||
+          remoteLogs.find((l) => l.id === id)
+      )
+      .filter((l) => l);
     setAllLogs(allLogs);
   }, [localLogs, remoteLogs]);
 
@@ -190,15 +255,17 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
         }
         setSelectedFolder(e.target.value);
         setShowFileSelect(true);
-        if (e.target.parentElement?.classList.contains('existing_sync')) {
+        if (e.target.parentElement?.classList.contains("existing_sync")) {
           listFiles({
             parents: [e.target.value],
-          }).then((files: any[]) => {
-            setFilesToSelect(files);
-          }).catch((err: any) => {
-            onError(err?.result?.error);
-            setActiveTab(DataSyncTabs.ERROR);
-          });
+          })
+            .then((files: any[]) => {
+              setFilesToSelect(files);
+            })
+            .catch((err: any) => {
+              onError(err?.result?.error);
+              setActiveTab(DataSyncTabs.ERROR);
+            });
         }
       }}
     >
@@ -245,7 +312,6 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
         </Modal.Header>
         <Modal.Body>
           <Tab.Content>
-
             {/* ***** SPLASH TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.SPLASH}>
               <p>
@@ -323,7 +389,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                         onError,
                         selectedFolder,
                         selectedLogSheet: mainSheetId,
-                      }).then(onInitSuccess)
+                      })
+                        .then(onInitSuccess)
                         .catch((err: any) => {
                           onError(err);
                           setActiveTab(DataSyncTabs.ERROR);
@@ -333,10 +400,12 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                         onError,
                         logSheetId: mainSheetId,
                       });
-                      setRemoteLogs(Object.keys(logSheetIds).map((logId) => ({
-                        id: logId,
-                        name: logSheetIds[logId]?.name || "Unknown Log",
-                      })));
+                      setRemoteLogs(
+                        Object.keys(logSheetIds).map((logId) => ({
+                          id: logId,
+                          name: logSheetIds[logId]?.name || "Unknown Log",
+                        }))
+                      );
                     }}
                   >
                     {"Connect"}
@@ -353,7 +422,6 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
             {/* ***** SELECT LOGS TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.SELECT_LOGS}>
               <h4>{"Select Logs to Sync"}</h4>
-
               <Table striped bordered hover>
                 <thead>
                   <tr>
@@ -382,16 +450,16 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   ))}
                 </tbody>
               </Table>
-
               <Button
                 variant={OUTLINE_SECONDARY}
                 onClick={() => {
                   setActiveTab(DataSyncTabs.SPLASH);
                   store.dispatch(resetSync(""));
                 }}
-              >{"Disconnect"}</Button>
+              >
+                {"Disconnect"}
+              </Button>
               &nbsp;
-
               <Button
                 variant={PRIMARY}
                 onClick={async () => {
@@ -417,12 +485,14 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   const sheetsToCreate = [];
                   for (const logId of selectedLogs) {
                     if (existingLogSheetIds[logId]) {
-                      store.dispatch(addGoogleDriveLogSheet({
-                        [logId]: {
-                          id: existingLogSheetIds[logId].id,
-                          name: existingLogSheetIds[logId].name,
-                        }
-                      }));
+                      store.dispatch(
+                        addGoogleDriveLogSheet({
+                          [logId]: {
+                            id: existingLogSheetIds[logId].id,
+                            name: existingLogSheetIds[logId].name,
+                          },
+                        })
+                      );
                     } else {
                       sheetsToCreate.push(logId);
                     }
@@ -432,9 +502,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   let sheetMap: any = {};
                   if (sheetsToCreate.length) {
                     for (const logId of sheetsToCreate) {
-                      const thisLog = localLogs.find(
-                        (log) => log.id === logId
-                      );
+                      const thisLog = localLogs.find((log) => log.id === logId);
                       if (thisLog) {
                         await initNewLogSheet({
                           onError,
@@ -447,7 +515,9 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                           }
                           sheetMap[logId].id = sheetId.id;
                           sheetMap[logId].name = thisLog.name || "Unknown Log";
-                          store.dispatch(addGoogleDriveLogSheet({ [logId]: sheetMap[logId] }));
+                          store.dispatch(
+                            addGoogleDriveLogSheet({ [logId]: sheetMap[logId] })
+                          );
                         });
                       }
                     }
@@ -467,12 +537,10 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   sheetMap = {
                     ...existingLogSheetIds,
                     ...sheetMap,
-                  }
+                  };
                   for (const logId of Object.keys(sheetMap)) {
                     // define local log
-                    const thisLog = localLogs.find(
-                      (log) => log.id === logId
-                    );
+                    const thisLog = localLogs.find((log) => log.id === logId);
                     // sync local log with google sheet
                     const updates = await syncLogSheet({
                       onError,
@@ -489,14 +557,19 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                   }
                   setActiveTab(DataSyncTabs.CONFIG);
                 }}
-              >{"Connect Logs to Data Sync"}</Button>
-
+              >
+                {"Connect Logs to Data Sync"}
+              </Button>
             </Tab.Pane>
 
             {/* ***** SUCCESS TAB ***** */}
             <Tab.Pane eventKey={DataSyncTabs.SUCCESS}>
               <h4>{"Success!"}</h4>
-              <p>{"Your logs have been synced with Google Sheets, and sync settings can be configured here in the future."}</p>
+              <p>
+                {
+                  "Your logs have been synced with Google Sheets, and sync settings can be configured here in the future."
+                }
+              </p>
             </Tab.Pane>
 
             {/* ***** ERROR TAB ***** */}
@@ -509,27 +582,29 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
               <h4>{"Sync Settings"}</h4>
               <p>{"Configure how often you want to sync your data."}</p>
               {/* todo: move form into sub component */}
-              <Form><Row><Col>
-                {/* Form group for sync event settings: on log in, before sign out, on log view, on log edit view */}
-                <Form.Group>
-                  <Form.Label>{"Sync automatically on:"}</Form.Label>
-                  <Form.Check
-                    type="checkbox"
-                    label="Log In"
-                    checked={syncOnLogIn}
-                    onChange={(e: any) => {
-                      setSyncOnLogIn(e.target.checked);
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    label="Log Out"
-                    checked={syncOnLogOut}
-                    onChange={(e: any) => {
-                      setSyncOnLogOut(e.target.checked);
-                    }}
-                  />
-                  {/* <Form.Check
+              <Form>
+                <Row>
+                  <Col>
+                    {/* Form group for sync event settings: on log in, before sign out, on log view, on log edit view */}
+                    <Form.Group>
+                      <Form.Label>{"Sync automatically on:"}</Form.Label>
+                      <Form.Check
+                        type="checkbox"
+                        label="Log In"
+                        checked={syncOnLogIn}
+                        onChange={(e: any) => {
+                          setSyncOnLogIn(e.target.checked);
+                        }}
+                      />
+                      <Form.Check
+                        type="checkbox"
+                        label="Log Out"
+                        checked={syncOnLogOut}
+                        onChange={(e: any) => {
+                          setSyncOnLogOut(e.target.checked);
+                        }}
+                      />
+                      {/* <Form.Check
                     type="checkbox"
                     label="Log View"
                     checked={syncOnLogView}
@@ -545,55 +620,57 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       setSyncOnLogEditView(e.target.checked);
                     }}
                   /> */}
-                </Form.Group>
-                </Col><Col>
-                {/* Form Group for user initiated sync events: on add new log, on edit log, on add entry, on edit entry, on add field, on edit field */}
-                <Form.Group>
-                  <Form.Label>{"Sync on user interactions:"}</Form.Label>
-                  <Form.Check
-                    type="checkbox"
-                    label="Edit Log"
-                    checked={syncOnEditLog}
-                    onChange={(e: any) => {
-                      setSyncOnEditLog(e.target.checked);
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    label="Add Entry"
-                    checked={syncOnAddEntry}
-                    onChange={(e: any) => {
-                      setSyncOnAddEntry(e.target.checked);
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    label="Edit Entry"
-                    checked={syncOnEditEntry}
-                    onChange={(e: any) => {
-                      setSyncOnEditEntry(e.target.checked);
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    label="Add Field"
-                    checked={syncOnAddField}
-                    onChange={(e: any) => {
-                      setSyncOnAddField(e.target.checked);
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    label="Edit Field"
-                    checked={syncOnEditField}
-                    onChange={(e: any) => {
-                      setSyncOnEditField(e.target.checked);
-                    }}
-                  />
-                </Form.Group>
-                </Col><Col>
-                {/* Form Group for sync frequency: hourly, every x hours, daily, weekly, custom */}
-                {/* <Form.Group>
+                    </Form.Group>
+                  </Col>
+                  <Col>
+                    {/* Form Group for user initiated sync events: on add new log, on edit log, on add entry, on edit entry, on add field, on edit field */}
+                    <Form.Group>
+                      <Form.Label>{"Sync on user interactions:"}</Form.Label>
+                      <Form.Check
+                        type="checkbox"
+                        label="Edit Log"
+                        checked={syncOnEditLog}
+                        onChange={(e: any) => {
+                          setSyncOnEditLog(e.target.checked);
+                        }}
+                      />
+                      <Form.Check
+                        type="checkbox"
+                        label="Add Entry"
+                        checked={syncOnAddEntry}
+                        onChange={(e: any) => {
+                          setSyncOnAddEntry(e.target.checked);
+                        }}
+                      />
+                      <Form.Check
+                        type="checkbox"
+                        label="Edit Entry"
+                        checked={syncOnEditEntry}
+                        onChange={(e: any) => {
+                          setSyncOnEditEntry(e.target.checked);
+                        }}
+                      />
+                      <Form.Check
+                        type="checkbox"
+                        label="Add Field"
+                        checked={syncOnAddField}
+                        onChange={(e: any) => {
+                          setSyncOnAddField(e.target.checked);
+                        }}
+                      />
+                      <Form.Check
+                        type="checkbox"
+                        label="Edit Field"
+                        checked={syncOnEditField}
+                        onChange={(e: any) => {
+                          setSyncOnEditField(e.target.checked);
+                        }}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col>
+                    {/* Form Group for sync frequency: hourly, every x hours, daily, weekly, custom */}
+                    {/* <Form.Group>
                   <Form.Label>{"Sync Frequency:"}</Form.Label>
                   <Form.Check
                     type="radio"
@@ -646,8 +723,8 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     />
                   )}
                 </Form.Group> */}
-                </Col></Row>
-                
+                  </Col>
+                </Row>
                 <Button
                   variant={OUTLINE_SECONDARY}
                   type={RESET}
@@ -678,9 +755,11 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                     setSyncOnEditField(onEditField);
                     // setSyncFrequency(syncFrequency);
                     // setCustomSyncFrequency(customSyncFrequency);
-                    store.dispatch(resetSyncSettings(""))
+                    store.dispatch(resetSyncSettings(""));
                   }}
-                >{"Reset to Default"}</Button>
+                >
+                  {"Reset to Default"}
+                </Button>
                 &nbsp;
                 <Button
                   variant={PRIMARY}
@@ -702,9 +781,11 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       // customSyncFrequency,
                     };
                     store.dispatch(editSyncSettings(syncSettings));
-                    setActiveTab(DataSyncTabs.SUCCESS)
+                    setActiveTab(DataSyncTabs.SUCCESS);
                   }}
-                >{"Save"}</Button>
+                >
+                  {"Save"}
+                </Button>
               </Form>
             </Tab.Pane>
           </Tab.Content>
@@ -716,28 +797,37 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                 eventKey={DataSyncTabs.SPLASH}
                 disabled={activeTab === DataSyncTabs.IN_PROGRESS}
                 onClick={() => {
-                  setActiveTab(DataSyncTabs.SPLASH)
-                }}>
+                  setActiveTab(DataSyncTabs.SPLASH);
+                }}
+              >
                 {"Get Started"}
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
               <Nav.Link
                 eventKey={DataSyncTabs.SELECT_LOGS}
-                disabled={!syncEnabled || activeTab === DataSyncTabs.IN_PROGRESS}
+                disabled={
+                  !syncEnabled || activeTab === DataSyncTabs.IN_PROGRESS
+                }
                 onClick={() => {
-                  setActiveTab(DataSyncTabs.SELECT_LOGS)
+                  setActiveTab(DataSyncTabs.SELECT_LOGS);
                 }}
-              >{"Select Logs"}</Nav.Link>
+              >
+                {"Select Logs"}
+              </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link 
+              <Nav.Link
                 eventKey={DataSyncTabs.CONFIG}
-                disabled={!syncEnabled || activeTab === DataSyncTabs.IN_PROGRESS}
+                disabled={
+                  !syncEnabled || activeTab === DataSyncTabs.IN_PROGRESS
+                }
                 onClick={() => {
-                  setActiveTab(DataSyncTabs.CONFIG)
+                  setActiveTab(DataSyncTabs.CONFIG);
                 }}
-              >{"Configure"}</Nav.Link>
+              >
+                {"Configure"}
+              </Nav.Link>
             </Nav.Item>
             <Nav.Item>
               <Nav.Link
@@ -746,7 +836,9 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                 onClick={() => {
                   setShowModal(false);
                 }}
-              >{"Complete"}</Nav.Link>
+              >
+                {"Complete"}
+              </Nav.Link>
             </Nav.Item>
           </Nav>
         </Modal.Footer>
@@ -765,12 +857,8 @@ export const updateLocalLog = ({
   log,
   updates,
   store,
-}: UpdateLocalLogParams):void => {
-  const {
-    metadata,
-    entries: updatedEntries,
-    fields: updatedFields
-  } = updates;
+}: UpdateLocalLogParams): void => {
+  const { metadata, entries: updatedEntries, fields: updatedFields } = updates;
 
   const newLog = {
     ...metadata,
@@ -778,10 +866,18 @@ export const updateLocalLog = ({
     entries: {},
   } as Log;
   for (const updatedEntry of updatedEntries) {
-    if (log &&
-      JSON.stringify(log.entries[updatedEntry.id]?.values) !== JSON.stringify(updatedEntry.values)
+    if (
+      log &&
+      JSON.stringify(log.entries[updatedEntry.id]?.values) !==
+        JSON.stringify(updatedEntry.values)
     ) {
-      store.dispatch(updateLogEntry({ logId: log.id, entryId: updatedEntry.id, entry: updatedEntry }));
+      store.dispatch(
+        updateLogEntry({
+          logId: log.id,
+          entryId: updatedEntry.id,
+          entry: updatedEntry,
+        })
+      );
     } else if (log) {
       store.dispatch(addLogEntry({ logId: log.id, entry: updatedEntry }));
     } else {
@@ -789,14 +885,25 @@ export const updateLocalLog = ({
     }
   }
   for (const updatedField of updatedFields) {
-    if (log &&
-      JSON.stringify(log.fields[updatedField.id]) !== JSON.stringify(updatedField)
+    if (
+      log &&
+      JSON.stringify(log.fields[updatedField.id]) !==
+        JSON.stringify(updatedField)
     ) {
-      store.dispatch(updateLogField({ logId: log.id, fieldId: updatedField.id, field: updatedField }));
+      store.dispatch(
+        updateLogField({
+          logId: log.id,
+          fieldId: updatedField.id,
+          field: updatedField,
+        })
+      );
     } else if (log) {
-      store.dispatch(addLogField({
-        logId: log.id, field: updatedField
-      }));
+      store.dispatch(
+        addLogField({
+          logId: log.id,
+          field: updatedField,
+        })
+      );
     } else {
       newLog.fields[updatedField.id] = updatedField;
     }
@@ -806,4 +913,4 @@ export const updateLocalLog = ({
   } else {
     store.dispatch(updateLog({ logId: log.id, log: metadata }));
   }
-}
+};
