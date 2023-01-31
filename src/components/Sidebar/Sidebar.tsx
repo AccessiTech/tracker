@@ -1,28 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FC, ReactElement } from "react";
-import { Offcanvas } from "react-bootstrap";
-import { END, SIDEBAR_HEADER } from "../../strings";
-import "./sidebar.scss";
+import { Button, Offcanvas } from "react-bootstrap";
 
-export const SIDEBAR_BODY =
-  "This is a simple app to help you keep track of your logs. Highly customizable logs allow you to track anything you want!";
-export const SIDEBAR_DATA_HEADER = "Data Usage";
-export const SIDEBAR_DATA_BODY_1 =
-  "This app uses local storage to store your logs, no data is sent to a server. Your data is never sold to anyone, EVER.";
-export const SIDEBAR_DATA_BODY_2 =
-  "If you want to delete your personal data, just delete the Log / Entry. To completely clear the App data, clear your browser's local storage via the browser inspector tools.";
-export const SIDEBAR_ISSUES_HEADER = "Report Issues";
-export const SIDEBAR_ISSUES_BODY =
-  "If you find any issues with the app, please report them on the GitHub issues page.";
-export const SIDEBAR_ISSUES_LINK =
-  "https://github.com/AccessiTech/tracker/issues";
-export const SIDEBAR_FEATURES_HEADER = "Feature Requests";
-export const SIDEBAR_FEATURES_BODY =
-  "If you have any feature requests, please feel free to start (or join) a discussion on Github!";
-export const SIDEBAR_FEATURES_LINK =
-  "https://github.com/AccessiTech/tracker/discussions";
-export const GITHUB_ISSUES = "GitHub Issues";
-export const GITHUB_DISCUSSIONS = "GitHub Discussions";
+import store from "../../store/store";
+import { authenticate, deauthenticate, useSession } from "../../store/Session";
+import { useGetLogs } from "../../store/Log";
+import { useDataSync } from "../../store/DataSync";
+
+import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
+import { clearLogoutTimer, TokenResponse, setLogoutTimer  } from "../../services/GoogleApi";
+
+import { AboutModal } from "../AboutModal";
+import { GoogleAuthButton} from "../GoogleAuthButton";
+import { DataSync, handleError, updateLocalLog } from "../DataSync";
+
+import { ABOUT_APP_HEADER, END, LINK_SECONDARY } from "../../strings";
+
+import "./sidebar.scss";
 
 /**
  * Sidebar Component
@@ -42,52 +36,130 @@ export const Sidebar: FC<SidebarProps> = ({
   showSidebar,
   toggleSidebar,
 }): ReactElement => {
+  const session = useSession();
+  const { authenticated: isAuthenticated, data } = session;
+
+  const [authenticated, setAuthenticated] = useState(isAuthenticated);
+  // const [rememberMe, setRememberMe] = useState(autoRefresh);
+  const [showAbout, setShowAbout] = useState(false) as any;
+
+  const dataSyncState = useDataSync();
+  const logs = useGetLogs();
+
+  useEffect(() => {
+    setAuthenticated(isAuthenticated);
+  }, [isAuthenticated]);
+
+  const handleLogout = async () => {
+    // await sync logs
+    if (dataSyncState?.syncEnabled && dataSyncState?.syncSettings?.onLogout) {
+      const sync = dataSyncState[dataSyncState.syncMethod];
+      if (sync?.logSheets && Object.keys(sync?.logSheets).length) {
+        const { logSheets } = sync;
+        const logIds = Object.keys(logSheets);
+        for (const logId of logIds) {
+          const log = logs[logId];
+          await syncLogSheet({
+            log,
+            logSheetId: logSheets[logId]?.id,
+            onError: handleError,
+          })
+            .then((updates: SyncLogSheetResponse) => {
+              updateLocalLog({ log, updates, store });
+            })
+            .catch((error) => {
+              console.error("Error syncing onLogIn: ", error);
+            });
+        }
+      }
+    }
+
+    setAuthenticated(false);
+    store.dispatch(deauthenticate(""));
+    clearLogoutTimer();
+  };
+
+  const handleLogin = (credentials: TokenResponse) => {
+    setAuthenticated(true);
+    store.dispatch(
+      authenticate({
+        data: credentials,
+        // autoRefresh: rememberMe,
+        expiresAt: Date.now() + credentials.expires_in * 1000,
+      })
+    );
+    setLogoutTimer({
+      logoutCallback: handleLogout,
+      timeout: credentials.expires_in * 1000,
+      // autoRefresh: rememberMe,
+      sessionData: credentials,
+    });
+    // todo: sync logs
+    if (dataSyncState?.syncEnabled) {
+      const { syncSettings } = dataSyncState;
+      if (syncSettings?.onLogin) {
+        const sync = dataSyncState[dataSyncState.syncMethod];
+        if (sync?.logSheets && Object.keys(sync?.logSheets).length) {
+          const { logSheets } = sync;
+          const logIds = Object.keys(logSheets);
+          for (const logId of logIds) {
+            const log = logs[logId];
+            syncLogSheet({
+              log,
+              logSheetId: logSheets[logId]?.id,
+              onError: handleError,
+            })
+              .then((updates: SyncLogSheetResponse) => {
+                updateLocalLog({ log, updates, store });
+              })
+              .catch((error) => {
+                console.error("Error syncing onLogIn: ", error);
+              });
+          }
+        }
+      }
+    }
+  };
+
   return (
     <Offcanvas
       show={showSidebar}
       onHide={() => toggleSidebar(false)}
       placement={END}
+      className="sidebar"
     >
       <Offcanvas.Header closeButton>
-        <Offcanvas.Title as="h2">{SIDEBAR_HEADER}</Offcanvas.Title>
+        <GoogleAuthButton
+          authenticated={authenticated}
+          onLogin={handleLogin}
+          onLogout={handleLogout}
+          tokenData={data.access_token && data}
+        />
+        {/* <Form.Check
+          id="sidebar__check_remember"
+          type="checkbox"
+          label="Remember Me"
+          className="sidebar__check_remember"
+          onChange={(e) => {
+            setRememberMe(e.target.checked);
+          }}
+        /> */}
+
+        <Button
+          variant={LINK_SECONDARY}
+          onClick={() => {
+            setShowAbout(true);
+          }}
+          className="sidebar__about_btn"
+          title={ABOUT_APP_HEADER}
+        >
+          <i className="fa fa-info fa-lg" aria-hidden="true"></i>
+        </Button>
       </Offcanvas.Header>
       <Offcanvas.Body className="sidebar__body_container">
-        <p>{SIDEBAR_BODY}</p>
-        <h3>{SIDEBAR_DATA_HEADER}</h3>
-        <p>{SIDEBAR_DATA_BODY_1}</p>
-        <p>{SIDEBAR_DATA_BODY_2}</p>
-        <h3>{SIDEBAR_ISSUES_HEADER}</h3>
-        <p>
-          {SIDEBAR_ISSUES_BODY}
-          <a
-            href={SIDEBAR_ISSUES_LINK}
-            title={GITHUB_ISSUES}
-            target={"_blank"}
-            rel={"noreferrer"}
-          >
-            <i
-              className="fa fa-arrow-up-right-from-square"
-              aria-hidden="true"
-            ></i>
-            <span className="visible_hidden">{GITHUB_ISSUES}</span>
-          </a>
-        </p>
-        <h3>{SIDEBAR_FEATURES_HEADER}</h3>
-        <p>
-          {SIDEBAR_FEATURES_BODY}
-          <a
-            href={SIDEBAR_FEATURES_LINK}
-            title={GITHUB_DISCUSSIONS}
-            target={"_blank"}
-            rel={"noreferrer"}
-          >
-            <i
-              className="fa fa-arrow-up-right-from-square"
-              aria-hidden="true"
-            ></i>
-            <span className="visible_hidden">{GITHUB_DISCUSSIONS}</span>
-          </a>
-        </p>
+        <DataSync authenticated={authenticated} />
+
+        <AboutModal show={showAbout} onHide={() => setShowAbout(false)} />
       </Offcanvas.Body>
       <p className="sidebar__p_version text-muted">
         Version: {process.env.REACT_APP_VERSION}

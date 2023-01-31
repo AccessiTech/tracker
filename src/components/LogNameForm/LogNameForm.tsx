@@ -2,7 +2,13 @@ import React, { FC, ReactElement } from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { Form, Button, InputGroup } from "react-bootstrap";
+
 import { Log } from "../../store/Log";
+import { useAuthenticated } from "../../store/Session";
+import { useDataSync } from "../../store/DataSync";
+
+import { OnUpdateLogParams } from "../../containers/Edit";
+
 import { EMPTY, PRIMARY, SAVE, SUBMIT, TEXT, TEXT_DANGER } from "../../strings";
 
 export const NAME = "name";
@@ -24,7 +30,7 @@ export const LogNameFormValidationSchema = yup.object().shape({
 
 export interface LogNameFormProps {
   log: Log;
-  onSubmit: (log: Log, values: any) => void;
+  onSubmit: (params: OnUpdateLogParams) => void;
 }
 
 export interface LogNameFormValues {
@@ -38,10 +44,14 @@ export const LogNameForm: FC<LogNameFormProps> = ({
   const initialValues = {
     name: log.name || EMPTY,
   } as LogNameFormValues;
+  const authenticated = useAuthenticated();
+  const dataSyncState = useDataSync();
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values: any) => onSubmit(log, values)}
+      onSubmit={(values: any) =>
+        onSubmit({ log, values, authenticated, dataSyncState })
+      }
       validationSchema={LogNameFormValidationSchema}
     >
       {({

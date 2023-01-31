@@ -65,6 +65,7 @@ export const REVERSED = "Reversed";
  */
 export const onDeleteEntry = (log: LogType, entryId: string) => {
   store.dispatch(removeLogEntry({ logId: log.id, entryId }));
+  // todo: sync log sheet
 };
 
 /**
@@ -97,6 +98,10 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
     )
     : [];
   const hasEntries = entries.length > 0;
+
+  // React.useEffect(() => {
+  //   // todo: sync log metadata; sync log entries
+  // }, []);
 
   // Navigate to home if log not found
   React.useEffect(() => {

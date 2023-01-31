@@ -70,6 +70,7 @@ export const onAddLog = (id: string, name: string) => {
     entries: {},
   };
   store.dispatch(addLog({ log }));
+  // todo: add to data sync state; init new log sheet
 };
 
 export interface HomeProps {
