@@ -10,10 +10,11 @@ import { Toaster, ToastType } from "../components/Toaster";
 import { deauthenticate, useSession } from "../store/Session/reducer";
 import store from "../store/store";
 import { authenticateUser, deauthenticateUser, initGoogleAuth, setLogoutTimer } from "../services/GoogleApi";
+import { decode } from "../utils";
 
 export const App: FC = (): ReactElement => {
-  const apiKey = process.env.REACT_APP_G_API_KEY as string;
-  const clientId = process.env.REACT_APP_G_CLIENT_ID as string;
+  const apiKey = process.env.REACT_APP_EG_API_KEY as string;
+  const clientId = process.env.REACT_APP_EG_CLIENT_ID as string;
   const session = useSession();
   const { authenticated, expiresAt, data } = session;
 
@@ -24,7 +25,11 @@ export const App: FC = (): ReactElement => {
   };
 
   useEffect(() => {
-    initGoogleAuth({ apiKey, clientId }, () => {
+    initGoogleAuth({
+      apiKey,
+      clientId,
+      decrypt: (str:string) => decode(str, 2)
+    }, () => {
       if (authenticated) {
         if (expiresAt && expiresAt < Date.now()) {
           handleLogout();

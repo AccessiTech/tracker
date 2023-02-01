@@ -233,3 +233,24 @@ export const getTimestamp = (recurrence?: LogRecurrence): number => {
   }
   return timestamp;
 };
+
+export const decode = (data: string, depth = 1):string => {
+  if (!data) throw new Error("No data to decode");
+  let decoded = data;
+  const dec = new TextDecoder();
+  for (let i = 0; i < depth; i++) {
+    const buffer = new Uint8Array([...(JSON.parse(`[${decoded}]`))]);
+    decoded = dec.decode(buffer);
+  }
+  return decoded;
+}
+
+export const encode = (data: string, depth = 1):string => {
+  if (!data) throw new Error("No data to encode");
+  let encoded = data;
+  const enc = new TextEncoder();
+  for (let i = 0; i < depth; i++) {
+    encoded = enc.encode(encoded).toString();
+  }
+  return encoded;
+}
