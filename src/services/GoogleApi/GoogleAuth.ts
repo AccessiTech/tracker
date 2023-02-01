@@ -51,10 +51,16 @@ export interface InitGoogleAuthParams {
   apiKey: string;
   clientId: string;
   discoveryDocs?: string[];
+  decrypt?: (encrypted: string) => string;
 }
 
 export const initGoogleAuth = (
-  { apiKey, clientId, discoveryDocs = DISCOVERY_DOCS }: InitGoogleAuthParams,
+  {
+    apiKey,
+    clientId,
+    discoveryDocs = DISCOVERY_DOCS,
+    decrypt,
+  }: InitGoogleAuthParams,
   callback?: EmptyFunction
 ): void => {
   if (!apiInitialized) {
@@ -64,7 +70,7 @@ export const initGoogleAuth = (
       gapi = (window as any).gapi;
       gapi.load("client", async () => {
         await gapi.client.init({
-          apiKey,
+          apiKey: decrypt ? decrypt(apiKey) : apiKey,
           discoveryDocs,
         });
         apiInitialized = true;
@@ -75,7 +81,7 @@ export const initGoogleAuth = (
           googleScript.onload = () => {
             google = (window as any).google;
             tokenClient = google.accounts.oauth2.initTokenClient({
-              client_id: clientId,
+              client_id: decrypt ? decrypt(clientId) : clientId,
               scope: SCOPES.join(" "),
               callback: "",
             });
