@@ -12,6 +12,7 @@ import {
   Log,
   LogFields,
   REMOVE_LOG_ACTION,
+  getLog,
 } from "../../store/Log";
 import { DataSyncState } from "../../store/DataSync";
 
@@ -76,25 +77,26 @@ export interface OnUpdateLogParams {
  * @param {boolean} authenticated - optional authenticated state
  * @param {DataSyncState} dataSyncState - optional data sync state
  */
-export const onUpdateLog = ({
+export const onUpdateLog = async ({
   log,
   values,
   authenticated,
   dataSyncState,
-}: OnUpdateLogParams): void => {
+}: OnUpdateLogParams): Promise<void> => {
   const updatedLog: Log = {
     ...log,
     ...values,
   };
-  store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
+  await store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
   if (authenticated && dataSyncState?.syncEnabled) {
     const { syncSettings } = dataSyncState;
     if (syncSettings?.onEditLog) {
       const sync = dataSyncState[dataSyncState.syncMethod];
       if (sync?.logSheets && sync?.logSheets[log.id]) {
+        const newLog = getLog(store.getState(), log.id)
         // todo: only sync log metadata on update log
         syncLogSheet({
-          log,
+          log: newLog,
           logSheetId: sync.logSheets[log.id].id,
           onError: handleError,
         })
