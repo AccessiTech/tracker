@@ -14,6 +14,7 @@ import {
   LogFields,
   ADD_LOG_FIELD_ACTION,
   UPDATE_LOG_FIELD_ACTION,
+  getLog,
 } from "../../store/Log";
 import { useAuthenticated } from "../../store/Session";
 
@@ -74,7 +75,7 @@ export interface HandleFieldsParams {
   authenticated?: boolean;
   dataSyncState?: DataSyncState;
 }
-export const onHandleField = ({
+export const onHandleField = async ({
   values,
   log,
   field,
@@ -107,31 +108,16 @@ export const onHandleField = ({
     if (sync?.logSheets && sync?.logSheets[log.id]) {
       const { syncSettings } = dataSyncState;
       if (syncSettings?.onAddField || syncSettings?.onEditField) {
-        const nextField = {
-          ...newField,
-          updatedAt: new Date().toISOString(),
-        };
-        if (!id) {
-          nextField.createdAt = nextField.updatedAt;
-        }
-        const nextLog = {
-          ...log,
-          fields: {
-            ...log.fields,
-            [nextField.id]: nextField,
-          },
-        };
+        const newLog = getLog(store.getState(), log.id);
         syncLogSheet({
-          log: nextLog,
+          log: newLog,
           logSheetId: sync.logSheets[log.id].id,
           onError: handleError,
-        })
-          .then((updates: SyncLogSheetResponse) =>
-            updateLocalLog({ log: nextLog, updates, store })
-          )
-          .catch((error) => {
-            console.error("Error syncing onEditField: ", error);
-          });
+        }).then((updates: SyncLogSheetResponse) => {
+          updateLocalLog({ log: newLog, updates, store });
+        }).catch((error) => {
+          console.error("Error syncing onEditField: ", error);
+        });
       }
     }
   }
