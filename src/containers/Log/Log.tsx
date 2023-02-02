@@ -20,6 +20,7 @@ import {
   Log as LogType,
   LogEntry,
   REMOVE_LOG_ENTRY_ACTION,
+  getLog,
 } from "../../store/Log";
 import "./log.scss";
 import {
@@ -50,6 +51,10 @@ import {
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
 import { entryFilter, LogEntryFilter } from "../../components/LogEntryFilter";
+import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
+import { DataSyncState, useDataSync } from "../../store/DataSync";
+import { handleError, updateLocalLog } from "../../components/DataSync";
+import { useAuthenticated } from "../../store/Session";
 
 // Display strings
 export const ENTRIES_HEADER = "Entries ";
@@ -58,14 +63,37 @@ export const SORT_BY = "Sort by";
 export const DATE_CREATED = "Date Created";
 export const REVERSED = "Reversed";
 
-/**
- * Delete Entry Callback
- * @param {LogType} entry - entry to delete
- * @param {string} logId - id of log to delete entry from
- */
-export const onDeleteEntry = (log: LogType, entryId: string) => {
-  store.dispatch(removeLogEntry({ logId: log.id, entryId }));
-  // todo: sync log sheet
+export interface onDeleteEntryParams {
+  log: LogType;
+  entryId: string;
+  authenticated?: boolean;
+  dataSyncState?: DataSyncState;
+}
+
+export const onDeleteEntry = async ({
+  log, 
+  entryId,
+  authenticated,
+  dataSyncState,
+}: onDeleteEntryParams) => {
+  await store.dispatch(removeLogEntry({ logId: log.id, entryId }));
+
+  if (authenticated && dataSyncState?.syncSettings) {
+    const sync = dataSyncState[dataSyncState.syncMethod];
+    if (sync?.logSheets && sync.logSheets[log.id] && dataSyncState.syncSettings.onEditEntry) {
+      const state = store.getState();
+      const newLog = getLog(state, log.id);
+      syncLogSheet({
+        log: newLog,
+        logSheetId: sync.logSheets[log.id].id,
+        onError: handleError,
+      }).then((updates: SyncLogSheetResponse) => {
+        updateLocalLog({ log: newLog, updates, store });
+      }).catch((error) => {
+        console.error(`Error syncing onEntryDelete: ${error}`)
+      });
+    }
+  }
 };
 
 /**
@@ -79,6 +107,8 @@ export interface LogProps {
 
 export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
+  const authenticated = useAuthenticated();
+  const dataSyncState = useDataSync();
 
   // Get log from store
   const { id } = useParams() as { id: string };
@@ -276,7 +306,12 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
                         </Dropdown.Item>
                         <Dropdown.Item
                           onClick={() => {
-                            onDeleteEntry(log, entry.id);
+                            onDeleteEntry({
+                              log,
+                              entryId: entry.id,
+                              authenticated,
+                              dataSyncState,
+                            });
                             setToast({
                               show: true,
                               context: REMOVE_LOG_ENTRY_ACTION,
