@@ -24,6 +24,13 @@ export {
   ADD_LOG_FIELD_ACTION,
   REMOVE_LOG_FIELD_ACTION,
   UPDATE_LOG_FIELD_ACTION,
+
+  // Getters
+  getLog,
+  getLogEntries,
+  getLogFields,
+  getLogEntry,
+  getLogField,
 } from "./reducer";
 
 export type { LogState } from "./reducer";
