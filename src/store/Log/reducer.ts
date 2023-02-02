@@ -101,3 +101,25 @@ export const updateLogEntry = logSlice.actions[UPDATE_LOG_ENTRY_ACTION];
 export const addLogField = logSlice.actions[ADD_LOG_FIELD_ACTION];
 export const removeLogField = logSlice.actions[REMOVE_LOG_FIELD_ACTION];
 export const updateLogField = logSlice.actions[UPDATE_LOG_FIELD_ACTION];
+
+export const getLog = (state: any, logId: string) => state[logSliceName][logId];
+
+export const getLogEntries = (state: any, logId: string) => {
+  const log = getLog(state, logId);
+  return log?.entries;
+}
+
+export const getLogEntry = (state: any, logId: string, entryId: string) => {
+  const entries = getLogEntries(state, logId);
+  return entries?.[entryId];
+}
+
+export const getLogFields = (state: any, logId: string) => {
+  const log = getLog(state, logId);
+  return log?.fields;
+}
+
+export const getLogField = (state: any, logId: string, fieldId: string) => {
+  const fields = getLogFields(state, logId);
+  return fields?.[fieldId];
+}

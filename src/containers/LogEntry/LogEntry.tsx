@@ -9,10 +9,10 @@ import {
   addLogEntry,
   ADD_LOG_ENTRY_ACTION,
   FieldValue,
+  getLog,
   Log,
   LogEntry as LogEntryType,
   LogFields,
-  removeLogEntry,
   updateLogEntry,
   UPDATE_LOG_ENTRY_ACTION,
   useGetLog,
@@ -74,7 +74,7 @@ export interface OnLogEntrySubmitParams {
   authenticated?: boolean;
   dataSyncState?: DataSyncState;
 }
-export const onLogEntrySubmit = ({
+export const onLogEntrySubmit = async ({
   values,
   log,
   entry,
@@ -92,7 +92,7 @@ export const onLogEntrySubmit = ({
     values: newValues,
   };
 
-  store.dispatch(
+  await store.dispatch(
     (entry ? updateLogEntry : addLogEntry)({
       logId: log.id,
       entryId,
@@ -105,23 +105,7 @@ export const onLogEntrySubmit = ({
     if (sync?.logSheets && sync.logSheets[log.id]) {
       const { onAddEntry, onEditEntry } = dataSyncState.syncSettings;
       if (onAddEntry || onEditEntry) {
-        const nextEntry = {
-          ...(log.entries[entryId] || {}),
-          ...newEntry,
-          updatedAt: new Date().toISOString(),
-        };
-        if (!entry) {
-          nextEntry.createdAt = nextEntry.updatedAt;
-        }
-
-        const newLog = {
-          ...log,
-          entries: {
-            ...log.entries,
-            [entryId]: nextEntry,
-          },
-        };
-        console.log('nextEntry: ', newLog.entries[entryId])
+        const newLog = getLog(store.getState(), log.id)
         syncLogSheet({
           log: newLog,
           logSheetId: sync.logSheets[log.id].id,
@@ -137,15 +121,6 @@ export const onLogEntrySubmit = ({
   }
 };
 
-/**
- * Delete Log Entry Callback
- * @param {LogEntryType} entry - entry to delete
- * @param {Log} log - log to delete entry from
- */
-export const onLogEntryDelete = (entry: LogEntryType, log: Log) => {
-  store.dispatch(removeLogEntry({ logId: log.id, entryId: entry.id }));
-  // todo: sync log sheet
-};
 
 /**
  * Log Entry Page

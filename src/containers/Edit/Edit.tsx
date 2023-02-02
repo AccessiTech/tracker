@@ -12,8 +12,9 @@ import {
   Log,
   LogFields,
   REMOVE_LOG_ACTION,
+  getLog,
 } from "../../store/Log";
-import { DataSyncState } from "../../store/DataSync";
+import { DataSyncState, useDataSync } from "../../store/DataSync";
 
 import { syncLogSheet } from "../../services/DataSync";
 import { SyncLogSheetResponse } from "../../services/DataSync";
@@ -53,6 +54,7 @@ import {
   SUBMIT,
   VIEW_LOG,
 } from "../../strings";
+import { useAuthenticated } from "../../store/Session";
 
 export const EDIT_HEADER = "Edit: ";
 export const LOG_FIELDS = "Log Fields";
@@ -76,25 +78,26 @@ export interface OnUpdateLogParams {
  * @param {boolean} authenticated - optional authenticated state
  * @param {DataSyncState} dataSyncState - optional data sync state
  */
-export const onUpdateLog = ({
+export const onUpdateLog = async ({
   log,
   values,
   authenticated,
   dataSyncState,
-}: OnUpdateLogParams): void => {
+}: OnUpdateLogParams): Promise<void> => {
   const updatedLog: Log = {
     ...log,
     ...values,
   };
-  store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
+  await store.dispatch(updateLog({ logId: log.id, log: updatedLog }));
   if (authenticated && dataSyncState?.syncEnabled) {
     const { syncSettings } = dataSyncState;
     if (syncSettings?.onEditLog) {
       const sync = dataSyncState[dataSyncState.syncMethod];
       if (sync?.logSheets && sync?.logSheets[log.id]) {
+        const newLog = getLog(store.getState(), log.id)
         // todo: only sync log metadata on update log
         syncLogSheet({
-          log,
+          log: newLog,
           logSheetId: sync.logSheets[log.id].id,
           onError: handleError,
         })
@@ -119,14 +122,37 @@ export const onDeleteLog = (log: Log) => {
   store.dispatch(removeLog({ logId: log.id }));
 };
 
-/**
- * Delete log field callback
- * @param {Log} log - log to delete field from
- * @param {string} fieldId - id of field to delete
- */
-export const onDeleteField = (log: Log, fieldId: string) => {
-  // todo: updated deleted fields in log sheet metadata; sync log fields
-  store.dispatch(removeLogField({ logId: log.id, fieldId }));
+export interface onDeleteFieldParams {
+  log: Log;
+  fieldId: string;
+  authenticated?: boolean;
+  dataSyncState?: DataSyncState;
+}
+export const onDeleteField = async ({
+  log,
+  fieldId,
+  authenticated,
+  dataSyncState,
+}:onDeleteFieldParams) => {
+  await store.dispatch(removeLogField({ logId: log.id, fieldId }));
+  if (authenticated && dataSyncState?.syncEnabled) {
+    const { syncSettings } = dataSyncState;
+    if (syncSettings?.onEditLog) {
+      const sync = dataSyncState[dataSyncState.syncMethod];
+      if (sync?.logSheets && sync?.logSheets[log.id]) {
+        const newLog = getLog(store.getState(), log.id)
+        syncLogSheet({
+          log: newLog,
+          logSheetId: sync.logSheets[log.id].id,
+          onError: handleError,
+        }).then((updates: SyncLogSheetResponse) => {
+          updateLocalLog({ log, updates, store });
+        }).catch((error) => {
+          console.error("Error syncing onDeleteField: ", error);
+        });
+      }
+    }
+  }
 };
 
 /**
@@ -141,6 +167,8 @@ export interface EditProps {
 
 export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
+  const authenticated = useAuthenticated();
+  const dataSyncState = useDataSync();
 
   // Get Log and Field ids from URL
   const { id, field: fid } = useParams() as { id: string; field: string };
@@ -227,7 +255,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
                   onDeleteClick={(
                     e: React.MouseEvent<HTMLElement, MouseEvent>,
                     fieldId: string
-                  ) => onDeleteField(log, fieldId)}
+                  ) => onDeleteField({ log, fieldId, authenticated, dataSyncState })}
                   onEditClick={onEditField}
                   setToast={setToast}
                 />
