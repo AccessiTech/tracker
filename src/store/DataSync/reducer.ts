@@ -140,8 +140,7 @@ export const dataSyncSlice: Slice<
       };
     },
     [REMOVE_GOOGLE_DRIVE_LOG_SHEET]: (state, action) => {
-      const { logSheetId } = action.payload;
-      delete state.googleDrive.logSheets[logSheetId];
+      delete state.googleDrive.logSheets[action.payload];
     },
     [EDIT_SYNC_SETTINGS]: (state, action) => {
       state.syncSettings = action.payload;
@@ -218,3 +217,37 @@ export const useSyncSettings = (): SyncSettings => {
   const dataSync = useDataSync();
   return dataSync.syncSettings;
 };
+
+// Selectors
+export const getDataSync = (state: any): DataSyncState => {
+  return state[dataSyncSliceName];
+}
+
+export const getSyncEnabled = (state: any): boolean => {
+  return getDataSync(state).syncEnabled;
+}
+
+export const getSyncId = (state: any): string => {
+  return getDataSync(state).syncId;
+}
+
+export const getSyncMethod = (state: any): string => {
+  return getDataSync(state).syncMethod;
+}
+
+export const getSync = (state: any) => {
+  const method = getSyncMethod(state);
+  return (getDataSync(state) as any)[method];
+}
+
+export const getLogSheetId = (state: any): string => {
+  return getSync(state).logSheetId;
+}
+
+export const getLogSheets = (state: any): { [logId: string]: LogSheet } => {
+  return getSync(state).logSheets;
+}
+
+export const getLogSheet = (state: any, logId: string): LogSheet => {
+  return getLogSheets(state)[logId] || {};
+}

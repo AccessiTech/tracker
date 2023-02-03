@@ -41,6 +41,15 @@ export {
   useGoogleDriveLogSheets,
   useSyncSettings,
 
+  getDataSync,
+  getSyncEnabled,
+  getSyncMethod,
+  getSyncId,
+  getSync,
+  getLogSheetId,
+  getLogSheets,
+  getLogSheet,
+
   SyncFrequency,
 } from "./reducer";
 
