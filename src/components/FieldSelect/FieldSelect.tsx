@@ -15,7 +15,7 @@ import {
 export const SELECT_AN_OPTION = "Select an option";
 
 export interface EditFieldSelectProps
-  extends FormikProps<{ [key: string]: string }> {
+  extends FormikProps<{ [key: string]: string|string[] }> {
   field: SelectLogField;
 }
 
@@ -33,7 +33,7 @@ export const FieldSelect: FC<EditFieldSelectProps> = (props): ReactElement => {
           name={fieldId}
           onChange={handleChange}
           onBlur={handleBlur}
-          value={values[fieldId]}
+          value={values[fieldId] as string | string[]}
           required={required}
           multiple={isMulti}
         >
