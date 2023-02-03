@@ -418,7 +418,11 @@ export const initNewLogSheet = async ({
   for (const key in newSheetData) {
     if (key === "fields" || key === "entries" || key === "recurrence") continue;
     if (Object.prototype.hasOwnProperty.call(newSheetData, key)) {
-      newSheetValues.push([key, newSheetData[key]]);
+      if (Array.isArray(newSheetData[key]) || typeof newSheetData[key] === "object") {
+        newSheetValues.push([key, JSON.stringify(newSheetData[key])]);
+      } else {
+        newSheetValues.push([key, newSheetData[key]]);
+      }
     }
   }
   if (log.recurrence) {
