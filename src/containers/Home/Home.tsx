@@ -50,7 +50,7 @@ import {
 import { SetToast } from "../../components/Toaster";
 import { parseCSV } from "../../utils";
 import { useAuthenticated } from "../../store/Session";
-import { addGoogleDriveLogSheet, DataSyncState, getLogSheets, useDataSync } from "../../store/DataSync";
+import { addGoogleDriveLogSheet, DataSyncState, getLogSheets, LogSheet, useDataSync } from "../../store/DataSync";
 import { initNewLogSheet, setLogSheetIds } from "../../services/DataSync";
 import { handleError } from "../../components/DataSync";
 
@@ -99,7 +99,10 @@ export const onAddLog = async ({
         folderId: sync.folderId,
       });
       await store.dispatch(addGoogleDriveLogSheet({
-        [id]: sheet.id,
+        [id]: {
+          ...sheet,
+          name,
+        } as LogSheet,
       }));
       const logSheetIds = getLogSheets(store.getState());
       setLogSheetIds({
