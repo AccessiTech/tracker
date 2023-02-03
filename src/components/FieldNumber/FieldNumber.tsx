@@ -16,7 +16,7 @@ export const MIN = "Min: ";
 export const MAX = "Max: ";
 
 export interface FieldNumberProps
-  extends FormikProps<{ [key: string]: any }> {
+  extends FormikProps<{ [key: string]: string|number }> {
   field: NumberLogField;
 }
 
