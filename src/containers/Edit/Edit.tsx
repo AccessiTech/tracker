@@ -321,7 +321,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
 
         <Row className="form__button_row">
           <Col>
-            <Button variant={DARK} onClick={() => navigate(EMPTY)}>
+            <Button variant={DARK} onClick={() => navigate(HOME_URL)}>
               {HOME}
             </Button>
           </Col>
