@@ -14,7 +14,7 @@ import {
   REMOVE_LOG_ACTION,
   getLog,
 } from "../../store/Log";
-import { DataSyncState, useDataSync } from "../../store/DataSync";
+import { DataSyncState, removeGoogleDriveLogSheet, useDataSync } from "../../store/DataSync";
 
 import { syncLogSheet } from "../../services/DataSync";
 import { SyncLogSheetResponse } from "../../services/DataSync";
@@ -120,6 +120,7 @@ export const onUpdateLog = async ({
 export const onDeleteLog = (log: Log) => {
   // todo: remove log from data sync state
   store.dispatch(removeLog({ logId: log.id }));
+  store.dispatch(removeGoogleDriveLogSheet(log.id));
 };
 
 export interface onDeleteFieldParams {
