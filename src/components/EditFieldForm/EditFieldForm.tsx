@@ -39,6 +39,7 @@ import {
   CREATE_LABEL,
   DATE,
   DATE_LABEL,
+  EMPTY,
   FIELD,
   NUMBER,
   NUMBER_LABEL,
@@ -145,7 +146,7 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
   const dataSyncState = useDataSync();
   const fieldState: EditFieldFormValues = fieldId
     ? log.fields[fieldId]
-    : { ...initialTextFieldState };
+    : { ...initialTextFieldState, name: EMPTY };
   const isNewField = !fieldId;
   return (
     <Formik
