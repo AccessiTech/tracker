@@ -10,6 +10,7 @@ import {
   addLogField,
   ADD_LOG_ACTION,
   initialFieldStates,
+  initialLogState,
   LogEntry,
   LogField,
   removeLog,
@@ -41,12 +42,17 @@ import {
   PRIMARY,
   SAVE,
   SECONDARY,
+  SYNC_LOG,
   TEXT,
   TEXT_DANGER,
   UPDATED_AT,
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
 import { parseCSV } from "../../utils";
+import { useAuthenticated } from "../../store/Session";
+import { addGoogleDriveLogSheet, DataSyncState, getLogSheets, useDataSync } from "../../store/DataSync";
+import { initNewLogSheet, setLogSheetIds } from "../../services/DataSync";
+import { handleError } from "../../components/DataSync";
 
 export const TRACKER_KEEPER = "Tracker Keeper";
 export const YOUR_LOGS = "Your Logs";
@@ -62,15 +68,47 @@ export const RESTORE_LOG = "Restore log from CSV";
 export const LOG_ENTRIES = "Log Entries";
 export const LOG_FIELDS = "Log Fields";
 
-export const onAddLog = (id: string, name: string) => {
-  const log = {
+export interface onAddLogParams {
+  id: string;
+  name: string;
+  syncLog: boolean;
+  authenticated?: boolean;
+  dataSyncState?: DataSyncState;
+}
+export const onAddLog = async ({
     id,
     name,
-    fields: {},
-    entries: {},
+    syncLog,
+    authenticated,
+    dataSyncState,
+}: onAddLogParams) => {
+  const log = {
+    ...initialLogState,
+    name,
+    id,
   };
   store.dispatch(addLog({ log }));
-  // todo: add to data sync state; init new log sheet
+
+  if (syncLog && authenticated && dataSyncState?.syncEnabled && dataSyncState?.syncSettings?.onAddNewLog) {
+    const sync = dataSyncState[dataSyncState.syncMethod];
+    if (sync?.folderId) {
+      const sheet = await initNewLogSheet({
+        onError: handleError,
+        syncId: dataSyncState.syncId,
+        log,
+        folderId: sync.folderId,
+      });
+      await store.dispatch(addGoogleDriveLogSheet({
+        [id]: sheet.id,
+      }));
+      const logSheetIds = getLogSheets(store.getState());
+      setLogSheetIds({
+        onError: handleError,
+        logSheetId: sync.logSheetId,
+        logSheetIds,
+      });
+    }
+  }
 };
 
 export interface HomeProps {
@@ -79,6 +117,9 @@ export interface HomeProps {
 
 export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
+  const authenticated = useAuthenticated()
+  const dataSyncState = useDataSync();
+
   const isNewLogModalOpen = window.location.hash === "#/new";
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [showModal, setShowModal] = React.useState(isNewLogModalOpen);
@@ -89,6 +130,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
   const [restoredEntries, setRestoredEntries] = React.useState([]);
   const [newLogId, setNewLogId] = React.useState(EMPTY);
   const [newLogName, setNewLogName] = React.useState(EMPTY);
+  const [syncLog, setSyncLog] = React.useState(false);
   const logs = useGetLogsArray();
 
   if (
@@ -240,6 +282,16 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                 onChange={(e) => setRestoreLog(e.target.checked)}
               />
             </Form.Group>
+            {dataSyncState.syncEnabled && dataSyncState.syncSettings.onAddEntry && (
+              <Form.Group controlId="syncLog">
+                <Form.Check
+                  disabled={!authenticated}
+                  type={CHECKBOX}
+                  label={SYNC_LOG}
+                  onChange={(e) => setSyncLog(e.target.checked)}
+                />
+              </Form.Group>
+            )}
             {restoreLog && (
               <>
                 <Form.Group controlId="formFieldData">
@@ -344,9 +396,15 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                     (restoreLog &&
                       (!restoredFields.length || !restoredEntries.length))
                   }
-                  onClick={() => {
+                  onClick={async () => {
                     const newId = uuidv4();
-                    onAddLog(newId, newLogName);
+                    await onAddLog({
+                      id: newId,
+                      name: newLogName,
+                      syncLog,
+                      authenticated,
+                      dataSyncState,
+                    });
                     setNewLogId(newId);
                     if (restoreLog) {
                       Object.values(restoredFields).forEach(
@@ -371,6 +429,8 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
                           );
                         }
                       );
+                    } else {
+                      navigate(getEditLogURL(newId));
                     }
 
                     setToast({

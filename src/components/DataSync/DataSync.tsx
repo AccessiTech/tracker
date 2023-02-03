@@ -628,6 +628,14 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
                       <Form.Label>{"Sync on user interactions:"}</Form.Label>
                       <Form.Check
                         type="checkbox"
+                        label="Add Log"
+                        checked={syncOnAddNewLog}
+                        onChange={(e: any) => {
+                          setSyncOnAddNewLog(e.target.checked);
+                        }}
+                      />
+                      <Form.Check
+                        type="checkbox"
                         label="Edit Log"
                         checked={syncOnEditLog}
                         onChange={(e: any) => {

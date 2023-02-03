@@ -103,6 +103,7 @@ export const OOPS = "Oops!";
 export const LOG_NOT_FOUND = "Log not found";
 export const DATA = "Data";
 export const CSV = "CSV";
+export const SYNC_LOG = "Sync Log";
 
 // Route Strings
 export const WILDCARD = "*";
