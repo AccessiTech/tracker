@@ -13,7 +13,7 @@ import {
 import "./fieldBoolean.scss";
 
 export interface FieldBooleanProps
-  extends FormikProps<{ [key: string]: string }> {
+  extends FormikProps<{ [key: string]: boolean }> {
   field: BooleanLogField;
 }
 
