@@ -1,5 +1,5 @@
 import { createSlice, Slice, SliceCaseReducers } from "@reduxjs/toolkit";
-import { Log } from "./initialStates";
+import { Log, LogEntriesState, LogEntry, LogFields, LogFieldsState } from "./initialStates";
 
 export const logSliceName = "logs";
 
@@ -102,24 +102,41 @@ export const addLogField = logSlice.actions[ADD_LOG_FIELD_ACTION];
 export const removeLogField = logSlice.actions[REMOVE_LOG_FIELD_ACTION];
 export const updateLogField = logSlice.actions[UPDATE_LOG_FIELD_ACTION];
 
-export const getLog = (state: any, logId: string) => state[logSliceName][logId];
+export const getLogs = (state: any):LogState => state[logSliceName] || {};
 
-export const getLogEntries = (state: any, logId: string) => {
+export const getLogsArray = (state: any):Log[] => {
+  const logs = getLogs(state);
+  return Object.values(logs);
+}
+
+export const getLog = (state: any, logId: string):Log => state[logSliceName][logId];
+
+export const getLogEntries = (state: any, logId: string): LogEntriesState => {
   const log = getLog(state, logId);
   return log?.entries;
 }
 
-export const getLogEntry = (state: any, logId: string, entryId: string) => {
+export const getLogEntriesArray = (state: any, logId: string):LogEntry[] => {
+  const entries = getLogEntries(state, logId);
+  return Object.values(entries);
+}
+
+export const getLogEntry = (state: any, logId: string, entryId: string):LogEntry => {
   const entries = getLogEntries(state, logId);
   return entries?.[entryId];
 }
 
-export const getLogFields = (state: any, logId: string) => {
+export const getLogFields = (state: any, logId: string):LogFieldsState => {
   const log = getLog(state, logId);
   return log?.fields;
 }
 
-export const getLogField = (state: any, logId: string, fieldId: string) => {
+export const getLogFieldsArray = (state: any, logId: string):LogFields[] => {
+  const fields = getLogFields(state, logId);
+  return Object.values(fields);
+}
+
+export const getLogField = (state: any, logId: string, fieldId: string):LogFields => {
   const fields = getLogFields(state, logId);
   return fields?.[fieldId];
 }
