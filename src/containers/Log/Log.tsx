@@ -15,7 +15,6 @@ import { Header } from "../../components/Header";
 
 import store from "../../store/store";
 import {
-  useGetLog,
   removeLogEntry,
   Log as LogType,
   LogEntry,
@@ -112,7 +111,7 @@ export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
 
   // Get log from store
   const { id } = useParams() as { id: string };
-  const log: LogType = useGetLog(id);
+  const log: LogType = getLog(store.getState(), id);
   const { name, fields, labelOption, sort, order } = log || {};
 
   // Set and sidebar states

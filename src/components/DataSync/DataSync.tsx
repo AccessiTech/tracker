@@ -45,7 +45,7 @@ import {
   updateLog,
   updateLogEntry,
   updateLogField,
-  useGetLogsArray,
+  getLogsArray,
 } from "../../store/Log";
 
 import {
@@ -140,7 +140,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   const [filesToSelect, setFilesToSelect] = React.useState([] as any[]);
   const [sid, setSid] = React.useState(syncId as string);
 
-  const [localLogs] = React.useState(useGetLogsArray());
+  const [localLogs] = React.useState(getLogsArray(store.getState()));
   const [allLogs, setAllLogs] = React.useState([] as any[]);
   const [remoteLogs, setRemoteLogs] = React.useState([] as any[]);
   const [selectedLogs, setSelectedLogs] = React.useState(

@@ -1,7 +1,7 @@
 import { Formik } from "formik";
 import React, { FC, ReactElement } from "react";
 import { Button, Form, Modal, Tab, Tabs } from "react-bootstrap";
-import { addLogEntry, Log, LogEntry, useGetLog } from "../../store/Log";
+import { addLogEntry, Log, LogEntry, getLog } from "../../store/Log";
 import store from "../../store/store";
 import {
   CHECKBOX,
@@ -85,7 +85,7 @@ export const CsvModal: FC<CsvModalProps> = ({
   );
 
   // get log
-  const log: Log = useGetLog(logID);
+  const log: Log = getLog(store.getState(), logID);
 
   return (
     <Modal id="port-data-modal" show={show} onHide={onHide}>

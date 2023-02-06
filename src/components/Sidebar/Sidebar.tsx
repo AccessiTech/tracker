@@ -4,7 +4,7 @@ import { Button, Offcanvas } from "react-bootstrap";
 
 import store from "../../store/store";
 import { authenticate, deauthenticate, getSession } from "../../store/Session";
-import { useGetLogs } from "../../store/Log";
+import { getLogs } from "../../store/Log";
 import { getDataSync } from "../../store/DataSync";
 
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
@@ -44,7 +44,7 @@ export const Sidebar: FC<SidebarProps> = ({
   const [showAbout, setShowAbout] = useState(false) as any;
 
   const dataSyncState = getDataSync(store.getState());
-  const logs = useGetLogs();
+  const logs = getLogs(store.getState());
 
   useEffect(() => {
     setAuthenticated(isAuthenticated);

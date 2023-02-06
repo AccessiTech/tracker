@@ -5,7 +5,6 @@ import Container from "react-bootstrap/Container";
 
 import store from "../../store/store";
 import {
-  useGetLog,
   updateLog,
   removeLog,
   removeLogField,
@@ -175,7 +174,7 @@ export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   const { id, field: fid } = useParams() as { id: string; field: string };
 
   // Get log from store
-  const log: Log = useGetLog(id as string);
+  const log: Log = getLog(store.getState(), id);
 
   // If log is not found, redirect to home
   if (!log || id !== log.id || !log.fields) {

@@ -15,7 +15,7 @@ import {
   LogField,
   removeLog,
   REMOVE_LOG_ACTION,
-  useGetLogsArray,
+  getLogsArray,
 } from "../../store/Log";
 import { v4 as uuidv4 } from "uuid";
 
@@ -134,7 +134,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
   const [newLogId, setNewLogId] = React.useState(EMPTY);
   const [newLogName, setNewLogName] = React.useState(EMPTY);
   const [syncLog, setSyncLog] = React.useState(false);
-  const logs = useGetLogsArray();
+  const logs = getLogsArray(store.getState());
 
   if (
     newLogId !== EMPTY &&
