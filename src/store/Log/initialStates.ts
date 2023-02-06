@@ -13,6 +13,14 @@ export const initialCRUDState: CrudState = {
   updatedAt: "",
 };
 
+export interface LogEntriesState {
+  [entryId: string]: LogEntry;
+}
+
+export interface LogFieldsState {
+  [fieldId: string]: LogFields;
+}
+
 /**
  * Initial state for a log in the store
  * @typedef {Object} Log
@@ -27,8 +35,8 @@ export interface Log extends CrudState {
   name: string;
   user?: string;
   labelOption?: "date" | "text" | string;
-  fields: { [fieldId: string]: LogFields };
-  entries: { [entryId: string]: LogEntry };
+  fields: LogFieldStates;
+  entries: LogEntriesState;
   deletedFields: string[];
   deletedEntries: string[];
   sort?: string;

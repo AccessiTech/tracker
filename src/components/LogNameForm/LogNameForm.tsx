@@ -4,12 +4,13 @@ import * as yup from "yup";
 import { Form, Button, InputGroup } from "react-bootstrap";
 
 import { Log } from "../../store/Log";
-import { useAuthenticated } from "../../store/Session";
-import { useDataSync } from "../../store/DataSync";
+import { getAuthenticated } from "../../store/Session";
+import { getDataSync } from "../../store/DataSync";
 
 import { OnUpdateLogParams } from "../../containers/Edit";
 
 import { EMPTY, PRIMARY, SAVE, SUBMIT, TEXT, TEXT_DANGER } from "../../strings";
+import store from "../../store/store";
 
 export const NAME = "name";
 
@@ -44,8 +45,8 @@ export const LogNameForm: FC<LogNameFormProps> = ({
   const initialValues = {
     name: log.name || EMPTY,
   } as LogNameFormValues;
-  const authenticated = useAuthenticated();
-  const dataSyncState = useDataSync();
+  const authenticated = getAuthenticated(store.getState());
+  const dataSyncState = getDataSync(store.getState());
   return (
     <Formik
       initialValues={initialValues}

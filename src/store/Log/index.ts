@@ -25,10 +25,14 @@ export {
   REMOVE_LOG_FIELD_ACTION,
   UPDATE_LOG_FIELD_ACTION,
 
-  // Getters
+  // Selectors
   getLog,
+  getLogs,
+  getLogsArray,
   getLogEntries,
+  getLogEntriesArray,
   getLogFields,
+  getLogFieldsArray,
   getLogEntry,
   getLogField,
 } from "./reducer";
@@ -68,6 +72,8 @@ export {
 } from "./initialStates";
 
 export type {
+  LogFieldsState,
+  LogEntriesState,
   CrudState,
   Log,
   FieldValue,

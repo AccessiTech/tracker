@@ -5,7 +5,6 @@ import Container from "react-bootstrap/Container";
 
 import store from "../../store/store";
 import {
-  useGetLog,
   updateLog,
   removeLog,
   removeLogField,
@@ -14,7 +13,7 @@ import {
   REMOVE_LOG_ACTION,
   getLog,
 } from "../../store/Log";
-import { DataSyncState, removeGoogleDriveLogSheet, useDataSync } from "../../store/DataSync";
+import { DataSyncState, removeGoogleDriveLogSheet, getDataSync } from "../../store/DataSync";
 
 import { syncLogSheet } from "../../services/DataSync";
 import { SyncLogSheetResponse } from "../../services/DataSync";
@@ -54,7 +53,7 @@ import {
   SUBMIT,
   VIEW_LOG,
 } from "../../strings";
-import { useAuthenticated } from "../../store/Session";
+import { getAuthenticated } from "../../store/Session";
 
 export const EDIT_HEADER = "Edit: ";
 export const LOG_FIELDS = "Log Fields";
@@ -168,14 +167,14 @@ export interface EditProps {
 
 export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
-  const authenticated = useAuthenticated();
-  const dataSyncState = useDataSync();
+  const authenticated = getAuthenticated(store.getState());
+  const dataSyncState = getDataSync(store.getState());
 
   // Get Log and Field ids from URL
   const { id, field: fid } = useParams() as { id: string; field: string };
 
   // Get log from store
-  const log: Log = useGetLog(id as string);
+  const log: Log = getLog(store.getState(), id);
 
   // If log is not found, redirect to home
   if (!log || id !== log.id || !log.fields) {

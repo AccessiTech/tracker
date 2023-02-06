@@ -15,7 +15,6 @@ import { Header } from "../../components/Header";
 
 import store from "../../store/store";
 import {
-  useGetLog,
   removeLogEntry,
   Log as LogType,
   LogEntry,
@@ -52,9 +51,9 @@ import {
 import { SetToast } from "../../components/Toaster";
 import { entryFilter, LogEntryFilter } from "../../components/LogEntryFilter";
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
-import { DataSyncState, useDataSync } from "../../store/DataSync";
+import { DataSyncState, getDataSync } from "../../store/DataSync";
 import { handleError, updateLocalLog } from "../../components/DataSync";
-import { useAuthenticated } from "../../store/Session";
+import { getAuthenticated } from "../../store/Session";
 
 // Display strings
 export const ENTRIES_HEADER = "Entries ";
@@ -107,12 +106,12 @@ export interface LogProps {
 
 export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
-  const authenticated = useAuthenticated();
-  const dataSyncState = useDataSync();
+  const authenticated = getAuthenticated(store.getState());
+  const dataSyncState = getDataSync(store.getState());
 
   // Get log from store
   const { id } = useParams() as { id: string };
-  const log: LogType = useGetLog(id);
+  const log: LogType = getLog(store.getState(), id);
   const { name, fields, labelOption, sort, order } = log || {};
 
   // Set and sidebar states
