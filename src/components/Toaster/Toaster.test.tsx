@@ -126,3 +126,23 @@ test("renders and then closes the toast on timeout", () => {
     expect(queryByRole("alert")).not.toBeInTheDocument();
   }, 3000);
 });
+
+test("does not render an empty toast", () => {
+  const props: ToasterProps = {
+    toast: {},
+    setToast: jest.fn(),
+  };
+  const { queryByRole } = render(<Toaster {...props} />);
+  expect(queryByRole("alert")).not.toBeInTheDocument();
+});
+
+test("does not render a toast with no content", () => {
+  const props: ToasterProps = {
+    toast: {
+      status: "success",
+    },
+    setToast: jest.fn(),
+  };
+  const { queryByRole } = render(<Toaster {...props} />);
+  expect(queryByRole("alert")).not.toBeInTheDocument();
+});
