@@ -15,6 +15,13 @@ export {
   useSessionExpiresAt,
   useSessionAutoRefresh,
 
+  // Selectors
+  getSession,
+  getAuthenticated,
+  getSessionAutoRefresh,
+  getSessionData,
+  getSessionExpiresAt,
+
   // Strings
   AUTHENTICATE,
   DEAUTHENTICATE,

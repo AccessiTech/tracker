@@ -3,9 +3,9 @@ import { FC, ReactElement } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
 
 import store from "../../store/store";
-import { authenticate, deauthenticate, useSession } from "../../store/Session";
-import { useGetLogs } from "../../store/Log";
-import { useDataSync } from "../../store/DataSync";
+import { authenticate, deauthenticate, getSession } from "../../store/Session";
+import { getLogs } from "../../store/Log";
+import { getDataSync } from "../../store/DataSync";
 
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
 import { clearLogoutTimer, TokenResponse, setLogoutTimer  } from "../../services/GoogleApi";
@@ -36,15 +36,15 @@ export const Sidebar: FC<SidebarProps> = ({
   showSidebar,
   toggleSidebar,
 }): ReactElement => {
-  const session = useSession();
+  const session = getSession(store.getState());
   const { authenticated: isAuthenticated, data } = session;
 
   const [authenticated, setAuthenticated] = useState(isAuthenticated);
   // const [rememberMe, setRememberMe] = useState(autoRefresh);
   const [showAbout, setShowAbout] = useState(false) as any;
 
-  const dataSyncState = useDataSync();
-  const logs = useGetLogs();
+  const dataSyncState = getDataSync(store.getState());
+  const logs = getLogs(store.getState());
 
   useEffect(() => {
     setAuthenticated(isAuthenticated);

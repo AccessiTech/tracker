@@ -3,8 +3,12 @@ import { useSelector } from "react-redux";
 
 export const sessionSliceName = "session";
 
+export interface SessionData {
+  [key: string]: any;
+}
+
 export interface SessionState {
-  data: { [key: string]: any };
+  data: SessionData;
   authenticated: boolean;
   expiresAt: number;
   autoRefresh: boolean;
@@ -75,4 +79,26 @@ export const useSessionExpiresAt = (): number => {
 export const useSessionAutoRefresh = (): boolean => {
   const session = useSession();
   return session.autoRefresh;
+};
+
+// Selectors
+
+export const getSession = (state: any): SessionState => {
+  return state[sessionSliceName];
+};
+
+export const getAuthenticated = (state: any): boolean => {
+  return getSession(state).authenticated;
+};
+
+export const getSessionData = (state: any): SessionData | undefined => {
+  return getSession(state).data;
+};
+
+export const getSessionExpiresAt = (state: any): number => {
+  return getSession(state).expiresAt;
+};
+
+export const getSessionAutoRefresh = (state: any): boolean => {
+  return getSession(state).autoRefresh;
 };

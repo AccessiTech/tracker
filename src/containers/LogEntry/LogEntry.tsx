@@ -9,17 +9,16 @@ import {
   addLogEntry,
   ADD_LOG_ENTRY_ACTION,
   FieldValue,
-  getLog,
   Log,
   LogEntry as LogEntryType,
   LogFields,
   updateLogEntry,
   UPDATE_LOG_ENTRY_ACTION,
-  useGetLog,
-  useGetLogEntry,
+  getLog,
+  getLogEntry,
 } from "../../store/Log";
-import { DataSyncState, useDataSync } from "../../store/DataSync";
-import { useAuthenticated } from "../../store/Session";
+import { DataSyncState, getDataSync } from "../../store/DataSync";
+import { getAuthenticated } from "../../store/Session";
 
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
 
@@ -140,16 +139,16 @@ export const LogEntry: FC<LogEntryProps> = ({
   setToast,
 }): ReactElement | null => {
   const navigate = useNavigate();
-  const authenticated = useAuthenticated();
-  const dataSyncState = useDataSync();
+  const authenticated = getAuthenticated(store.getState());
+  const dataSyncState = getDataSync(store.getState());
 
   // Get log and entry from store
   const { id: logId, entry: entryId } = useParams() as {
     id: string;
     entry: string;
   };
-  const log: Log = useGetLog(logId);
-  const entry: LogEntryType = useGetLogEntry(logId, entryId);
+  const log: Log = getLog(store.getState(), logId);
+  const entry: LogEntryType = getLogEntry(store.getState(),logId, entryId);
   const { name, fields, labelOption } = log || {};
   const logFields: LogFields[] = Object.values(fields || {});
 

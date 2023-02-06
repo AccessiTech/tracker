@@ -15,7 +15,7 @@ import {
   LogField,
   removeLog,
   REMOVE_LOG_ACTION,
-  useGetLogsArray,
+  getLogsArray,
 } from "../../store/Log";
 import { v4 as uuidv4 } from "uuid";
 
@@ -49,8 +49,8 @@ import {
 } from "../../strings";
 import { SetToast } from "../../components/Toaster";
 import { parseCSV } from "../../utils";
-import { useAuthenticated } from "../../store/Session";
-import { addGoogleDriveLogSheet, DataSyncState, getLogSheets, LogSheet, useDataSync } from "../../store/DataSync";
+import { getAuthenticated } from "../../store/Session";
+import { addGoogleDriveLogSheet, DataSyncState, getLogSheets, LogSheet, getDataSync } from "../../store/DataSync";
 import { initNewLogSheet, setLogSheetIds } from "../../services/DataSync";
 import { handleError } from "../../components/DataSync";
 
@@ -120,8 +120,8 @@ export interface HomeProps {
 
 export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
-  const authenticated = useAuthenticated()
-  const dataSyncState = useDataSync();
+  const authenticated = getAuthenticated(store.getState())
+  const dataSyncState = getDataSync(store.getState());
 
   const isNewLogModalOpen = window.location.hash === "#/new";
   const [showSidebar, setShowSidebar] = React.useState(false);
@@ -134,7 +134,7 @@ export const Home: FC<HomeProps> = ({ setToast }): ReactElement => {
   const [newLogId, setNewLogId] = React.useState(EMPTY);
   const [newLogName, setNewLogName] = React.useState(EMPTY);
   const [syncLog, setSyncLog] = React.useState(false);
-  const logs = useGetLogsArray();
+  const logs = getLogsArray(store.getState());
 
   if (
     newLogId !== EMPTY &&
