@@ -18,7 +18,7 @@ import {
   useGetLog,
   useGetLogEntry,
 } from "../../store/Log";
-import { DataSyncState, useDataSync } from "../../store/DataSync";
+import { DataSyncState, getDataSync } from "../../store/DataSync";
 import { getAuthenticated } from "../../store/Session";
 
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
@@ -140,8 +140,8 @@ export const LogEntry: FC<LogEntryProps> = ({
   setToast,
 }): ReactElement | null => {
   const navigate = useNavigate();
-  const dataSyncState = useDataSync();
   const authenticated = getAuthenticated(store.getState());
+  const dataSyncState = getDataSync(store.getState());
 
   // Get log and entry from store
   const { id: logId, entry: entryId } = useParams() as {

@@ -27,7 +27,7 @@ import {
   setSyncId,
   // SyncFrequency,
   SyncSettings,
-  useDataSync,
+  getDataSync,
 } from "../../store/DataSync";
 
 import {
@@ -122,7 +122,7 @@ export const DataSyncModal: FC<DataSyncModalProps> = ({
   setShowModal,
   onError,
 }): ReactElement => {
-  const { googleDrive, syncId, syncEnabled, syncSettings } = useDataSync();
+  const { googleDrive, syncId, syncEnabled, syncSettings } = getDataSync(store.getState());
   const { folderId, logSheetId, logSheets } = googleDrive;
   const _activeTab = syncEnabled
     ? Object.keys(logSheets).length

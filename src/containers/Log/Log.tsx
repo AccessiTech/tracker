@@ -52,7 +52,7 @@ import {
 import { SetToast } from "../../components/Toaster";
 import { entryFilter, LogEntryFilter } from "../../components/LogEntryFilter";
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
-import { DataSyncState, useDataSync } from "../../store/DataSync";
+import { DataSyncState, getDataSync } from "../../store/DataSync";
 import { handleError, updateLocalLog } from "../../components/DataSync";
 import { getAuthenticated } from "../../store/Session";
 
@@ -107,8 +107,8 @@ export interface LogProps {
 
 export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
-  const dataSyncState = useDataSync();
   const authenticated = getAuthenticated(store.getState());
+  const dataSyncState = getDataSync(store.getState());
 
   // Get log from store
   const { id } = useParams() as { id: string };

@@ -14,7 +14,7 @@ import {
   REMOVE_LOG_ACTION,
   getLog,
 } from "../../store/Log";
-import { DataSyncState, removeGoogleDriveLogSheet, useDataSync } from "../../store/DataSync";
+import { DataSyncState, removeGoogleDriveLogSheet, getDataSync } from "../../store/DataSync";
 
 import { syncLogSheet } from "../../services/DataSync";
 import { SyncLogSheetResponse } from "../../services/DataSync";
@@ -168,8 +168,8 @@ export interface EditProps {
 
 export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
-  const dataSyncState = useDataSync();
   const authenticated = getAuthenticated(store.getState());
+  const dataSyncState = getDataSync(store.getState());
 
   // Get Log and Field ids from URL
   const { id, field: fid } = useParams() as { id: string; field: string };

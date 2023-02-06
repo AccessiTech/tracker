@@ -5,7 +5,7 @@ import { Button, Offcanvas } from "react-bootstrap";
 import store from "../../store/store";
 import { authenticate, deauthenticate, getSession } from "../../store/Session";
 import { useGetLogs } from "../../store/Log";
-import { useDataSync } from "../../store/DataSync";
+import { getDataSync } from "../../store/DataSync";
 
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
 import { clearLogoutTimer, TokenResponse, setLogoutTimer  } from "../../services/GoogleApi";
@@ -43,7 +43,7 @@ export const Sidebar: FC<SidebarProps> = ({
   // const [rememberMe, setRememberMe] = useState(autoRefresh);
   const [showAbout, setShowAbout] = useState(false) as any;
 
-  const dataSyncState = useDataSync();
+  const dataSyncState = getDataSync(store.getState());
   const logs = useGetLogs();
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { InputGroup, Form, Button } from "react-bootstrap";
 import { Log, LogFields } from "../../store/Log";
 import { getAuthenticated } from "../../store/Session";
 import { OnUpdateLogParams } from "../../containers/Edit";
-import { useDataSync } from "../../store/DataSync";
+import { getDataSync } from "../../store/DataSync";
 import {
   DATE,
   DATE_LABEL,
@@ -36,8 +36,8 @@ export const EditLabelForm: FC<EditLabelFormProps> = ({
     labelOption: log.labelOption || DATE,
   } as Log & { [key: string]: string };
   const logFields: LogFields[] = Object.values(fields || {});
-  const dataSyncState = useDataSync();
   const authenticated = getAuthenticated(store.getState());
+  const dataSyncState = getDataSync(store.getState());
   return (
     <Formik
       initialValues={initialValues}

@@ -25,7 +25,7 @@ import { EditFieldSelect } from "./EditFieldSelect";
 import { EditFieldBoolean } from "./EditFieldBoolean";
 
 import { SetToast } from "../Toaster";
-import { DataSyncState, useDataSync } from "../../store/DataSync";
+import { DataSyncState, getDataSync } from "../../store/DataSync";
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
 import { handleError, updateLocalLog } from "../DataSync";
 
@@ -142,8 +142,8 @@ export const EditFieldForm: FC<EditFieldFormProps> = ({
   resetModal,
   setToast,
 }): ReactElement => {
-  const dataSyncState = useDataSync();
   const authenticated = getAuthenticated(store.getState());
+  const dataSyncState = getDataSync(store.getState());
   const fieldState: EditFieldFormValues = fieldId
     ? log.fields[fieldId]
     : { ...initialTextFieldState, name: EMPTY };
