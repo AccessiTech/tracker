@@ -54,7 +54,7 @@ import { entryFilter, LogEntryFilter } from "../../components/LogEntryFilter";
 import { syncLogSheet, SyncLogSheetResponse } from "../../services/DataSync";
 import { DataSyncState, useDataSync } from "../../store/DataSync";
 import { handleError, updateLocalLog } from "../../components/DataSync";
-import { useAuthenticated } from "../../store/Session";
+import { getAuthenticated } from "../../store/Session";
 
 // Display strings
 export const ENTRIES_HEADER = "Entries ";
@@ -107,8 +107,8 @@ export interface LogProps {
 
 export const Log: FC<LogProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
-  const authenticated = useAuthenticated();
   const dataSyncState = useDataSync();
+  const authenticated = getAuthenticated(store.getState());
 
   // Get log from store
   const { id } = useParams() as { id: string };

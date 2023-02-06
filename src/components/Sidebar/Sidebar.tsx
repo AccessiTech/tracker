@@ -3,7 +3,7 @@ import { FC, ReactElement } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
 
 import store from "../../store/store";
-import { authenticate, deauthenticate, useSession } from "../../store/Session";
+import { authenticate, deauthenticate, getSession } from "../../store/Session";
 import { useGetLogs } from "../../store/Log";
 import { useDataSync } from "../../store/DataSync";
 
@@ -36,7 +36,7 @@ export const Sidebar: FC<SidebarProps> = ({
   showSidebar,
   toggleSidebar,
 }): ReactElement => {
-  const session = useSession();
+  const session = getSession(store.getState());
   const { authenticated: isAuthenticated, data } = session;
 
   const [authenticated, setAuthenticated] = useState(isAuthenticated);

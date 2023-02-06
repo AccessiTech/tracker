@@ -3,8 +3,8 @@ import { Formik } from "formik";
 import { InputGroup, Form, Button, Row, Col } from "react-bootstrap";
 
 import { Log, LogFields } from "../../store/Log";
-import { useAuthenticated } from "../../store/Session";
 import { useDataSync } from "../../store/DataSync";
+import { getAuthenticated } from "../../store/Session";
 
 import { OnUpdateLogParams } from "../../containers/Edit";
 
@@ -20,6 +20,7 @@ import {
   SORT_DESC,
   SUBMIT,
 } from "../../strings";
+import store from "../../store/store";
 
 export const SORT_BY = "Sort By";
 export const SORT_ORDER = "Sort Order";
@@ -40,8 +41,8 @@ export const EditSortForm: FC<EditSortFormProps> = ({
     order: log.order || SORT_DESC,
   } as Log & { [key: string]: string };
   const logFields: LogFields[] = Object.values(fields || {});
-  const authenticated = useAuthenticated();
   const dataSyncState = useDataSync();
+  const authenticated = getAuthenticated(store.getState());
   return (
     <Formik
       initialValues={initialValues}

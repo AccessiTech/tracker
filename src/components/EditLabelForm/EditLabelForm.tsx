@@ -2,7 +2,7 @@ import React, { FC, ReactElement } from "react";
 import { Formik } from "formik";
 import { InputGroup, Form, Button } from "react-bootstrap";
 import { Log, LogFields } from "../../store/Log";
-import { useAuthenticated } from "../../store/Session";
+import { getAuthenticated } from "../../store/Session";
 import { OnUpdateLogParams } from "../../containers/Edit";
 import { useDataSync } from "../../store/DataSync";
 import {
@@ -18,6 +18,7 @@ import {
   TEXT,
   TEXT_LABEL,
 } from "../../strings";
+import store from "../../store/store";
 
 export const ENTRY_LABEL = "Entry Label";
 
@@ -35,8 +36,8 @@ export const EditLabelForm: FC<EditLabelFormProps> = ({
     labelOption: log.labelOption || DATE,
   } as Log & { [key: string]: string };
   const logFields: LogFields[] = Object.values(fields || {});
-  const authenticated = useAuthenticated();
   const dataSyncState = useDataSync();
+  const authenticated = getAuthenticated(store.getState());
   return (
     <Formik
       initialValues={initialValues}

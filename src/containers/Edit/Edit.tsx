@@ -54,7 +54,7 @@ import {
   SUBMIT,
   VIEW_LOG,
 } from "../../strings";
-import { useAuthenticated } from "../../store/Session";
+import { getAuthenticated } from "../../store/Session";
 
 export const EDIT_HEADER = "Edit: ";
 export const LOG_FIELDS = "Log Fields";
@@ -168,8 +168,8 @@ export interface EditProps {
 
 export const Edit: FC<EditProps> = ({ setToast }): ReactElement => {
   const navigate = useNavigate();
-  const authenticated = useAuthenticated();
   const dataSyncState = useDataSync();
+  const authenticated = getAuthenticated(store.getState());
 
   // Get Log and Field ids from URL
   const { id, field: fid } = useParams() as { id: string; field: string };
