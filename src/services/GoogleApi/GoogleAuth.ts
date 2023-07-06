@@ -54,45 +54,66 @@ export interface InitGoogleAuthParams {
   decrypt?: (encrypted: string) => string;
 }
 
+export const onGoogleScriptLoad = (
+  {  clientId, decrypt }: InitGoogleAuthParams,
+  callback?: EmptyFunction
+) => {
+  google = (window as any).google;
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: decrypt ? decrypt(clientId) : clientId,
+    scope: SCOPES.join(" "),
+    callback: "",
+  });
+  googleInitialized = true;
+  if (callback) {
+    callback();
+  }
+};
+
+export const gapiLoadClient = async (
+  { apiKey, clientId, discoveryDocs, decrypt }: InitGoogleAuthParams,
+  callback?: EmptyFunction
+) => {
+  await gapi.client.init({
+    apiKey: decrypt ? decrypt(apiKey) : apiKey,
+    discoveryDocs,
+  });
+  apiInitialized = true;
+
+  if (!googleInitialized) {
+    const googleScript = document.createElement("script");
+    googleScript.id = "googleScript";
+    googleScript.src = "https://accounts.google.com/gsi/client";
+    googleScript.onload = () => {
+      onGoogleScriptLoad(
+        { apiKey, clientId, discoveryDocs, decrypt },
+        callback
+      );
+    };
+    document.body.appendChild(googleScript);
+  }
+};
+
+export const onGapiScriptLoad = (
+  initGoogleAuthParams: InitGoogleAuthParams,
+  callback?: EmptyFunction
+) => {
+  gapi = (window as any).gapi;
+  gapi.load("client", () =>
+    gapiLoadClient(initGoogleAuthParams, callback as EmptyFunction)
+  );
+};
+
 export const initGoogleAuth = (
-  {
-    apiKey,
-    clientId,
-    discoveryDocs = DISCOVERY_DOCS,
-    decrypt,
-  }: InitGoogleAuthParams,
+  initGoogleAuthParams: InitGoogleAuthParams,
   callback?: EmptyFunction
 ): void => {
   if (!apiInitialized) {
     const gapiScript = document.createElement("script");
+    gapiScript.id = "gapiScript";
     gapiScript.src = "https://apis.google.com/js/api.js";
     gapiScript.onload = () => {
-      gapi = (window as any).gapi;
-      gapi.load("client", async () => {
-        await gapi.client.init({
-          apiKey: decrypt ? decrypt(apiKey) : apiKey,
-          discoveryDocs,
-        });
-        apiInitialized = true;
-
-        if (!googleInitialized) {
-          const googleScript = document.createElement("script");
-          googleScript.src = "https://accounts.google.com/gsi/client";
-          googleScript.onload = () => {
-            google = (window as any).google;
-            tokenClient = google.accounts.oauth2.initTokenClient({
-              client_id: decrypt ? decrypt(clientId) : clientId,
-              scope: SCOPES.join(" "),
-              callback: "",
-            });
-            googleInitialized = true;
-            if (callback) {
-              callback();
-            }
-          };
-          document.body.appendChild(googleScript);
-        }
-      });
+      onGapiScriptLoad(initGoogleAuthParams, callback);
     };
     document.body.appendChild(gapiScript);
   }
@@ -143,31 +164,30 @@ export interface LogoutTimerProps {
 
 export const setLogoutTimer = ({
   logoutCallback,
-  autoRefresh = false,
+  // autoRefresh = false,
   timeout,
-}: // sessionData,
-LogoutTimerProps) => {
+}: LogoutTimerProps) => {
   // auto refresh doesn't work yet!
-  if (autoRefresh) {
-    logoutTimeout = setTimeout(async () => {
-      clearLogoutTimer();
-      // const refreshResponse = await fetchRefreshToken(sessionData.refresh_token);
-      const refreshResponse = {} as any; // todo: refresh token
-      if (refreshResponse.error) {
-        logoutCallback();
-      } else {
-        setLogoutTimer({
-          logoutCallback,
-          autoRefresh,
-          timeout: refreshResponse.expires_in * 1000 - 1000 * 60 * 5,
-          sessionData: refreshResponse,
-        });
-      }
-    }, timeout - 1000 * 60 * 5);
-  } else {
+  // if (autoRefresh) {
+  //   logoutTimeout = setTimeout(async () => {
+  //     clearLogoutTimer();
+  //     // const refreshResponse = await fetchRefreshToken(sessionData.refresh_token);
+  //     const refreshResponse = {} as any; // todo: refresh token
+  //     if (refreshResponse.error) {
+  //       logoutCallback();
+  //     } else {
+  //       setLogoutTimer({
+  //         logoutCallback,
+  //         autoRefresh,
+  //         timeout: refreshResponse.expires_in * 1000 - 1000 * 60 * 5,
+  //         sessionData: refreshResponse,
+  //       });
+  //     }
+  //   }, timeout - 1000 * 60 * 5);
+  // } else {
     logoutTimeout = setTimeout(() => {
       logoutCallback();
       clearLogoutTimer();
     }, timeout);
-  }
+  // }
 };
