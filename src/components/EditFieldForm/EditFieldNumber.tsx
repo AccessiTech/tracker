@@ -25,10 +25,10 @@ export const DEFAULT_VALUE = "defaultValue";
 export const DEFAULT_VALUE_LABEL = "Default Value";
 export const DEFAULT_VALUE_TEXT = "This is the default value of the field";
 
-export interface EditFieldTextProps
+export interface EditFieldNumberProps
   extends FormikProps<{ [key: string]: string }> {}
 
-export const EditFieldNumber: FC<EditFieldTextProps> = (
+export const EditFieldNumber: FC<EditFieldNumberProps> = (
   formikProps
 ): ReactElement => {
   const { values, errors, touched, handleChange, handleBlur } = formikProps;
