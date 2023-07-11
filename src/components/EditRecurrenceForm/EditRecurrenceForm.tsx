@@ -52,6 +52,7 @@ export const EditRecurrenceForm: FC<EditRecurrenceFormProps> = ({
             <Form.Group className="edit__form_row">
               <Form.Label>{"Enabled"}</Form.Label>
               <Form.Check
+                id="edit__recurrence__enabled__switch"
                 type={SWITCH}
                 name="enabled"
                 onChange={formikProps.handleChange}
@@ -130,6 +131,7 @@ export const EditRecurrenceForm: FC<EditRecurrenceFormProps> = ({
                 {RESET_STRING}
               </Button>
               <Button
+                id="edit__recurrence__save_btn"
                 variant={PRIMARY}
                 type={SUBMIT}
                 disabled={areButtonsDisabled}
