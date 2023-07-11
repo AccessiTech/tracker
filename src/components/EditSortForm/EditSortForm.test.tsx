@@ -19,6 +19,18 @@ describe("EditSortForm", () => {
     render(<EditSortForm {...props} />);
   });
 
+  test("renders correctly when no fields", () => {
+    const props: EditSortFormProps = {
+      log: { ...log, fields: {} } as any,
+      onSubmit: jest.fn(),
+    };
+    render(<EditSortForm {...props} />);
+    const sort = document.querySelector("select[name='sort']");
+    expect(sort).toBeInTheDocument();
+    const sortOptions = sort?.querySelectorAll("option");
+    expect(sortOptions?.length).toBe(1);
+  });
+
   test("renders correctly", () => {
     const props: EditSortFormProps = {
       log: { ...log } as any,
@@ -28,6 +40,10 @@ describe("EditSortForm", () => {
     expect(getByText("Sort By")).toBeInTheDocument();
     expect(getByText("Date Created")).toBeInTheDocument();
     expect(getAllByText("Save")).toHaveLength(2);
+    const sort = document.querySelector("select[name='sort']");
+    expect(sort).toBeInTheDocument();
+    const sortOptions = sort?.querySelectorAll("option");
+    expect(sortOptions?.length).toBe(Object.keys(log.fields).length + 1);
   });
 
   test("calls onSubmit when submitted", async () => {
