@@ -3,7 +3,7 @@ import React from "react";
 import { render } from "@testing-library/react";
 import { FieldDate } from "./FieldDate";
 import { initialDateFieldState, DateLogField } from "../../store/Log";
-import { mockFormikProps } from "../../setupTests";
+import { mockFormikProps } from "../../testUtils";
 
 const field = {
   ...initialDateFieldState,

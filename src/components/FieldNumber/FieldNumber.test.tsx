@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import { mockFormikProps } from "../../setupTests";
+import { mockFormikProps } from "../../testUtils";
 import { FieldNumber } from "./FieldNumber";
 import { initialNumberFieldState, NumberLogField } from "../../store/Log";
 

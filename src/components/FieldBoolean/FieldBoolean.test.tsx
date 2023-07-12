@@ -2,7 +2,7 @@ import React from "react";
 import { render } from "@testing-library/react";
 import { FieldBoolean } from "./FieldBoolean";
 import { initialBooleanFieldState, BooleanLogField } from "../../store/Log";
-import { mockFormikProps } from "../../setupTests";
+import { mockFormikProps } from "../../testUtils";
 
 const field = {
   ...initialBooleanFieldState,

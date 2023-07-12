@@ -77,6 +77,7 @@ export const EditSortForm: FC<EditSortFormProps> = ({
                     </optgroup>
                   </Form.Control>
                   <Button
+                    id="sort-submit"
                     variant={PRIMARY}
                     type={SUBMIT}
                     disabled={formikProps.values.sort === log.sort}
@@ -98,6 +99,7 @@ export const EditSortForm: FC<EditSortFormProps> = ({
                     <option value={SORT_ASC}>Reversed</option>
                   </Form.Control>
                   <Button
+                    id="sort-order-submit"
                     variant={PRIMARY}
                     type={SUBMIT}
                     disabled={formikProps.values.order === log.order}

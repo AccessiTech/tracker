@@ -79,7 +79,6 @@ export const entryFilter = (
   const entryValue = filter[0] === DATE_CREATED
     ? entry.createdAt
     : entry.values[field];
-  console.log(filter, entryValue)
 
   if (!entryValue) return false;
 
@@ -110,24 +109,36 @@ export const getIsFieldEmpty = (
   filterBy: string,
   field: LogFields
 ): boolean => {
-  if (filterBy === EMPTY) return true;
-  if (filterBy === DATE_CREATED) return false;
-  return typeof field === "undefined";
+  if (filterBy === EMPTY) {
+    return true;
+  } else if (filterBy === DATE_CREATED) {
+    return false;
+  } else {
+    return typeof field === "undefined";
+  }
 };
 
 export const getIsFieldDate = (filterBy: string, field: LogFields): boolean => {
-  if (getIsFieldEmpty(filterBy, field)) return false;
-  if (filterBy === DATE_CREATED) return true;
-  return field.type === DATE;
+  if (getIsFieldEmpty(filterBy, field)) {
+    return false;
+  } else if (filterBy === DATE_CREATED) {
+    return true;
+  } else {
+    return field.type === DATE;
+  }
 };
 
 export const getIsFieldNumber = (
   filterBy: string,
   field: LogFields
 ): boolean => {
-  if (getIsFieldEmpty(filterBy, field)) return false;
-  if (filterBy === DATE_CREATED) return false;
-  return field.type === NUMBER;
+  if (getIsFieldEmpty(filterBy, field)) {
+    return false;
+  } else if (filterBy === DATE_CREATED) {
+    return false;
+  } else {
+    return field.type === NUMBER;
+  }
 };
 
 export const LogEntryFilter: React.FC<LogEntryFilterProps> = ({

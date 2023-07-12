@@ -3,7 +3,7 @@ import React from "react";
 import { render } from "@testing-library/react";
 import { FieldSelect } from "./FieldSelect";
 import { initialSelectFieldState, SelectLogField } from "../../store/Log";
-import { mockFormikProps } from "../../setupTests";
+import { mockFormikProps } from "../../testUtils";
 
 const field = {
   ...initialSelectFieldState,

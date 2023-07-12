@@ -22,7 +22,7 @@ export const Toaster: FC<ToasterProps> = ({
     (hasContext && toasts[context].status) || status || SUCCESS;
   const toastBody = hasContext ? toasts[context].content : content || context;
 
-  return (
+  return !toastBody ? (<></>) : (
     <ToastContainer>
       <Toast
         bg={toastStatus}

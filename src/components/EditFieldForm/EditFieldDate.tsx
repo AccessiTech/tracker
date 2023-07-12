@@ -5,10 +5,10 @@ import { FormikProps } from "formik";
 
 export const DARTE_FIELD_OPTIONS = "Date Field Options";
 
-export interface EditFieldTextProps
+export interface EditFieldDateProps
   extends FormikProps<{ [key: string]: string }> {}
 
-export const EditFieldDate: FC<EditFieldTextProps> = (props): ReactElement => {
+export const EditFieldDate: FC<EditFieldDateProps> = (props): ReactElement => {
   return (
     <>
       <hr />

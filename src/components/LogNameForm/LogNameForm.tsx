@@ -64,7 +64,7 @@ export const LogNameForm: FC<LogNameFormProps> = ({
         handleSubmit,
       }) => (
         <Form onSubmit={handleSubmit} className="edit__form_row">
-          <Form.Label>{LOG_NAME}</Form.Label>
+          <Form.Label htmlFor={"logNameFormInput"}>{LOG_NAME}</Form.Label>
           <InputGroup>
             <Form.Control
               type={TEXT}
@@ -72,6 +72,7 @@ export const LogNameForm: FC<LogNameFormProps> = ({
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.name}
+              id="logNameFormInput"
             />
             <Button
               variant={PRIMARY}
